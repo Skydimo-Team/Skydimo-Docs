@@ -1,0 +1,22 @@
+{
+  "version.label": {
+    "message": "当前版本",
+    "description": "当前版本的标签"
+  },
+  "sidebar.guideSidebar.category.Getting Started": {
+    "message": "快速入门",
+    "description": "guideSidebar 侧边栏 Getting Started 分类的标签"
+  },
+  "sidebar.apiSidebar.category.Commands": {
+    "message": "命令",
+    "description": "apiSidebar 侧边栏 Commands 分类的标签"
+  },
+  "sidebar.pluginsSidebar.category.Plugin Types": {
+    "message": "插件类型",
+    "description": "pluginsSidebar 侧边栏 Plugin Types 分类的标签"
+  },
+  "sidebar.pluginsSidebar.category.API Reference": {
+    "message": "API 参考",
+    "description": "pluginsSidebar 侧边栏 API Reference 分类的标签"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "title": {
+    "message": "Skydimo",
+    "description": "导航栏标题"
+  },
+  "item.label.Guide": {
+    "message": "指南",
+    "description": "标签为 Guide 的导航栏项"
+  },
+  "item.label.API": {
+    "message": "API",
+    "description": "标签为 API 的导航栏项"
+  },
+  "item.label.Plugins": {
+    "message": "插件",
+    "description": "标签为 Plugins 的导航栏项"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "标签为 GitHub 的导航栏项"
+  }
+}

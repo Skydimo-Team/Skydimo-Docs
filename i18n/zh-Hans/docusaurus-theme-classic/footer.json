@@ -1,0 +1,26 @@
+{
+  "link[href=https://github.com/nicezayrick/skydimo].label": {
+    "message": "GitHub",
+    "description": "页脚 GitHub 链接"
+  },
+  "link[href=/docs/intro].label": {
+    "message": "快速入门",
+    "description": "页脚 Getting Started 链接"
+  },
+  "link[href=/docs/api/websocket-overview].label": {
+    "message": "WebSocket API",
+    "description": "页脚 WebSocket API 链接"
+  },
+  "link[href=/docs/plugins/overview].label": {
+    "message": "插件开发",
+    "description": "页脚 Plugin Development 链接"
+  },
+  "title.Documentation": {
+    "message": "文档",
+    "description": "页脚文档分组标题"
+  },
+  "title.Community": {
+    "message": "社区",
+    "description": "页脚社区分组标题"
+  }
+}
