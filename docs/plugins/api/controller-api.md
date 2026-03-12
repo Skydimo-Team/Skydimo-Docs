@@ -90,19 +90,36 @@ Set a thumbnail URL for the device. Pass `nil` to clear.
 
 ### device:set_device_type(str)
 
-Set the device type. Common values:
+Set the device type. Accepts a case-insensitive string (hyphens are treated as underscores).
 
-| Value | Description |
-|-------|-------------|
-| `"light"` | Generic LED light |
-| `"keyboard"` | Keyboard |
-| `"mouse"` | Mouse |
-| `"gpu"` | Graphics card |
-| `"motherboard"` | Motherboard |
-| `"dram"` | RAM module |
-| `"headset"` | Headset |
-| `"fan"` | Fan |
-| `"aio"` | AIO cooler |
+| Value | Aliases | Description |
+|-------|---------|-------------|
+| `"light"` | | Generic LED light |
+| `"led_strip"` | `"ledstrip"` | LED strip |
+| `"keyboard"` | | Keyboard |
+| `"keypad"` | | Keypad |
+| `"mouse"` | | Mouse |
+| `"mouse_mat"` | `"mousemat"` | Mouse mat |
+| `"headset"` | | Headset |
+| `"headset_stand"` | `"headsetstand"` | Headset stand |
+| `"gamepad"` | | Gamepad |
+| `"motherboard"` | | Motherboard |
+| `"gpu"` | | Graphics card |
+| `"dram"` | `"memory"` | RAM module |
+| `"cooler"` | | Cooler (fan / AIO) |
+| `"case"` | | PC case |
+| `"speaker"` | | Speaker |
+| `"microphone"` | | Microphone |
+| `"monitor"` | | Monitor |
+| `"laptop"` | | Laptop |
+| `"storage"` | | Storage device |
+| `"accessory"` | | Accessory |
+| `"virtual"` | | Virtual device |
+| `"unknown"` | | Unknown type |
+
+```lua
+device:set_device_type("keyboard")
+```
 
 ---
 
@@ -155,11 +172,12 @@ Send data to the device.
 ```lua
 device:write(packet_string)           -- Write full string
 device:write(packet_string, length)   -- Write first N bytes
+device:write({0x01, 0x02, 0xFF})      -- Write from byte table
 ```
 
 **Returns**: `true` on success.
 
-Accepts a Lua string (binary data).
+Accepts a Lua string (binary data), a table of byte values (0–255), or `nil` (no-op).
 
 ### device:read(length)
 

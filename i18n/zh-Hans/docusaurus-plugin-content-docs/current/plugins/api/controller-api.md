@@ -90,19 +90,36 @@ device:set_serial_id("ABC123")
 
 ### device:set_device_type(str)
 
-设置设备类型。常用值：
+设置设备类型。接受不区分大小写的字符串（连字符等同于下划线）。
 
-| 值 | 说明 |
-|----|------|
-| `"light"` | 通用 LED 灯光 |
-| `"keyboard"` | 键盘 |
-| `"mouse"` | 鼠标 |
-| `"gpu"` | 显卡 |
-| `"motherboard"` | 主板 |
-| `"dram"` | 内存模块 |
-| `"headset"` | 耳机 |
-| `"fan"` | 风扇 |
-| `"aio"` | 一体式水冷 |
+| 值 | 别名 | 说明 |
+|----|------|------|
+| `"light"` | | 通用 LED 灯光 |
+| `"led_strip"` | `"ledstrip"` | LED 灯带 |
+| `"keyboard"` | | 键盘 |
+| `"keypad"` | | 小键盘 |
+| `"mouse"` | | 鼠标 |
+| `"mouse_mat"` | `"mousemat"` | 鼠标垫 |
+| `"headset"` | | 耳机 |
+| `"headset_stand"` | `"headsetstand"` | 耳机支架 |
+| `"gamepad"` | | 游戏手柄 |
+| `"motherboard"` | | 主板 |
+| `"gpu"` | | 显卡 |
+| `"dram"` | `"memory"` | 内存模块 |
+| `"cooler"` | | 散热器（风扇 / 水冷） |
+| `"case"` | | 机箱 |
+| `"speaker"` | | 音箱 |
+| `"microphone"` | | 麦克风 |
+| `"monitor"` | | 显示器 |
+| `"laptop"` | | 笔记本电脑 |
+| `"storage"` | | 存储设备 |
+| `"accessory"` | | 配件 |
+| `"virtual"` | | 虚拟设备 |
+| `"unknown"` | | 未知类型 |
+
+```lua
+device:set_device_type("keyboard")
+```
 
 ---
 
@@ -155,11 +172,12 @@ device:add_output({
 ```lua
 device:write(packet_string)           -- 写入完整字符串
 device:write(packet_string, length)   -- 写入前 N 个字节
+device:write({0x01, 0x02, 0xFF})      -- 从字节表写入
 ```
 
 **返回**：成功时为 `true`。
 
-接受 Lua 字符串（二进制数据）。
+接受 Lua 字符串（二进制数据）、字节值表（0–255）或 `nil`（无操作）。
 
 ### device:read(length)
 

@@ -99,6 +99,36 @@ Dismisses a persistent notification.
 }
 ```
 
+---
+
+### led-locks-changed
+
+Fired when extension plugins lock or unlock LEDs.
+
+```json
+{
+  "event": "led-locks-changed",
+  "data": { ... }
+}
+```
+
+Query the full lock state via the [`get_led_locks`](commands/devices#get_led_locks) command.
+
+---
+
+### ext-page-message:{extId}
+
+Fired when an extension’s embedded HTML page sends a message to Core. The event name includes the extension ID.
+
+```json
+{
+  "event": "ext-page-message:openrgb",
+  "data": { ... }
+}
+```
+
+Extension Lua code receives this via the `on_page_message(data)` callback.
+
 ## Subscribing to Events
 
 Events are automatically pushed to all authenticated WebSocket connections. No explicit subscription is required.
