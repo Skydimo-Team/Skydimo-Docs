@@ -1,47 +1,45 @@
 ---
 sidebar_position: 1
+slug: /intro
 ---
 
-# Tutorial Intro
+# Welcome to Skydimo
 
-Let's discover **Docusaurus in less than 5 minutes**.
+**Skydimo** is a cross-platform RGB lighting control application built with Rust and React. It provides a powerful **Lua plugin system** for extending device support and creating custom lighting effects.
 
-## Getting Started
+## Who is this for?
 
-Get started by **creating a new site**.
+- **End users** wanting to learn about Skydimo's features and how to use it
+- **Plugin developers** looking to create custom effects, hardware drivers, or integrations
+- **Third-party integrators** building on the WebSocket API
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+## Architecture at a Glance
 
-### What you'll need
+Skydimo uses a **Core + UI** separation:
 
-- [Node.js](https://nodejs.org/en/download/) version 20.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
-
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
+```
+┌─────────────────────────────────┐
+│  Core Process (core.exe)        │
+│  ├─ Lighting Manager            │
+│  ├─ Lua Plugin Runtime          │
+│  ├─ WebSocket JSON-RPC Server   │
+│  └─ System Tray                 │
+└──────────┬──────────────────────┘
+           │ WebSocket JSON-RPC 2.0
+┌──────────▼──────────────────────┐
+│  UI (Tauri / Browser)           │
+│  └─ React SPA                   │
+└─────────────────────────────────┘
 ```
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+- **Core** is a standalone Rust executable handling device management, the lighting engine, plugin runtime, and WebSocket server.
+- **UI** is a React frontend communicating with Core via WebSocket JSON-RPC 2.0. It can run inside Tauri or in a standard browser.
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+## Quick Links
 
-## Start your site
-
-Run the development server:
-
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+| Topic | Description |
+|-------|-------------|
+| [Architecture](guide/architecture) | Detailed system architecture |
+| [Features](guide/features) | Software capabilities overview |
+| [WebSocket API](api/websocket-overview) | JSON-RPC 2.0 protocol reference |
+| [Plugin Development](plugins/overview) | Build your own plugins |

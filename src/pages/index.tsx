@@ -21,7 +21,13 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-            Docusaurus Tutorial - 5min ⏱️
+            Get Started
+          </Link>
+          <Link
+            className="button button--outline button--secondary button--lg"
+            to="/docs/plugins/overview"
+            style={{marginLeft: '1rem'}}>
+            Plugin Development
           </Link>
         </div>
       </div>
@@ -30,11 +36,10 @@ function HomepageHeader() {
 }
 
 export default function Home(): ReactNode {
-  const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      title="Skydimo - RGB Lighting Control"
+      description="Cross-platform RGB lighting control application with Lua plugin system">
       <HomepageHeader />
       <main>
         <HomepageFeatures />
