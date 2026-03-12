@@ -116,7 +116,7 @@ Query the full lock state via the [`get_led_locks`](commands/devices#get_led_loc
 
 ---
 
-### ext-page-message:{extId}
+### ext-page-message:\{extId\}
 
 Fired when an extension’s embedded HTML page sends a message to Core. The event name includes the extension ID.
 
