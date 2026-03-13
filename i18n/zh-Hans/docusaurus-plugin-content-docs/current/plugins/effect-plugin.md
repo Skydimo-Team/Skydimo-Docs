@@ -160,11 +160,32 @@ local data = audio.capture(32)  -- 32 个频率区间
 
 灯效可使用当前播放媒体的专辑封面。需要 `"media:album_art"` 权限。
 
+:::note
+当前仅支持 **Windows**。在其他平台上返回 `nil`。
+:::
+
+```json title="manifest.json"
+{
+  "permissions": ["media:album_art"]
+}
+```
+
 ```lua
 local art = media.album_art(64, 64)
 -- 返回: {width, height, pixels=[0xRRGGBB, ...]}
--- 无媒体播放时返回 nil
+-- 无媒体播放或当前曲目无封面时返回 nil
+
+if art then
+    local pixel = art.pixels[1]
+    local r = (pixel >> 16) & 0xFF
+    local g = (pixel >> 8) & 0xFF
+    local b = pixel & 0xFF
+end
 ```
+
+:::tip
+Core 在内部缓存专辑封面，仅在切换曲目时更新。在 `on_tick` 中每帧调用 `media.album_art()` 是安全的，不引入任何 I/O 开销 —— 无需自行缓存。
+:::
 
 ## 参数类型实战
 

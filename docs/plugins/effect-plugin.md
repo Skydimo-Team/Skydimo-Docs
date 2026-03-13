@@ -160,11 +160,32 @@ local data = audio.capture(32)  -- 32 frequency bins
 
 Effects can use the currently playing media's album art. Requires the `"media:album_art"` permission.
 
+:::note
+Currently only supported on **Windows**. Returns `nil` on other platforms.
+:::
+
+```json title="manifest.json"
+{
+  "permissions": ["media:album_art"]
+}
+```
+
 ```lua
 local art = media.album_art(64, 64)
 -- Returns: {width, height, pixels=[0xRRGGBB, ...]}
--- Returns nil if no media is playing
+-- Returns nil if no media is playing or track has no cover
+
+if art then
+    local pixel = art.pixels[1]
+    local r = (pixel >> 16) & 0xFF
+    local g = (pixel >> 8) & 0xFF
+    local b = pixel & 0xFF
+end
 ```
+
+:::tip
+Core caches the album art internally and updates it only when the track changes. Calling `media.album_art()` in every `on_tick` frame is safe and introduces no I/O overhead — no need to cache it yourself.
+:::
 
 ## Parameter Types in Action
 

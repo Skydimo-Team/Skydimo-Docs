@@ -145,19 +145,83 @@ end
 
 Available when the plugin has the `"media:album_art"` permission.
 
+:::note Platform Support
+Currently only supported on **Windows** (via the Windows Media Session API). On other platforms, `media.album_art()` will always return `nil`.
+:::
+
 ### media.album_art(width, height)
 
-Get the currently playing media's album art.
+Get the currently playing media's album art, downscaled to the specified resolution.
+
+- `width` — Desired output width in pixels
+- `height` — Desired output height in pixels
 
 ```lua
 local art = media.album_art(64, 64)
 if art then
-    -- art.width, art.height
-    -- art.pixels: flat array of 0xRRGGBB values
+    -- art.width: number — actual width of the returned image
+    -- art.height: number — actual height of the returned image
+    -- art.pixels: flat array of 0xRRGGBB integer values (row-major)
+
+    -- Example: extract RGB components from the first pixel
+    local pixel = art.pixels[1]
+    local r = (pixel >> 16) & 0xFF
+    local g = (pixel >> 8) & 0xFF
+    local b = pixel & 0xFF
 end
 ```
 
-**Returns**: A table with `width`, `height`, and `pixels`, or `nil` if no media is playing.
+**Returns**: A table with `width`, `height`, and `pixels` fields, or `nil` if no media is playing or the current track has no album art.
+
+**Pixel format**: Each element in the `pixels` array is a 24-bit integer packed as `0xRRGGBB`. The array is in **row-major** order (left-to-right, top-to-bottom), with a total length of `width × height`.
+
+:::tip Performance — Cached & Event-Driven
+Core caches the album art internally and updates it **only when the media track changes** (event-driven, not polling). Calling `media.album_art()` every frame in `on_tick` introduces **no I/O overhead** — it simply reads from the cached image and rescales to the requested resolution. You do not need to implement your own caching.
+:::
+
+### Typical Usage Patterns
+
+**Direct pixel mapping (ambient lighting):**
+
+```lua
+function plugin.on_tick(elapsed, buffer, width, height)
+    local art = media.album_art(width, height)
+    if not art then return end
+
+    local led = 1
+    for y = 0, height - 1 do
+        for x = 0, width - 1 do
+            if led > buffer:len() then return end
+            local pixel = art.pixels[y * art.width + x + 1]
+            local r = (pixel >> 16) & 0xFF
+            local g = (pixel >> 8) & 0xFF
+            local b = pixel & 0xFF
+            buffer:set(led, r, g, b)
+            led = led + 1
+        end
+    end
+end
+```
+
+**Dominant color extraction (for color palette effects):**
+
+```lua
+-- Request a small image for fast color averaging
+local art = media.album_art(8, 8)
+if art then
+    local sum_r, sum_g, sum_b = 0, 0, 0
+    local count = #art.pixels
+    for i = 1, count do
+        local p = art.pixels[i]
+        sum_r = sum_r + ((p >> 16) & 0xFF)
+        sum_g = sum_g + ((p >> 8) & 0xFF)
+        sum_b = sum_b + (p & 0xFF)
+    end
+    local avg_r = math.floor(sum_r / count)
+    local avg_g = math.floor(sum_g / count)
+    local avg_b = math.floor(sum_b / count)
+end
+```
 
 ---
 

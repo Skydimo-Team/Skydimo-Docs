@@ -145,19 +145,83 @@ end
 
 插件拥有 `"media:album_art"` 权限时可用。
 
+:::note 平台支持
+当前仅支持 **Windows**（通过 Windows Media Session API）。在其他平台上，`media.album_art()` 始终返回 `nil`。
+:::
+
 ### media.album_art(width, height)
 
-获取当前播放媒体的专辑封面。
+获取当前播放媒体的专辑封面，缩放至指定分辨率。
+
+- `width` —— 期望输出宽度（像素）
+- `height` —— 期望输出高度（像素）
 
 ```lua
 local art = media.album_art(64, 64)
 if art then
-    -- art.width, art.height
-    -- art.pixels: 0xRRGGBB 值的平铺数组
+    -- art.width: number —— 返回图像的实际宽度
+    -- art.height: number —— 返回图像的实际高度
+    -- art.pixels: 0xRRGGBB 整数值的平铺数组（行优先排列）
+
+    -- 示例：提取第一个像素的 RGB 分量
+    local pixel = art.pixels[1]
+    local r = (pixel >> 16) & 0xFF
+    local g = (pixel >> 8) & 0xFF
+    local b = pixel & 0xFF
 end
 ```
 
-**返回**：包含 `width`、`height` 和 `pixels` 的表格，无媒体播放时为 `nil`。
+**返回**：包含 `width`、`height` 和 `pixels` 字段的表格，无媒体播放或当前曲目无封面时为 `nil`。
+
+**像素格式**：`pixels` 数组中的每个元素是打包为 `0xRRGGBB` 的 24-bit 整数。数组采用**行优先**顺序（从左到右，从上到下），总长度为 `width × height`。
+
+:::tip 性能 —— 缓存 & 事件驱动
+Core 在内部缓存专辑封面，**仅在切换曲目时**更新（事件驱动而非轮询）。在 `on_tick` 中每帧调用 `media.album_art()` **不引入任何 I/O 开销** —— 它只是读取缓存图像并缩放至请求的分辨率。无需自行实现缓存。
+:::
+
+### 典型用法示例
+
+**直接像素映射（环境灯光）：**
+
+```lua
+function plugin.on_tick(elapsed, buffer, width, height)
+    local art = media.album_art(width, height)
+    if not art then return end
+
+    local led = 1
+    for y = 0, height - 1 do
+        for x = 0, width - 1 do
+            if led > buffer:len() then return end
+            local pixel = art.pixels[y * art.width + x + 1]
+            local r = (pixel >> 16) & 0xFF
+            local g = (pixel >> 8) & 0xFF
+            local b = pixel & 0xFF
+            buffer:set(led, r, g, b)
+            led = led + 1
+        end
+    end
+end
+```
+
+**主色提取（用于调色板灯效）：**
+
+```lua
+-- 请求小尺寸图像以加速颜色均值计算
+local art = media.album_art(8, 8)
+if art then
+    local sum_r, sum_g, sum_b = 0, 0, 0
+    local count = #art.pixels
+    for i = 1, count do
+        local p = art.pixels[i]
+        sum_r = sum_r + ((p >> 16) & 0xFF)
+        sum_g = sum_g + ((p >> 8) & 0xFF)
+        sum_b = sum_b + (p & 0xFF)
+    end
+    local avg_r = math.floor(sum_r / count)
+    local avg_g = math.floor(sum_g / count)
+    local avg_b = math.floor(sum_b / count)
+end
+```
 
 ---
 
