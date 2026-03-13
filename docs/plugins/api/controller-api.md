@@ -18,15 +18,15 @@ local port = device:controller_port()  -- e.g. "COM3", "/dev/ttyUSB0"
 
 ### device:manufacturer()
 
-Returns the manufacturer name (set via `set_manufacturer`).
+Returns the manufacturer name. Pre-populated from the USB descriptor if available; can be overridden via `set_manufacturer()`.
 
 ### device:model()
 
-Returns the device model (set via `set_model`).
+Returns the device model. Pre-populated from the USB product string if available; can be overridden via `set_model()`.
 
 ### device:serial_id()
 
-Returns the USB serial number (set via `set_serial_id`).
+Returns the USB serial number (set via `set_serial_id`, pre-populated for HID devices).
 
 ### device:device_id()
 
@@ -58,7 +58,7 @@ These methods can only be called during `on_validate()` and `on_init()`.
 
 ### device:set_manufacturer(str)
 
-Set the device manufacturer name.
+Override the device manufacturer name. If not called, the value reported by the USB descriptor is used.
 
 ```lua
 device:set_manufacturer("Skydimo")
@@ -66,7 +66,7 @@ device:set_manufacturer("Skydimo")
 
 ### device:set_model(str)
 
-Set the device model name.
+Override the device model name. If not called, the USB product string is used (serial) or the USB product string if available (HID).
 
 ```lua
 device:set_model("LED Strip v2")

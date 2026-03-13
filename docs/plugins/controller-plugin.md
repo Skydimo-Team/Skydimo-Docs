@@ -46,6 +46,10 @@ Called to determine if this plugin can drive the detected device. Use this to se
 
 **Must return**: `true` to claim the device, `false` to pass to the next plugin.
 
+:::tip
+Core pre-populates `manufacturer` and `model` from the USB descriptor. You only need to call `set_manufacturer()` / `set_model()` if you want to override the default values (e.g. with a more specific model name obtained from a handshake).
+:::
+
 ```lua
 function plugin.on_validate()
     -- Send identification command
@@ -53,7 +57,7 @@ function plugin.on_validate()
     local response = device:read(8, 500)  -- 8 bytes, 500ms timeout
 
     if response and #response >= 4 then
-        device:set_manufacturer("MyBrand")
+        -- Override model with device-reported name (optional)
         device:set_model("LED Strip v2")
         return true
     end
@@ -172,6 +176,7 @@ function plugin.on_validate()
     local model_len = string.byte(resp, 3)
     local model = resp:sub(4, 3 + model_len)
 
+    -- Override with device-reported values (optional, USB descriptor is used as default)
     device:set_manufacturer("MyCompany")
     device:set_model(model)
     device:set_device_type("light")
