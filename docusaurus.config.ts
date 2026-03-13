@@ -73,11 +73,6 @@ const config: Config = {
           type: 'localeDropdown',
           position: 'right',
         },
-        {
-          href: 'https://github.com/nicezayrick/skydimo',
-          label: 'GitHub',
-          position: 'right',
-        },
       ],
     },
     footer: {
@@ -91,12 +86,7 @@ const config: Config = {
             { label: 'Plugin Development', to: '/docs/plugins/overview' },
           ],
         },
-        {
-          title: 'Community',
-          items: [
-            { label: 'GitHub', href: 'https://github.com/nicezayrick/skydimo' },
-          ],
-        },
+
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Skydimo. Built with Docusaurus.`,
     },
