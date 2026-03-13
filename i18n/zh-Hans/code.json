@@ -1,0 +1,46 @@
+{
+  "homepage.tagline": {
+    "message": "跨平台 RGB 灯光控制",
+    "description": "主页副标题"
+  },
+  "homepage.title": {
+    "message": "Skydimo - RGB 灯光控制",
+    "description": "主页 <title> 标签"
+  },
+  "homepage.description": {
+    "message": "跨平台 RGB 灯光控制应用，支持 Lua 插件系统",
+    "description": "主页 meta 描述"
+  },
+  "homepage.hero.getStarted": {
+    "message": "快速开始",
+    "description": "主页英雄区域 - 开始按钮"
+  },
+  "homepage.hero.pluginDevelopment": {
+    "message": "插件开发",
+    "description": "主页英雄区域 - 插件开发按钮"
+  },
+  "homepage.feature.lua.title": {
+    "message": "Lua 插件系统",
+    "description": "功能特性 - Lua 插件系统标题"
+  },
+  "homepage.feature.lua.description": {
+    "message": "通过 Lua 插件扩展 Skydimo — 无需重新编译即可创建自定义灯效、硬件驱动和后台服务。插件系统支持控制器、灯效和扩展程序。",
+    "description": "功能特性 - Lua 插件系统描述"
+  },
+  "homepage.feature.crossPlatform.title": {
+    "message": "跨平台支持",
+    "description": "功能特性 - 跨平台标题"
+  },
+  "homepage.feature.crossPlatform.description": {
+    "message": "支持 Windows、macOS 和 Linux。Rust 核心在各平台上提供原生性能，支持 USB 热插拔检测、屏幕捕获和音频分析。",
+    "description": "功能特性 - 跨平台描述"
+  },
+  "homepage.feature.websocket.title": {
+    "message": "WebSocket API",
+    "description": "功能特性 - WebSocket API 标题"
+  },
+  "homepage.feature.websocket.description": {
+    "message": "通过 WebSocket 提供完整的 JSON-RPC 2.0 API。可构建自定义 UI、与智能家居集成，或通过任意编程语言以编程方式控制灯光效果。",
+    "description": "功能特性 - WebSocket API 描述"
+  }
+}

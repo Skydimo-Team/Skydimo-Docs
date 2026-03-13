@@ -22,5 +22,9 @@
   "title.Community": {
     "message": "社区",
     "description": "页脚社区分组标题"
+  },
+  "footer.copyright": {
+    "message": "版权所有 © 2026 Skydimo，使用 Docusaurus 构建。",
+    "description": "页脚版权文本"
   }
 }
