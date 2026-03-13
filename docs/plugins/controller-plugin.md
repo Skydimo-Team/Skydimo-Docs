@@ -24,7 +24,7 @@ plugins/controller.my_device/
 ## Lifecycle
 
 ```
-Device Discovery (USB VID/PID match)
+Device Discovery (USB VID/PID + interface_number match)
   → Open device handle (serial/HID)
   → plugin.on_validate()       ← Claim or reject device
     → Failed? Close handle, try next plugin
@@ -33,6 +33,10 @@ Device Discovery (USB VID/PID match)
   → [Render loop] plugin.on_tick(dt)  ← Send colors to hardware
   → plugin.on_shutdown()        ← Cleanup
 ```
+
+:::info
+For HID devices, if `interface_number` is specified in `manifest.json` match rules, Core filters candidates **before** opening a device handle. Only the matching HID interface is offered to `on_validate()`, eliminating the need for manual interface checks in Lua code.
+:::
 
 ## Lifecycle Hooks
 
@@ -225,6 +229,40 @@ local data = device:hid_get_feature_report(length, report_id, selector)
 
 -- List HID interfaces
 local interfaces = device:hid_interfaces()
+```
+
+### Interface Filtering
+
+Many HID devices expose multiple interfaces (e.g. keyboard input on interface 0, lighting control on interface 2). You can declare the target interface in `manifest.json` so Core handles the filtering:
+
+```json
+"rules": [
+  { "vid": "0x1532", "pid": "0x024E", "interface_number": 3 }
+]
+```
+
+This is the recommended approach. If you omit `interface_number`, all interfaces matching VID/PID will be offered to your plugin, and you can filter manually in `on_validate()` using `device:hid_interfaces()`.
+
+### Multi-Interface Communication
+
+Some devices require communication across multiple HID interfaces (e.g. control commands on interface 0, LED streaming on interface 1). In this case:
+
+1. Set `interface_number` to your **primary** (control) interface in the match rule.
+2. Use `device:hid_interfaces()` at runtime to discover companion interfaces.
+3. Use the `selector` parameter in `hid_send_feature_report()` / `hid_get_feature_report()` to target a specific companion interface.
+
+```lua
+function plugin.on_validate()
+  -- Primary interface is already opened by Core (matched via manifest)
+  -- Find companion interface for LED streaming
+  local interfaces = device:hid_interfaces()
+  for _, info in ipairs(interfaces) do
+    if info.interface_number == 1 and not info.primary then
+      state.led_selector = info.port_key
+    end
+  end
+  return true
+end
 ```
 
 See the [Controller API Reference](api/controller-api) for the complete `device` object API.

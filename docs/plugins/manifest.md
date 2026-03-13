@@ -60,8 +60,13 @@ Defines how the controller matches hardware devices.
 |-------|------|-------------|
 | `vid` | string | USB Vendor ID in hex (e.g. `"0x1A86"`) |
 | `pid` | string | USB Product ID in hex (e.g. `"0x7523"`) |
+| `interface_number` | number | HID interface number (HID only, optional). When specified, Core only matches the HID collection on that interface. Omit to match all interfaces. |
 
-### Example (Controller)
+:::tip
+For HID devices that expose multiple interfaces (e.g. keyboards with separate input and lighting endpoints), specifying `interface_number` in the match rule lets Core filter at the matching stage — **before** `on_validate()` is called — avoiding unnecessary device handle opens and duplicate claims.
+:::
+
+### Example (Serial Controller)
 
 ```json
 {
@@ -78,6 +83,28 @@ Defines how the controller matches hardware devices.
     "timeout_ms": 200,
     "rules": [
       { "vid": "0x1A86", "pid": "0x7523" }
+    ]
+  }
+}
+```
+
+### Example (HID Controller with interface_number)
+
+```json
+{
+  "id": "my_hid_keyboard",
+  "version": "1.0.0",
+  "name": "My HID Keyboard",
+  "type": "controller",
+  "language": "lua",
+  "entry": "main.lua",
+  "permissions": ["hid:read", "hid:write", "log"],
+  "match": {
+    "protocol": "hid",
+    "timeout_ms": 200,
+    "rules": [
+      { "vid": "0x1532", "pid": "0x024E", "interface_number": 3 },
+      { "vid": "0x1532", "pid": "0x0293", "interface_number": 2 }
     ]
   }
 }

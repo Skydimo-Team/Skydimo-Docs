@@ -24,7 +24,7 @@ plugins/controller.my_device/
 ## 生命周期
 
 ```
-设备发现（USB VID/PID 匹配）
+设备发现（USB VID/PID + interface_number 匹配）
   → 打开设备句柄（serial/HID）
   → plugin.on_validate()       ← 认领或拒绝设备
     → 失败? 关闭句柄，尝试下一个插件
@@ -33,6 +33,10 @@ plugins/controller.my_device/
   → [渲染循环] plugin.on_tick(dt)  ← 向硬件发送颜色
   → plugin.on_shutdown()        ← 清理
 ```
+
+:::info
+对于 HID 设备，如果在 `manifest.json` 匹配规则中指定了 `interface_number`，Core 会在**打开设备句柄之前**过滤候选设备。只有匹配的 HID 接口才会被传递给 `on_validate()`，无需在 Lua 代码中手动检查接口号。
+:::
 
 ## 生命周期钩子
 
@@ -225,6 +229,40 @@ local data = device:hid_get_feature_report(length, report_id, selector)
 
 -- 列出 HID 接口
 local interfaces = device:hid_interfaces()
+```
+
+### 接口过滤
+
+许多 HID 设备暴露多个接口（例如键盘输入在接口 0，灯光控制在接口 2）。你可以在 `manifest.json` 中声明目标接口号，让 Core 自动过滤：
+
+```json
+"rules": [
+  { "vid": "0x1532", "pid": "0x024E", "interface_number": 3 }
+]
+```
+
+这是推荐做法。如果省略 `interface_number`，所有匹配 VID/PID 的接口都会被提供给你的插件，你可以在 `on_validate()` 中使用 `device:hid_interfaces()` 手动过滤。
+
+### 多接口通信
+
+某些设备需要跨多个 HID 接口通信（例如接口 0 发送控制命令，接口 1 发送 LED 数据流）。这种情况下：
+
+1. 在匹配规则中将 `interface_number` 设为你的**主控制接口**。
+2. 运行时通过 `device:hid_interfaces()` 发现伴随接口。
+3. 使用 `hid_send_feature_report()` / `hid_get_feature_report()` 的 `selector` 参数指定目标伴随接口。
+
+```lua
+function plugin.on_validate()
+  -- 主接口已由 Core 打开（通过 manifest 匹配）
+  -- 查找用于 LED 流的伴随接口
+  local interfaces = device:hid_interfaces()
+  for _, info in ipairs(interfaces) do
+    if info.interface_number == 1 and not info.primary then
+      state.led_selector = info.port_key
+    end
+  end
+  return true
+end
 ```
 
 完整 `device` 对象 API 请参阅[控制器 API 参考](api/controller-api)。

@@ -60,8 +60,13 @@ sidebar_position: 3
 |------|------|------|
 | `vid` | string | USB 供应商 ID，十六进制（如 `"0x1A86"`） |
 | `pid` | string | USB 产品 ID，十六进制（如 `"0x7523"`） |
+| `interface_number` | number | HID 接口号（仅 HID，可选）。指定后 Core 仅匹配该接口号的 HID 集合。省略则匹配所有接口。 |
 
-### 示例（控制器）
+:::tip
+对于暴露多个接口的 HID 设备（例如键盘的输入端点和灯控端点分别在不同接口上），在匹配规则中指定 `interface_number` 可以让 Core 在匹配阶段就完成过滤——**在 `on_validate()` 被调用之前**——避免不必要的设备句柄打开和重复认领。
+:::
+
+### 示例（串口控制器）
 
 ```json
 {
@@ -78,6 +83,28 @@ sidebar_position: 3
     "timeout_ms": 200,
     "rules": [
       { "vid": "0x1A86", "pid": "0x7523" }
+    ]
+  }
+}
+```
+
+### 示例（HID 控制器，带 interface_number）
+
+```json
+{
+  "id": "my_hid_keyboard",
+  "version": "1.0.0",
+  "name": "My HID Keyboard",
+  "type": "controller",
+  "language": "lua",
+  "entry": "main.lua",
+  "permissions": ["hid:read", "hid:write", "log"],
+  "match": {
+    "protocol": "hid",
+    "timeout_ms": 200,
+    "rules": [
+      { "vid": "0x1532", "pid": "0x024E", "interface_number": 3 },
+      { "vid": "0x1532", "pid": "0x0293", "interface_number": 2 }
     ]
   }
 }
