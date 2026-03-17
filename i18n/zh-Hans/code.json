@@ -32,7 +32,7 @@
     "description": "功能特性 - 跨平台标题"
   },
   "homepage.feature.crossPlatform.description": {
-    "message": "支持 Windows、macOS 和 Linux。Rust 核心在各平台上提供原生性能，支持 USB 热插拔检测、屏幕捕获和音频分析。",
+    "message": "支持 Windows、macOS 和 Linux。原生内核在各平台上提供高性能体验，支持 USB 热插拔检测、屏幕捕获和音频分析。",
     "description": "功能特性 - 跨平台描述"
   },
   "homepage.feature.websocket.title": {

@@ -22,7 +22,7 @@ const FeatureList: FeatureItem[] = [
     title: translate({id: 'homepage.feature.crossPlatform.title', message: 'Cross-Platform'}),
     description: (
       <Translate id="homepage.feature.crossPlatform.description">
-        {'Runs on Windows, macOS, and Linux. The Rust core provides native performance with USB hot-plug detection, screen capture, and audio analysis on every platform.'}
+        {'Runs on Windows, macOS, and Linux. The native core provides high performance with USB hot-plug detection, screen capture, and audio analysis on every platform.'}
       </Translate>
     ),
   },

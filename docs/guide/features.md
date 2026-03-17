@@ -58,14 +58,14 @@ See the [WebSocket API Reference](../api/websocket-overview) for details.
 
 | Platform | USB Discovery | Screen Capture | Audio Capture | System Tray |
 |----------|:---:|:---:|:---:|:---:|
-| Windows  | WM_DEVICECHANGE | DXGI / GDI | WASAPI | tao + tray-icon |
-| macOS    | IOKit | CoreGraphics | CoreAudio | tao + tray-icon |
-| Linux    | Netlink | XCap | PulseAudio | tao + tray-icon |
+| Windows  | ✅ | ✅ | ✅ | ✅ |
+| macOS    | ✅ | ✅ | ✅ | ✅ |
+| Linux    | ✅ | ✅ | ✅ | ✅ |
 
 ## UI
 
-- **React + Tauri** — Modern desktop app with native window management
-- **Browser mode** — Also works as a standalone web UI (no Tauri required)
+- **Desktop app** — Native desktop application with system integration
+- **Browser mode** — Also works as a standalone web UI in any modern browser
 - **Dark/Light mode** — Automatic theme detection
 - **Internationalization** — English and Chinese supported (i18next)
 - **Backend-driven UI** — Effect parameters are rendered dynamically from Core metadata

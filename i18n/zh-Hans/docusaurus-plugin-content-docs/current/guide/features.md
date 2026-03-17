@@ -58,14 +58,14 @@ Skydimo 能力概览。
 
 | 平台 | USB 发现 | 屏幕捕获 | 音频捕获 | 系统托盘 |
 |------|:---:|:---:|:---:|:---:|
-| Windows  | WM_DEVICECHANGE | DXGI / GDI | WASAPI | tao + tray-icon |
-| macOS    | IOKit | CoreGraphics | CoreAudio | tao + tray-icon |
-| Linux    | Netlink | XCap | PulseAudio | tao + tray-icon |
+| Windows  | ✅ | ✅ | ✅ | ✅ |
+| macOS    | ✅ | ✅ | ✅ | ✅ |
+| Linux    | ✅ | ✅ | ✅ | ✅ |
 
 ## UI 界面
 
-- **React + Tauri** —— 现代桌面应用，原生窗口管理
-- **浏览器模式** —— 也可作为独立 Web UI 运行（无需 Tauri）
+- **桌面应用** —— 原生桌面应用程序，支持系统集成
+- **浏览器模式** —— 也可作为独立 Web UI 在任意现代浏览器中运行
 - **深色/浅色模式** —— 自动检测系统主题
 - **国际化** —— 支持中文和英文（i18next）
 - **后端驱动 UI** —— 灯效参数根据 Core 元数据动态渲染

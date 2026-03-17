@@ -5,7 +5,7 @@ slug: /intro
 
 # Welcome to Skydimo
 
-**Skydimo** is a cross-platform RGB lighting control application built with Rust and React. It provides a powerful **Lua plugin system** for extending device support and creating custom lighting effects.
+**Skydimo** is a cross-platform RGB lighting control application with a powerful **Lua plugin system** for extending device support and creating custom lighting effects.
 
 ## Who is this for?
 
@@ -27,13 +27,13 @@ Skydimo uses a **Core + UI** separation:
 └──────────┬──────────────────────┘
            │ WebSocket JSON-RPC 2.0
 ┌──────────▼──────────────────────┐
-│  UI (Tauri / Browser)           │
+│  UI (Desktop / Browser)         │
 │  └─ React SPA                   │
 └─────────────────────────────────┘
 ```
 
-- **Core** is a standalone Rust executable handling device management, the lighting engine, plugin runtime, and WebSocket server.
-- **UI** is a React frontend communicating with Core via WebSocket JSON-RPC 2.0. It can run inside Tauri or in a standard browser.
+- **Core** is a standalone native executable handling device management, the lighting engine, plugin runtime, and WebSocket server.
+- **UI** is a React frontend communicating with Core via WebSocket JSON-RPC 2.0. It can run as a desktop app or in a standard browser.
 
 ## Quick Links
 
