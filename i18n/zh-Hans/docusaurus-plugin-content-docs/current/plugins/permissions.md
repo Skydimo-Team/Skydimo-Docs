@@ -37,6 +37,8 @@ sidebar_position: 8
 |------|------|
 | `network:tcp` | 建立 TCP 连接 |
 | `process` | 启动和管理外部进程 |
+| `hardware:hid` | 直接打开并与 HID 设备通信 *（3.0.0-dev.2 起支持）* |
+| `native` | 通过 `require()` 加载原生 C 模块（`.dll`/`.so`） *（3.0.0-dev.2 起支持）* |
 
 ## 声明权限
 
@@ -55,3 +57,5 @@ sidebar_position: 8
 - 网络访问需要显式声明 `network:tcp` 权限
 - 进程启动需要显式声明 `process` 权限
 - 每个插件运行在独立的 Lua 状态中 —— 插件之间无法访问彼此的数据
+- HID 访问需要显式声明 `hardware:hid` 权限；仅扩展插件可用 *（3.0.0-dev.2 起支持）*
+- 原生 C 模块加载需要显式声明 `native` 权限，并使用不安全 Lua VM —— 请谨慎使用 *（3.0.0-dev.2 起支持）*

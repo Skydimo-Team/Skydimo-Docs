@@ -37,6 +37,8 @@ Plugins must declare required permissions in `manifest.json`. Core enforces thes
 |-----------|-------------|
 | `network:tcp` | Open TCP connections |
 | `process` | Spawn and manage external processes |
+| `hardware:hid` | Open and communicate with HID devices directly *(since 3.0.0-dev.2)* |
+| `native` | Load native C modules (`.dll`/`.so`) via `require()` *(since 3.0.0-dev.2)* |
 
 ## Declaring Permissions
 
@@ -55,3 +57,5 @@ Add a `permissions` array to your `manifest.json`:
 - Network access requires explicit `network:tcp` permission
 - Process spawning requires explicit `process` permission
 - Each plugin runs in an isolated Lua state — plugins cannot access each other's data
+- HID access requires explicit `hardware:hid` permission; only available to extension plugins *(since 3.0.0-dev.2)*
+- Native C module loading requires explicit `native` permission and uses an unsafe Lua VM — use with caution *(since 3.0.0-dev.2)*

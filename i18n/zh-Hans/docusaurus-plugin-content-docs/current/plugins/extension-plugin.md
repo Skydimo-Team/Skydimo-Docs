@@ -222,7 +222,78 @@ end
 ext.kill_process(handle)
 ```
 
-## 灯效管理
+## HID 设备访问
+
+> **3.0.0-dev.2 起支持**
+
+扩展可以直接打开并与 HID 设备通信。需要 `"hardware:hid"` 权限。
+
+```lua
+-- 枚举所有已连接的 HID 设备（可按 VID/PID 过滤）
+local devices = ext.hid_enumerate()                    -- 全部设备
+local devices = ext.hid_enumerate(0x1B1C)              -- 按 VID 过滤
+local devices = ext.hid_enumerate(0x1B1C, 0x1B2D)     -- 按 VID + PID 过滤
+
+-- 每项包含:
+-- device.path、device.vid、device.pid、device.serial、
+-- device.manufacturer、device.product、
+-- device.interface_number、device.usage、device.usage_page
+
+-- 按 VID/PID 打开设备（可选序列号）
+local handle = ext.hid_open(0x1B1C, 0x1B2D)
+local handle = ext.hid_open(0x1B1C, 0x1B2D, "SN123456")
+
+-- 或按操作系统设备路径打开
+local handle = ext.hid_open_path(devices[1].path)
+
+-- 写入数据（返回写入字节数）
+local n = ext.hid_write(handle, "\x00\x01\x02\x03")
+
+-- 读取数据
+local data = ext.hid_read(handle, 64)          -- 非阻塞
+local data = ext.hid_read(handle, 64, 1000)    -- 超时 1000ms
+local data = ext.hid_read(handle, 64, -1)      -- 阻塞等待
+
+-- Feature Report
+local n = ext.hid_send_feature_report(handle, "\x00\xff\x01")
+local data = ext.hid_get_feature_report(handle, 64)
+local data = ext.hid_get_feature_report(handle, 64, 0x01)  -- 指定 report ID
+
+-- 关闭
+ext.hid_close(handle)
+```
+
+扩展停止时，所有打开的 HID 句柄会被自动关闭。
+
+## 原生 C 模块
+
+> **3.0.0-dev.2 起支持**
+
+扩展可以加载放置在插件目录中的原生 C 模块（Windows 上为 `.dll`，Linux/macOS 上为 `.so`）。需要 `"native"` 权限。
+
+声明 `native` 权限后：
+- Lua VM 将使用 `unsafe_new()` 创建，以允许加载原生库。
+- 插件目录及其 `lib/` 子目录会被自动添加到 `package.cpath`。
+
+```json title="manifest.json"
+{
+  "permissions": ["native"]
+}
+```
+
+```lua
+-- 从插件目录加载原生模块
+local mylib = require("mylib")       -- 加载 mylib.dll / mylib.so
+local helper = require("lib/helper") -- 加载 lib/helper.dll / lib/helper.so
+
+mylib.do_something()
+```
+
+:::caution
+`native` 权限会绕过 Lua 的沙箱机制。请仅对经过充分审查的可信原生模块使用此权限。分发需要 `native` 权限的插件前，必须进行严格的安全审计。
+:::
+
+
 
 扩展可以查询和控制设备上的灯效：
 

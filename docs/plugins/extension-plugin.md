@@ -222,7 +222,78 @@ end
 ext.kill_process(handle)
 ```
 
-## Effect Management
+## HID Device Access
+
+> **Since 3.0.0-dev.2**
+
+Extensions can open and communicate with HID devices directly. Requires the `"hardware:hid"` permission.
+
+```lua
+-- Enumerate all connected HID devices (optionally filter by VID/PID)
+local devices = ext.hid_enumerate()              -- all devices
+local devices = ext.hid_enumerate(0x1B1C)        -- filter by VID
+local devices = ext.hid_enumerate(0x1B1C, 0x1B2D) -- filter by VID + PID
+
+-- Each entry contains:
+-- device.path, device.vid, device.pid, device.serial,
+-- device.manufacturer, device.product,
+-- device.interface_number, device.usage, device.usage_page
+
+-- Open a device by VID/PID (optionally with serial number)
+local handle = ext.hid_open(0x1B1C, 0x1B2D)
+local handle = ext.hid_open(0x1B1C, 0x1B2D, "SN123456")
+
+-- Or open by OS-specific device path
+local handle = ext.hid_open_path(devices[1].path)
+
+-- Write data (returns bytes written)
+local n = ext.hid_write(handle, "\x00\x01\x02\x03")
+
+-- Read data
+local data = ext.hid_read(handle, 64)          -- non-blocking
+local data = ext.hid_read(handle, 64, 1000)    -- 1000ms timeout
+local data = ext.hid_read(handle, 64, -1)      -- blocking
+
+-- Feature reports
+local n = ext.hid_send_feature_report(handle, "\x00\xff\x01")
+local data = ext.hid_get_feature_report(handle, 64)
+local data = ext.hid_get_feature_report(handle, 64, 0x01) -- with report ID
+
+-- Close
+ext.hid_close(handle)
+```
+
+All open HID handles are automatically closed when the extension stops.
+
+## Native C Modules
+
+> **Since 3.0.0-dev.2**
+
+Extensions can load native C modules (`.dll` on Windows, `.so` on Linux/macOS) placed inside the plugin directory. Requires the `"native"` permission.
+
+When the `native` permission is declared:
+- The Lua VM is created with `unsafe_new()` to allow loading native libraries.
+- The plugin directory and its `lib/` subdirectory are automatically added to `package.cpath`.
+
+```json title="manifest.json"
+{
+  "permissions": ["native"]
+}
+```
+
+```lua
+-- Load a native module from the plugin directory
+local mylib = require("mylib")      -- loads mylib.dll / mylib.so
+local helper = require("lib/helper") -- loads lib/helper.dll / lib/helper.so
+
+mylib.do_something()
+```
+
+:::caution
+The `native` permission bypasses Lua's sandboxing. Only use it with trusted, reviewed native modules. Do not distribute plugins requiring `native` without thorough security auditing.
+:::
+
+
 
 Extensions can query and control effects on devices:
 
