@@ -201,13 +201,129 @@ Each plugin info contains:
 
 ---
 
-## SystemInfoResponse
+## SystemInfo
+
+:::info Version
+The extended format below is available since **3.0.0-dev.2**.
+:::
+
+Returned by `get_system_info`. Contains complete hardware and OS details.
+
+### OsInfo
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `platform` | string | OS name (`"Windows"`, `"macOS"`, `"linux"`) |
+| `version` | string | OS version or product name |
+| `build` | string | OS build number |
+| `arch` | string | CPU architecture (`"x86_64"`, `"aarch64"`, etc.) |
+| `hostname` | string | Machine hostname |
+
+### MotherboardInfo
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `manufacturer` | string | Board manufacturer |
+| `model` | string | Board model name |
+| `product` | string | Board product name |
+| `serialNumber` | string | Board serial number |
+
+### BiosInfo
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `vendor` | string | BIOS vendor |
+| `version` | string | BIOS version |
+| `date` | string | BIOS release date |
+
+### CpuInfo
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Processor model name |
+| `manufacturer` | string | CPU manufacturer |
+| `cores` | number | Physical core count |
+| `threads` | number | Logical thread count |
+| `baseClockMhz` | number | Base clock speed in MHz |
+| `architecture` | string | CPU architecture |
+
+### GpuInfo
+
+`gpu` is an **array** of GPU objects.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | GPU model name |
+| `manufacturer` | string | GPU manufacturer |
+| `driverVersion` | string | Driver version string |
+| `vramMb` | number | Video RAM in MB |
+
+### RamInfo
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `totalMemoryMb` | number | Total physical memory in MB |
+| `modules` | RamModuleInfo[] | Per-DIMM module details |
+
+### RamModuleInfo
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `manufacturer` | string | Module manufacturer |
+| `partNumber` | string | Module part number |
+| `capacityMb` | number | Module capacity in MB |
+| `speedMhz` | number | Module speed in MHz |
+| `formFactor` | string | Form factor (`"DIMM"`, `"SO-DIMM"`, etc.) |
+
+### Full Example
 
 ```json
 {
-  "os_platform": "windows",
-  "os_version": "10.0.22631",
-  "os_build": "22631",
-  "arch": "x86_64"
+  "os": {
+    "platform": "Windows",
+    "version": "Microsoft Windows 11 Pro",
+    "build": "22631",
+    "arch": "x86_64",
+    "hostname": "MY-PC"
+  },
+  "motherboard": {
+    "manufacturer": "ASUSTeK COMPUTER INC.",
+    "model": "ROG STRIX B550-F GAMING",
+    "product": "ROG STRIX B550-F GAMING",
+    "serialNumber": "ABC123456"
+  },
+  "bios": {
+    "vendor": "American Megatrends Inc.",
+    "version": "2803",
+    "date": "12/01/2023"
+  },
+  "cpu": {
+    "name": "AMD Ryzen 9 5900X 12-Core Processor",
+    "manufacturer": "AMD",
+    "cores": 12,
+    "threads": 24,
+    "baseClockMhz": 3700,
+    "architecture": "x64"
+  },
+  "gpu": [
+    {
+      "name": "NVIDIA GeForce RTX 3080",
+      "manufacturer": "NVIDIA",
+      "driverVersion": "537.58",
+      "vramMb": 10240
+    }
+  ],
+  "ram": {
+    "totalMemoryMb": 32768,
+    "modules": [
+      {
+        "manufacturer": "G Skill Intl",
+        "partNumber": "F4-3600C16-16GVKC",
+        "capacityMb": 16384,
+        "speedMhz": 3600,
+        "formFactor": "DIMM"
+      }
+    ]
+  }
 }
 ```

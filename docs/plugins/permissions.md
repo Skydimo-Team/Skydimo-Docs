@@ -13,6 +13,7 @@ Plugins must declare required permissions in `manifest.json`. Core enforces thes
 | Permission | Description |
 |-----------|-------------|
 | `log` | Write to the application log |
+| `system:info` | Access host system hardware information (OS, CPU, GPU, RAM, etc.) *(since 3.0.0-dev.2)* |
 
 ### Controller Plugins
 
@@ -57,5 +58,6 @@ Add a `permissions` array to your `manifest.json`:
 - Network access requires explicit `network:tcp` permission
 - Process spawning requires explicit `process` permission
 - Each plugin runs in an isolated Lua state — plugins cannot access each other's data
+- System info access requires explicit `system:info` permission; available to controller and extension plugins *(since 3.0.0-dev.2)*
 - HID access requires explicit `hardware:hid` permission; only available to extension plugins *(since 3.0.0-dev.2)*
 - Native C module loading requires explicit `native` permission and uses an unsafe Lua VM — use with caution *(since 3.0.0-dev.2)*

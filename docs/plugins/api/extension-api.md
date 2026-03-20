@@ -18,6 +18,66 @@ local config_path = ext.data_dir .. "/config.json"
 
 ---
 
+## System Information
+
+:::info Version
+Available since **3.0.0-dev.2**. Requires the `"system:info"` permission.
+:::
+
+When the plugin declares the `"system:info"` permission, a read-only `ext.system` table is injected containing hardware and OS details.
+
+### ext.system
+
+```lua
+local sys = ext.system
+
+-- OS
+sys.os.platform    -- "Windows" | "macOS" | "linux"
+sys.os.version     -- e.g. "Microsoft Windows 11 Pro"
+sys.os.build       -- e.g. "22631"
+sys.os.arch        -- e.g. "x86_64"
+sys.os.hostname    -- e.g. "MY-PC"
+
+-- Motherboard
+sys.motherboard.manufacturer   -- e.g. "ASUSTeK COMPUTER INC."
+sys.motherboard.model          -- e.g. "ROG STRIX B550-F GAMING"
+sys.motherboard.product        -- same as model
+sys.motherboard.serial_number  -- board serial
+
+-- BIOS
+sys.bios.vendor    -- e.g. "American Megatrends Inc."
+sys.bios.version   -- e.g. "2803"
+sys.bios.date      -- e.g. "12/01/2023"
+
+-- CPU
+sys.cpu.name            -- e.g. "AMD Ryzen 9 5900X 12-Core Processor"
+sys.cpu.manufacturer    -- e.g. "AMD"
+sys.cpu.cores           -- physical core count
+sys.cpu.threads         -- logical thread count
+sys.cpu.base_clock_mhz  -- base clock in MHz
+sys.cpu.architecture    -- e.g. "x64"
+
+-- GPU (array, 1-indexed)
+for i, gpu in ipairs(sys.gpu) do
+    gpu.name              -- e.g. "NVIDIA GeForce RTX 3080"
+    gpu.manufacturer      -- e.g. "NVIDIA"
+    gpu.driver_version    -- e.g. "537.58"
+    gpu.vram_mb           -- VRAM in MB
+end
+
+-- RAM
+sys.ram.total_memory_mb  -- total physical memory in MB
+for i, m in ipairs(sys.ram.modules) do
+    m.manufacturer   -- module manufacturer
+    m.part_number    -- module part number
+    m.capacity_mb    -- module capacity in MB
+    m.speed_mhz      -- module speed in MHz
+    m.form_factor    -- e.g. "DIMM", "SO-DIMM"
+end
+```
+
+---
+
 ## Utility
 
 ### ext.sleep(ms)

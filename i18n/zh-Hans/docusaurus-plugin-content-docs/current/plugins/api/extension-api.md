@@ -18,6 +18,66 @@ local config_path = ext.data_dir .. "/config.json"
 
 ---
 
+## 系统信息
+
+:::info 版本
+自 **3.0.0-dev.2** 起支持。需要声明 `"system:info"` 权限。
+:::
+
+当插件声明 `"system:info"` 权限时，会注入一个只读的 `ext.system` 表，包含硬件与操作系统详情。
+
+### ext.system
+
+```lua
+local sys = ext.system
+
+-- 操作系统
+sys.os.platform    -- "Windows" | "macOS" | "linux"
+sys.os.version     -- 如 "Microsoft Windows 11 Pro"
+sys.os.build       -- 如 "22631"
+sys.os.arch        -- 如 "x86_64"
+sys.os.hostname    -- 如 "MY-PC"
+
+-- 主板
+sys.motherboard.manufacturer   -- 如 "ASUSTeK COMPUTER INC."
+sys.motherboard.model          -- 如 "ROG STRIX B550-F GAMING"
+sys.motherboard.product        -- 同 model
+sys.motherboard.serial_number  -- 主板序列号
+
+-- BIOS
+sys.bios.vendor    -- 如 "American Megatrends Inc."
+sys.bios.version   -- 如 "2803"
+sys.bios.date      -- 如 "12/01/2023"
+
+-- CPU
+sys.cpu.name            -- 如 "AMD Ryzen 9 5900X 12-Core Processor"
+sys.cpu.manufacturer    -- 如 "AMD"
+sys.cpu.cores           -- 物理核心数
+sys.cpu.threads         -- 逻辑线程数
+sys.cpu.base_clock_mhz  -- 基础频率（MHz）
+sys.cpu.architecture    -- 如 "x64"
+
+-- GPU（数组，1-indexed）
+for i, gpu in ipairs(sys.gpu) do
+    gpu.name              -- 如 "NVIDIA GeForce RTX 3080"
+    gpu.manufacturer      -- 如 "NVIDIA"
+    gpu.driver_version    -- 如 "537.58"
+    gpu.vram_mb           -- 显存大小（MB）
+end
+
+-- 内存
+sys.ram.total_memory_mb  -- 总物理内存（MB）
+for i, m in ipairs(sys.ram.modules) do
+    m.manufacturer   -- 内存条制造商
+    m.part_number    -- 内存条型号
+    m.capacity_mb    -- 内存条容量（MB）
+    m.speed_mhz      -- 内存频率（MHz）
+    m.form_factor    -- 如 "DIMM"、"SO-DIMM"
+end
+```
+
+---
+
 ## 工具函数
 
 ### ext.sleep(ms)
