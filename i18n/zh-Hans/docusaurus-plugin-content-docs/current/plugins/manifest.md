@@ -213,6 +213,68 @@ sidebar_position: 3
 
 ---
 
+## 原生库配置
+
+> **自 `3.0.0-dev.3` 起支持**
+
+可选的 `native` 对象用于控制插件运行时如何加载原生（C/Rust/…）Lua 模块及其共享库依赖。所有路径均相对于插件目录，且不能逃出插件目录（禁止 `..` 或绝对路径）。
+
+| 字段 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `native.module_dirs` | string[] | `[".", "lib"]` | 追加到 `package.cpath` 的额外目录，使 Lua `require()` 能找到 `.dll` / `.so` C 模块。 |
+| `native.dll_dirs` | string[] | `[".", "lib", "bin"]` | 注册为 DLL 搜索路径的额外目录（Windows：`AddDllDirectory`），影响传递依赖的解析。 |
+| `native.preload_dlls` | string[] | `[]` | 在插件入口脚本运行**之前**必须加载的 DLL 文件相对路径。用于满足无法通过常规搜索路径加载的依赖。 |
+
+:::note
+`module_dirs` 和 `dll_dirs` 始终包含其默认值（`"."`、`"lib"`、`"bin"`），声明的额外路径在其基础上追加。
+:::
+
+:::caution 仅 Windows 有效
+`dll_dirs` 和 `preload_dlls` 仅在 Windows 平台生效。其他平台上这些字段会被接受但静默忽略。
+:::
+
+:::tip 需要声明权限
+使用 `native` 配置的插件必须在 `permissions` 数组中包含 `"native"`。
+:::
+
+### 示例（扩展，带原生 DLL 预加载）
+
+```json
+{
+  "id": "signalrgb_bridge",
+  "version": "1.0.0",
+  "name": "meta.name",
+  "type": "extension",
+  "language": "lua",
+  "entry": "init.lua",
+  "permissions": ["hardware:hid", "native", "system:info"],
+  "native": {
+    "preload_dlls": ["lua54.dll", "libmcfgthread-2.dll"]
+  }
+}
+```
+
+### 示例（扩展，自定义模块与 DLL 搜索目录）
+
+```json
+{
+  "id": "my_native_extension",
+  "version": "1.0.0",
+  "name": "My Native Extension",
+  "type": "extension",
+  "language": "lua",
+  "entry": "init.lua",
+  "permissions": ["native", "log"],
+  "native": {
+    "module_dirs": ["native/modules"],
+    "dll_dirs": ["native/deps"],
+    "preload_dlls": ["native/deps/libfoo.dll"]
+  }
+}
+```
+
+---
+
 ## 扩展特有字段
 
 | 字段 | 类型 | 必填 | 说明 |

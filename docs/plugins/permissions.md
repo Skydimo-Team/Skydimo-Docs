@@ -39,7 +39,7 @@ Plugins must declare required permissions in `manifest.json`. Core enforces thes
 | `network:tcp` | Open TCP connections |
 | `process` | Spawn and manage external processes |
 | `hardware:hid` | Open and communicate with HID devices directly *(since 3.0.0-dev.2)* |
-| `native` | Load native C modules (`.dll`/`.so`) via `require()` *(since 3.0.0-dev.2)* |
+| `native` | Load native C modules (`.dll`/`.so`) via `require()` and use the `native` manifest block for fine-grained library search control *(since 3.0.0-dev.2; `native` manifest config since 3.0.0-dev.3)* |
 
 ## Declaring Permissions
 
@@ -61,3 +61,4 @@ Add a `permissions` array to your `manifest.json`:
 - System info access requires explicit `system:info` permission; available to controller and extension plugins *(since 3.0.0-dev.2)*
 - HID access requires explicit `hardware:hid` permission; only available to extension plugins *(since 3.0.0-dev.2)*
 - Native C module loading requires explicit `native` permission and uses an unsafe Lua VM — use with caution *(since 3.0.0-dev.2)*
+- Advanced DLL search path control and preloading via the `native` manifest block requires `3.0.0-dev.3` or later *(see [Manifest Reference — Native Library Configuration](manifest#native-library-configuration))*

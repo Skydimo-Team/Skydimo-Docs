@@ -39,7 +39,7 @@ sidebar_position: 8
 | `network:tcp` | 建立 TCP 连接 |
 | `process` | 启动和管理外部进程 |
 | `hardware:hid` | 直接打开并与 HID 设备通信 *（3.0.0-dev.2 起支持）* |
-| `native` | 通过 `require()` 加载原生 C 模块（`.dll`/`.so`） *（3.0.0-dev.2 起支持）* |
+| `native` | 通过 `require()` 加载原生 C 模块（`.dll`/`.so`），并可使用 `native` 清单块进行精细化库搜索控制 *（3.0.0-dev.2 起支持；`native` 清单配置自 3.0.0-dev.3 起支持）* |
 
 ## 声明权限
 
@@ -61,3 +61,4 @@ sidebar_position: 8
 - 系统信息访问需要显式声明 `system:info` 权限；控制器插件和扩展插件均可用 *（3.0.0-dev.2 起支持）*
 - HID 访问需要显式声明 `hardware:hid` 权限；仅扩展插件可用 *（3.0.0-dev.2 起支持）*
 - 原生 C 模块加载需要显式声明 `native` 权限，并使用不安全 Lua VM —— 请谨慎使用 *（3.0.0-dev.2 起支持）*
+- 通过 `native` 清单块进行高级 DLL 搜索路径控制与预加载需要 `3.0.0-dev.3` 或更高版本 *（参见 [Manifest 参考 — 原生库配置](manifest#原生库配置)）*

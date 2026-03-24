@@ -213,6 +213,68 @@ Controls when a parameter is visible or enabled:
 
 ---
 
+## Native Library Configuration
+
+> **Available since: `3.0.0-dev.3`**
+
+The optional `native` object controls how the plugin runtime loads native (C/Rust/…) Lua modules and their shared-library dependencies. All paths are relative to the plugin directory and must not escape it (no `..` or absolute paths).
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `native.module_dirs` | string[] | `[".", "lib"]` | Extra directories appended to `package.cpath` so Lua `require()` can find `.dll` / `.so` C modules. |
+| `native.dll_dirs` | string[] | `[".", "lib", "bin"]` | Extra directories registered as DLL search paths (Windows: `AddDllDirectory`). Affects transitive dependency resolution. |
+| `native.preload_dlls` | string[] | `[]` | Relative paths to DLL files that must be loaded **before** the plugin entry script runs. Use this to satisfy dependencies that aren't loadable via normal search paths. |
+
+:::note
+`module_dirs` and `dll_dirs` always include their defaults (`"."`, `"lib"`, `"bin"`) in addition to any extra paths you declare.
+:::
+
+:::caution Windows-only
+`dll_dirs` and `preload_dlls` only have effect on Windows. On other platforms the fields are accepted but silently ignored.
+:::
+
+:::tip Permission required
+Plugins that declare `native` configuration must include `"native"` in their `permissions` array.
+:::
+
+### Example (Extension with native DLL preload)
+
+```json
+{
+  "id": "signalrgb_bridge",
+  "version": "1.0.0",
+  "name": "meta.name",
+  "type": "extension",
+  "language": "lua",
+  "entry": "init.lua",
+  "permissions": ["hardware:hid", "native", "system:info"],
+  "native": {
+    "preload_dlls": ["lua54.dll", "libmcfgthread-2.dll"]
+  }
+}
+```
+
+### Example (Extension with custom module and DLL search dirs)
+
+```json
+{
+  "id": "my_native_extension",
+  "version": "1.0.0",
+  "name": "My Native Extension",
+  "type": "extension",
+  "language": "lua",
+  "entry": "init.lua",
+  "permissions": ["native", "log"],
+  "native": {
+    "module_dirs": ["native/modules"],
+    "dll_dirs": ["native/deps"],
+    "preload_dlls": ["native/deps/libfoo.dll"]
+  }
+}
+```
+
+---
+
 ## Extension-Specific Fields
 
 | Field | Type | Required | Description |
