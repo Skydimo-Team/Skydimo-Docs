@@ -6,40 +6,33 @@ sidebar_position: 1
 
 Skydimo Core 通过 WebSocket 暴露 **JSON-RPC 2.0** API，提供对灯光系统的完整程序化控制。
 
+:::note 自 3.0.0-dev.3 起
+从 `3.0.0-dev.3` 开始，WebSocket 基于密钥的鉴权已被移除。Core 现在仅绑定到本机 `127.0.0.1`，连接建立后即可直接发送请求。旧版客户端仍可发送 `auth` 调用，但它只会作为兼容性的空操作被接受。
+:::
+
 ## 连接
 
 ### 获取连接信息
 
-Core 启动时，会向 stdout 输出两个值：
+Core 启动时，会向 stdout 输出所选端口：
 
 ```
 CORE_PORT=<port>
-CORE_AUTH=<secret>
 ```
 
 连接地址为 `ws://127.0.0.1:<port>`。
 
-### 认证
+Core 仅绑定到本机 loopback 接口，因此该 API 只能被同一台机器上的客户端访问。
 
-连接后的**第一条消息**必须为 `auth` 调用：
+### 旧版 `auth` 兼容
 
-```json
-{
-  "jsonrpc": "2.0",
-  "method": "auth",
-  "params": { "secret": "<CORE_AUTH 的值>" },
-  "id": 1
-}
-```
-
-认证成功前，所有后续命令都将被拒绝。
+在 `3.0.0-dev.3` 之前，客户端连接后必须先发送一次 `auth` 请求。现在这一步已经不再需要。旧客户端如果继续发送 `auth`，Core 仍会返回成功，但不会再要求或校验密钥。
 
 ### 超时
 
 | 操作 | 超时时间 |
 |------|---------|
 | RPC 调用 | 30 秒 |
-| 认证 | 8 秒 |
 | 重连间隔 | 250ms ~ 2s（指数退避） |
 
 ## 请求格式
@@ -110,18 +103,14 @@ CORE_AUTH=<secret>
 ## 示例会话
 
 ```json
-// 1. 认证
-→ {"jsonrpc":"2.0","method":"auth","params":{"secret":"abc123"},"id":1}
-← {"jsonrpc":"2.0","result":true,"id":1}
+// 1. 列出设备
+→ {"jsonrpc":"2.0","method":"get_devices","id":1}
+← {"jsonrpc":"2.0","result":[{"port":"COM3","manufacturer":"Skydimo",...}],"id":1}
 
-// 2. 列出设备
-→ {"jsonrpc":"2.0","method":"get_devices","id":2}
-← {"jsonrpc":"2.0","result":[{"port":"COM3","manufacturer":"Skydimo",...}],"id":2}
+// 2. 设置灯效
+→ {"jsonrpc":"2.0","method":"set_effect","params":{"port":"COM3","effectId":"rainbow"},"id":2}
+← {"jsonrpc":"2.0","result":null,"id":2}
 
-// 3. 设置灯效
-→ {"jsonrpc":"2.0","method":"set_effect","params":{"port":"COM3","effectId":"rainbow"},"id":3}
-← {"jsonrpc":"2.0","result":null,"id":3}
-
-// 4. 接收事件
+// 3. 接收事件
 ← {"jsonrpc":"2.0","method":"event","params":{"event":"devices-changed","data":{...}}}
 ```

@@ -49,7 +49,7 @@ See the [Plugin Development Guide](../plugins/overview) for details.
 
 - **JSON-RPC 2.0** — Standard protocol for full programmatic control
 - **Event streaming** — Real-time device state changes and LED color updates
-- **Authentication** — Secret-based auth for secure connections
+- **Local-only transport** — Since `3.0.0-dev.3`, Core listens on `127.0.0.1` and no longer requires a separate auth handshake
 - **Browser-compatible** — Use from any WebSocket client (browser, CLI, automation tools)
 
 See the [WebSocket API Reference](../api/websocket-overview) for details.

@@ -131,4 +131,4 @@ Extension Lua code receives this via the `on_page_message(data)` callback.
 
 ## Subscribing to Events
 
-Events are automatically pushed to all authenticated WebSocket connections. No explicit subscription is required.
+Since `3.0.0-dev.3`, events are automatically pushed to all connected local WebSocket clients. No explicit subscription is required.

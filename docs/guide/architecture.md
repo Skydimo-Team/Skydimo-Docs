@@ -26,7 +26,7 @@ Skydimo adopts a **Core + UI separation** architecture, where all business logic
 │     └─ Control Socket (38967)   │
 └──────────┬──────────────────────┘
            │ WebSocket JSON-RPC 2.0
-           │ (auth + events)
+           │ (local-only + events)
 ┌──────────▼──────────────────────┐
 │  UI Process (Desktop / Browser) │
 │  └─ React SPA                   │
@@ -39,8 +39,8 @@ Core listens on `127.0.0.1:38967` TCP to prevent multiple instances. If a new in
 
 ## Lifecycle
 
-1. Core starts and outputs `CORE_PORT=<port>` and `CORE_AUTH=<secret>` to stdout.
-2. The UI process reads these values and connects via WebSocket.
+1. Starting with `3.0.0-dev.3`, Core outputs only `CORE_PORT=<port>` to stdout.
+2. The UI process reads that value and connects via WebSocket on `127.0.0.1`.
 3. When the UI closes, it can either keep Core running (minimize to tray) or shut down both processes.
 
 ## Scope Configuration System

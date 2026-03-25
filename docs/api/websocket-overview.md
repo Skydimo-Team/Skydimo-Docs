@@ -6,40 +6,33 @@ sidebar_position: 1
 
 Skydimo Core exposes a **JSON-RPC 2.0** API over WebSocket for full programmatic control of the lighting system.
 
+:::note Since 3.0.0-dev.3
+WebSocket secret-based authentication was removed in `3.0.0-dev.3`. Core now binds locally on `127.0.0.1` and accepts requests immediately after the socket opens. Legacy `auth` calls are still accepted as a compatibility no-op.
+:::
+
 ## Connection
 
 ### Obtaining Connection Info
 
-When Core starts, it outputs two values to stdout:
+When Core starts, it outputs the selected port to stdout:
 
 ```
 CORE_PORT=<port>
-CORE_AUTH=<secret>
 ```
 
 Connect to `ws://127.0.0.1:<port>`.
 
-### Authentication
+Core only binds to the local loopback interface, so the API is only reachable from the same machine.
 
-The **first message** after connecting must be an `auth` call:
+### Legacy `auth` compatibility
 
-```json
-{
-  "jsonrpc": "2.0",
-  "method": "auth",
-  "params": { "secret": "<CORE_AUTH value>" },
-  "id": 1
-}
-```
-
-All subsequent commands will be rejected until authentication succeeds.
+Before `3.0.0-dev.3`, clients had to send an `auth` request after connecting. That handshake is no longer required. Older clients may still send `auth`, and Core will respond successfully without requiring or validating a secret.
 
 ### Timeouts
 
 | Operation | Timeout |
 |-----------|---------|
 | RPC call | 30s |
-| Authentication | 8s |
 | Reconnect interval | 250ms ~ 2s (exponential backoff) |
 
 ## Request Format
@@ -110,18 +103,14 @@ See [Events](events) for the full event list.
 ## Example Session
 
 ```json
-// 1. Authenticate
-→ {"jsonrpc":"2.0","method":"auth","params":{"secret":"abc123"},"id":1}
-← {"jsonrpc":"2.0","result":true,"id":1}
+// 1. List devices
+→ {"jsonrpc":"2.0","method":"get_devices","id":1}
+← {"jsonrpc":"2.0","result":[{"port":"COM3","manufacturer":"Skydimo",...}],"id":1}
 
-// 2. List devices
-→ {"jsonrpc":"2.0","method":"get_devices","id":2}
-← {"jsonrpc":"2.0","result":[{"port":"COM3","manufacturer":"Skydimo",...}],"id":2}
+// 2. Set effect
+→ {"jsonrpc":"2.0","method":"set_effect","params":{"port":"COM3","effectId":"rainbow"},"id":2}
+← {"jsonrpc":"2.0","result":null,"id":2}
 
-// 3. Set effect
-→ {"jsonrpc":"2.0","method":"set_effect","params":{"port":"COM3","effectId":"rainbow"},"id":3}
-← {"jsonrpc":"2.0","result":null,"id":3}
-
-// 4. Receive event
+// 3. Receive event
 ← {"jsonrpc":"2.0","method":"event","params":{"event":"devices-changed","data":{...}}}
 ```
