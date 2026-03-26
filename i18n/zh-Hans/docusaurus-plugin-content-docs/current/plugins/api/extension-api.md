@@ -323,11 +323,187 @@ local params = ext.get_effect_params("rainbow")
 
 ### ext.set_effect(port, output_id, effect_id [, params])
 
+:::note 旧版接口
+这是一个旧版便捷封装。新插件建议使用 [`ext.set_scope_effect(scope, ...)`](#extsetscopeeffectscope-effect_id-params)，后者支持 `segment_id`。
+:::
+
 在设备输出端口上设置活跃灯效。
 
 ```lua
 ext.set_effect("COM3", "out1", "rainbow")
 ext.set_effect("COM3", "out1", "rainbow", {speed = 3.0, preset = 1})
+```
+
+---
+
+## 资源查询
+
+:::info 版本
+自 **3.0.0-dev.3** 起支持。
+:::
+
+### ext.get_displays()
+
+获取所有已连接显示器的列表。
+
+```lua
+local displays = ext.get_displays()
+for _, d in ipairs(displays) do
+    ext.log("显示器: " .. d.name .. " [" .. d.width .. "x" .. d.height .. "]")
+end
+```
+
+**返回**：显示器对象数组。
+
+### ext.get_audio_devices()
+
+获取所有音频输出设备的列表。
+
+```lua
+local devices = ext.get_audio_devices()
+for i, dev in ipairs(devices) do
+    ext.log(i .. ": " .. dev.name)
+end
+```
+
+**返回**：音频设备对象数组。
+
+---
+
+## Scope API
+
+:::info 版本
+自 **3.0.0-dev.3** 起支持。
+:::
+
+所有 scope 函数的第一个参数均为 **scope 表**：
+
+```lua
+-- scope 表结构
+local scope = {
+    port       = "COM3",       -- 必填：设备端口
+    output_id  = "out1",       -- 可选：指定输出端口
+    segment_id = "seg0",       -- 可选：指定分段（需同时提供 output_id）
+}
+```
+
+### Scope 状态查询
+
+#### ext.get_scope_screen_state(scope)
+
+获取指定 scope 的屏幕捕获状态（当前选择的屏幕索引及捕获区域）。
+
+```lua
+local state = ext.get_scope_screen_state({port = "COM3", output_id = "out1"})
+-- state.screen_index, state.region ...
+```
+
+#### ext.get_scope_audio_device_state(scope)
+
+获取指定 scope 当前分配的音频设备索引。
+
+```lua
+local index = ext.get_scope_audio_device_state({port = "COM3", output_id = "out1"})
+```
+
+---
+
+### Scope 媒体管理
+
+#### ext.set_scope_screen_index(scope, screen_index)
+
+设置 scope 用于屏幕捕获灯效的显示器索引。
+
+- `screen_index` —— 以 0 为基准的显示器索引，或 `nil` 使用默认值。
+
+```lua
+ext.set_scope_screen_index({port = "COM3", output_id = "out1"}, 0)
+ext.set_scope_screen_index({port = "COM3", output_id = "out1"}, nil) -- 重置
+```
+
+#### ext.set_scope_screen_region(scope, region)
+
+设置 scope 的屏幕捕获区域。
+
+- `region` —— `ScreenRegion` 表：`{x, y, width, height}`。
+
+```lua
+ext.set_scope_screen_region({port = "COM3", output_id = "out1"}, {
+    x = 0, y = 0, width = 1920, height = 1080
+})
+```
+
+#### ext.set_scope_audio_device_index(scope, audio_device_index)
+
+设置 scope 用于音频响应灯效的音频设备索引。
+
+- `audio_device_index` —— 以 0 为基准的设备索引，或 `nil` 使用默认值。
+
+```lua
+ext.set_scope_audio_device_index({port = "COM3", output_id = "out1"}, 0)
+```
+
+---
+
+### Scope 模式管理
+
+#### ext.set_scope_effect(scope, effect_id [, params])
+
+在 scope 上设置活跃灯效，支持 `segment_id`。
+
+```lua
+ext.set_scope_effect({port = "COM3", output_id = "out1"}, "rainbow")
+ext.set_scope_effect(
+    {port = "COM3", output_id = "out1", segment_id = "seg0"},
+    "breathing",
+    {speed = 2.0}
+)
+ext.set_scope_effect({port = "COM3", output_id = "out1"}, nil) -- 清除灯效
+```
+
+#### ext.update_scope_effect_params(scope, params)
+
+仅更新 scope 当前活跃灯效的参数，不更换灯效本身。
+
+```lua
+ext.update_scope_effect_params({port = "COM3", output_id = "out1"}, {
+    speed = 5.0,
+    color = {r = 255, g = 0, b = 0}
+})
+```
+
+#### ext.reset_scope_effect_params(scope)
+
+将 scope 的灯效参数重置为默认值。
+
+```lua
+ext.reset_scope_effect_params({port = "COM3", output_id = "out1"})
+```
+
+#### ext.set_scope_mode_paused(scope, paused)
+
+暂停或恢复 scope 上的活跃灯效。
+
+```lua
+ext.set_scope_mode_paused({port = "COM3", output_id = "out1"}, true)  -- 暂停
+ext.set_scope_mode_paused({port = "COM3", output_id = "out1"}, false) -- 恢复
+```
+
+#### ext.set_scope_power(scope, is_off)
+
+开启或关闭 scope 的输出。
+
+```lua
+ext.set_scope_power({port = "COM3", output_id = "out1"}, true)  -- 关闭输出
+ext.set_scope_power({port = "COM3", output_id = "out1"}, false) -- 开启输出
+```
+
+#### ext.set_scope_brightness(scope, brightness)
+
+设置 scope 的亮度级别（0–100）。
+
+```lua
+ext.set_scope_brightness({port = "COM3", output_id = "out1"}, 80)
 ```
 
 ---

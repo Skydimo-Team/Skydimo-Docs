@@ -323,11 +323,187 @@ local params = ext.get_effect_params("rainbow")
 
 ### ext.set_effect(port, output_id, effect_id [, params])
 
+:::note Legacy
+This is a legacy convenience wrapper. For new plugins, prefer [`ext.set_scope_effect(scope, ...)`](#extsetscopeeffectscope-effect_id-params) which supports `segment_id`.
+:::
+
 Set the active effect on a device output.
 
 ```lua
 ext.set_effect("COM3", "out1", "rainbow")
 ext.set_effect("COM3", "out1", "rainbow", {speed = 3.0, preset = 1})
+```
+
+---
+
+## Resource Queries
+
+:::info Version
+Available since **3.0.0-dev.3**.
+:::
+
+### ext.get_displays()
+
+Get a list of all connected displays.
+
+```lua
+local displays = ext.get_displays()
+for _, d in ipairs(displays) do
+    ext.log("Display: " .. d.name .. " [" .. d.width .. "x" .. d.height .. "]")
+end
+```
+
+**Returns**: array of display objects.
+
+### ext.get_audio_devices()
+
+Get a list of all audio output devices.
+
+```lua
+local devices = ext.get_audio_devices()
+for i, dev in ipairs(devices) do
+    ext.log(i .. ": " .. dev.name)
+end
+```
+
+**Returns**: array of audio device objects.
+
+---
+
+## Scope API
+
+:::info Version
+Available since **3.0.0-dev.3**.
+:::
+
+All scope functions accept a **scope table** as their first argument:
+
+```lua
+-- Scope table structure
+local scope = {
+    port       = "COM3",       -- required: device port
+    output_id  = "out1",       -- optional: specific output
+    segment_id = "seg0",       -- optional: specific segment (requires output_id)
+}
+```
+
+### Scope State Queries
+
+#### ext.get_scope_screen_state(scope)
+
+Get the current screen capture state for a scope (selected screen index and region).
+
+```lua
+local state = ext.get_scope_screen_state({port = "COM3", output_id = "out1"})
+-- state.screen_index, state.region ...
+```
+
+#### ext.get_scope_audio_device_state(scope)
+
+Get the current audio device index assigned to a scope.
+
+```lua
+local index = ext.get_scope_audio_device_state({port = "COM3", output_id = "out1"})
+```
+
+---
+
+### Scope Media Management
+
+#### ext.set_scope_screen_index(scope, screen_index)
+
+Set the display index used for screen-capture effects on a scope.
+
+- `screen_index` — Zero-based display index, or `nil` to use default.
+
+```lua
+ext.set_scope_screen_index({port = "COM3", output_id = "out1"}, 0)
+ext.set_scope_screen_index({port = "COM3", output_id = "out1"}, nil) -- reset
+```
+
+#### ext.set_scope_screen_region(scope, region)
+
+Set the screen capture region for a scope.
+
+- `region` — A `ScreenRegion` table: `{x, y, width, height}`.
+
+```lua
+ext.set_scope_screen_region({port = "COM3", output_id = "out1"}, {
+    x = 0, y = 0, width = 1920, height = 1080
+})
+```
+
+#### ext.set_scope_audio_device_index(scope, audio_device_index)
+
+Set the audio device index for audio-reactive effects on a scope.
+
+- `audio_device_index` — Zero-based device index, or `nil` to use default.
+
+```lua
+ext.set_scope_audio_device_index({port = "COM3", output_id = "out1"}, 0)
+```
+
+---
+
+### Scope Mode Management
+
+#### ext.set_scope_effect(scope, effect_id [, params])
+
+Set the active effect on a scope. Supports `segment_id`.
+
+```lua
+ext.set_scope_effect({port = "COM3", output_id = "out1"}, "rainbow")
+ext.set_scope_effect(
+    {port = "COM3", output_id = "out1", segment_id = "seg0"},
+    "breathing",
+    {speed = 2.0}
+)
+ext.set_scope_effect({port = "COM3", output_id = "out1"}, nil) -- clear effect
+```
+
+#### ext.update_scope_effect_params(scope, params)
+
+Update only the parameters of the currently active effect on a scope, without changing the effect itself.
+
+```lua
+ext.update_scope_effect_params({port = "COM3", output_id = "out1"}, {
+    speed = 5.0,
+    color = {r = 255, g = 0, b = 0}
+})
+```
+
+#### ext.reset_scope_effect_params(scope)
+
+Reset the effect parameters of a scope to their defaults.
+
+```lua
+ext.reset_scope_effect_params({port = "COM3", output_id = "out1"})
+```
+
+#### ext.set_scope_mode_paused(scope, paused)
+
+Pause or resume the active effect on a scope.
+
+```lua
+ext.set_scope_mode_paused({port = "COM3", output_id = "out1"}, true)  -- pause
+ext.set_scope_mode_paused({port = "COM3", output_id = "out1"}, false) -- resume
+```
+
+#### ext.set_scope_power(scope, is_off)
+
+Turn a scope's output on or off.
+
+```lua
+ext.set_scope_power({port = "COM3", output_id = "out1"}, true)  -- turn off
+ext.set_scope_power({port = "COM3", output_id = "out1"}, false) -- turn on
+```
+
+#### ext.set_scope_brightness(scope, brightness)
+
+Set the brightness level for a scope (0–100).
+
+```lua
+ext.set_scope_brightness({port = "COM3", output_id = "out1"}, 80)
 ```
 
 ---
