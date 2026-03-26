@@ -342,6 +342,25 @@ ext.set_effect("COM3", "out1", "rainbow", {speed = 3.0, preset = 1})
 自 **3.0.0-dev.3** 起支持。
 :::
 
+### ext.get_media_session([max_edge])
+
+需要 `"media:session"` 权限。
+
+获取当前系统媒体播放会话的快照，包括元数据、播放状态、进度条时间线以及专辑封面。
+
+```lua
+local session = ext.get_media_session(256) -- 可选: 封面图片的最大边长参数
+if session then
+    ext.log("正在播放: " .. session.title .. " (" .. session.artist .. ")")
+    ext.log("状态: " .. session.playback_status)
+    if session.artwork then
+        ext.log("封面尺寸: " .. session.artwork.width .. "x" .. session.artwork.height)
+    end
+end
+```
+
+**返回**：一个媒体会话对象，若无活跃播放会话则返回 `nil`。
+
 ### ext.get_displays()
 
 获取所有已连接显示器的列表。
@@ -630,6 +649,9 @@ ext.page_emit({type = "devices_update", devices = ext.get_devices()})
 | `on_scan_devices()` | `function()` | 手动扫描触发 |
 | `on_devices_changed(devices)` | `function(table)` | 设备列表变化 |
 | `on_led_locks_changed(locks)` | `function(table)` | LED 锁状态变化 |
+| `on_system_media_changed(session)` | `function(table)` | 系统媒体属性/封面变化（需 `media:session`；≥ 3.0.0-dev.3） |
+| `on_system_media_playback_changed(session)` | `function(table)` | 系统媒体播放状态变化（需 `media:session`；≥ 3.0.0-dev.3） |
+| `on_system_media_timeline_changed(session)` | `function(table)` | 系统媒体进度/时长更新（需 `media:session`；≥ 3.0.0-dev.3） |
 | `on_device_frame(port, outputs)` | `function(string, table)` | 实时 LED 帧数据 |
 | `on_page_message(data)` | `function(table)` | 来自 HTML 页面的消息 |
 | `on_stop()` | `function()` | 扩展正在停止 |

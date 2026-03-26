@@ -31,6 +31,7 @@ Core startup → Load enabled extensions
       plugin.on_scan_devices()     ← Manual scan triggered
       plugin.on_devices_changed()  ← Device list changed
       plugin.on_led_locks_changed()← LED lock changed
+      plugin.on_system_media_*()   ← Media playback changes
       plugin.on_device_frame()     ← Real-time LED data
       plugin.on_page_message()     ← Message from HTML page
   → plugin.on_stop()              ← Extension stopping
@@ -77,6 +78,52 @@ Called when any LED lock state changes.
 ```lua
 function plugin.on_led_locks_changed(locks)
     -- locks: current lock state
+end
+```
+
+### on_system_media_changed(session)
+
+:::info Version
+Available since **3.0.0-dev.3**. Requires the `"media:session"` permission.
+:::
+
+Called when the system media session properties (title, artist, album, artwork, etc.) change.
+
+```lua
+function plugin.on_system_media_changed(session)
+    if session then
+        ext.log("Now playing changed: " .. session.title)
+    end
+end
+```
+
+### on_system_media_playback_changed(session)
+
+:::info Version
+Available since **3.0.0-dev.3**. Requires the `"media:session"` permission.
+:::
+
+Called when the playback state (playing, paused, stopped) changes.
+
+```lua
+function plugin.on_system_media_playback_changed(session)
+    if session then
+        ext.log("Playback state: " .. session.playback_status)
+    end
+end
+```
+
+### on_system_media_timeline_changed(session)
+
+:::info Version
+Available since **3.0.0-dev.3**. Requires the `"media:session"` permission.
+:::
+
+Called when the playback timeline (current position, duration) updates.
+
+```lua
+function plugin.on_system_media_timeline_changed(session)
+    -- session.timeline contains progress and length
 end
 ```
 

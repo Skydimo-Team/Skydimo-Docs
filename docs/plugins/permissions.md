@@ -36,6 +36,7 @@ Plugins must declare required permissions in `manifest.json`. Core enforces thes
 
 | Permission | Description |
 |-----------|-------------|
+| `media:session` | Access the current system media session metadata, playback state, timeline, and artwork *(since 3.0.0-dev.3)* |
 | `network:tcp` | Open TCP connections |
 | `process` | Spawn and manage external processes |
 | `hardware:hid` | Open and communicate with HID devices directly *(since 3.0.0-dev.2)* |
@@ -59,6 +60,7 @@ Add a `permissions` array to your `manifest.json`:
 - Process spawning requires explicit `process` permission
 - Each plugin runs in an isolated Lua state — plugins cannot access each other's data
 - System info access requires explicit `system:info` permission; available to controller and extension plugins *(since 3.0.0-dev.2)*
+- Media session access requires explicit `media:session` permission; only available to extension plugins *(since 3.0.0-dev.3)*
 - HID access requires explicit `hardware:hid` permission; only available to extension plugins *(since 3.0.0-dev.2)*
 - Native C module loading requires explicit `native` permission and uses an unsafe Lua VM — use with caution *(since 3.0.0-dev.2)*
 - Advanced DLL search path control and preloading via the `native` manifest block requires `3.0.0-dev.3` or later *(see [Manifest Reference — Native Library Configuration](manifest#native-library-configuration))*

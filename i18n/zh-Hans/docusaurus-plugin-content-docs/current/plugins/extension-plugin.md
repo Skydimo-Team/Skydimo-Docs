@@ -31,6 +31,7 @@ Core 启动 → 加载已启用的扩展
       plugin.on_scan_devices()     ← 手动扫描触发
       plugin.on_devices_changed()  ← 设备列表变化
       plugin.on_led_locks_changed()← LED 锁状态变化
+      plugin.on_system_media_*()   ← 媒体播放改变
       plugin.on_device_frame()     ← 实时 LED 数据
       plugin.on_page_message()     ← 来自 HTML 页面的消息
   → plugin.on_stop()              ← 扩展停止
@@ -77,6 +78,52 @@ end
 ```lua
 function plugin.on_led_locks_changed(locks)
     -- locks: 当前锁定状态
+end
+```
+
+### on_system_media_changed(session)
+
+:::info 版本
+自 **3.0.0-dev.3** 起支持。需要 `"media:session"` 权限。
+:::
+
+当系统媒体会话属性（如标题、艺术家、专辑、封面等）发生变化时调用。
+
+```lua
+function plugin.on_system_media_changed(session)
+    if session then
+        ext.log("当前播放曲目已变化: " .. session.title)
+    end
+end
+```
+
+### on_system_media_playback_changed(session)
+
+:::info 版本
+自 **3.0.0-dev.3** 起支持。需要 `"media:session"` 权限。
+:::
+
+当播放状态（播放、暂停、停止）发生变化时调用。
+
+```lua
+function plugin.on_system_media_playback_changed(session)
+    if session then
+        ext.log("播放状态: " .. session.playback_status)
+    end
+end
+```
+
+### on_system_media_timeline_changed(session)
+
+:::info 版本
+自 **3.0.0-dev.3** 起支持。需要 `"media:session"` 权限。
+:::
+
+当播放进度或时长更新时调用。
+
+```lua
+function plugin.on_system_media_timeline_changed(session)
+    -- session.timeline 包含进度和时长信息
 end
 ```
 

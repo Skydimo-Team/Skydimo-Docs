@@ -342,6 +342,25 @@ ext.set_effect("COM3", "out1", "rainbow", {speed = 3.0, preset = 1})
 Available since **3.0.0-dev.3**.
 :::
 
+### ext.get_media_session([max_edge])
+
+Requires the `"media:session"` permission.
+
+Get the current system media playback session snapshot, including metadata, playback status, timeline, and album artwork.
+
+```lua
+local session = ext.get_media_session(256) -- Optional: max edge size for artwork
+if session then
+    ext.log("Playing: " .. session.title .. " by " .. session.artist)
+    ext.log("Status: " .. session.playback_status)
+    if session.artwork then
+        ext.log("Artwork size: " .. session.artwork.width .. "x" .. session.artwork.height)
+    end
+end
+```
+
+**Returns**: A media session object or `nil` if no active session.
+
 ### ext.get_displays()
 
 Get a list of all connected displays.
@@ -630,6 +649,9 @@ ext.page_emit({type = "devices_update", devices = ext.get_devices()})
 | `on_scan_devices()` | `function()` | Manual scan triggered |
 | `on_devices_changed(devices)` | `function(table)` | Device list changed |
 | `on_led_locks_changed(locks)` | `function(table)` | LED lock state changed |
+| `on_system_media_changed(session)` | `function(table)` | System media metadata/artwork changed (requires `media:session`; ≥ 3.0.0-dev.3) |
+| `on_system_media_playback_changed(session)` | `function(table)` | System media playback status changed (requires `media:session`; ≥ 3.0.0-dev.3) |
+| `on_system_media_timeline_changed(session)` | `function(table)` | System media timeline/progress changed (requires `media:session`; ≥ 3.0.0-dev.3) |
 | `on_device_frame(port, outputs)` | `function(string, table)` | Real-time LED frame data |
 | `on_page_message(data)` | `function(table)` | Message from HTML page |
 | `on_stop()` | `function()` | Extension stopping |
