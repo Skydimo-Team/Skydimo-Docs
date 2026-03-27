@@ -23,7 +23,7 @@ sidebar_position: 3
     "category": "animation",
     "permissions": ["log"],
     "params": [
-      {"type": "slider", "key": "speed", "label": "速度", "min": 0.0, "max": 5.0, "step": 0.1, "default": 2.5}
+      {"type": "slider", "key": "speed", "label": {"raw": "Speed", "byLocale": {"zh-CN": "速度"}}, "min": 0.0, "max": 5.0, "step": 0.1, "default": 2.5}
     ]
   }
 ],"id":1}

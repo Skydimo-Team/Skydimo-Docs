@@ -34,12 +34,12 @@ WebSocket API 中使用的核心数据类型参考。
 {
   "type": "slider",
   "key": "speed",
-  "label": "速度",
+  "label": {"raw": "Speed", "byLocale": {"zh-CN": "速度"}},
   "min": 0.0,
   "max": 5.0,
   "step": 0.1,
   "default": 2.5,
-  "group": "动画",
+  "group": {"raw": "Animation", "byLocale": {"zh-CN": "动画"}},
   "dependency": null
 }
 ```
@@ -50,7 +50,7 @@ WebSocket API 中使用的核心数据类型参考。
 {
   "type": "range_slider",
   "key": "frequency_range",
-  "label": "频率范围",
+  "label": {"raw": "Frequency Range", "byLocale": {"zh-CN": "频率范围"}},
   "min": 20.0,
   "max": 20000.0,
   "step": 1.0,
@@ -64,12 +64,12 @@ WebSocket API 中使用的核心数据类型参考。
 {
   "type": "select",
   "key": "preset",
-  "label": "预设",
+  "label": {"raw": "Preset", "byLocale": {"zh-CN": "预设"}},
   "default": 0,
   "options": [
-    {"label": "自定义", "value": 0},
-    {"label": "彩虹", "value": 1},
-    {"label": "日落", "value": 2}
+    {"label": {"raw": "Custom", "byLocale": {"zh-CN": "自定义"}}, "value": 0},
+    {"label": {"raw": "Rainbow", "byLocale": {"zh-CN": "彩虹"}}, "value": 1},
+    {"label": {"raw": "Sunset", "byLocale": {"zh-CN": "日落"}}, "value": 2}
   ]
 }
 ```
@@ -80,7 +80,7 @@ WebSocket API 中使用的核心数据类型参考。
 {
   "type": "toggle",
   "key": "reverse",
-  "label": "反向方向",
+  "label": {"raw": "Reverse Direction", "byLocale": {"zh-CN": "反向方向"}},
   "default": false
 }
 ```
@@ -91,7 +91,7 @@ WebSocket API 中使用的核心数据类型参考。
 {
   "type": "color",
   "key": "baseColor",
-  "label": "基础颜色",
+  "label": {"raw": "Base Color", "byLocale": {"zh-CN": "基础颜色"}},
   "default": "#FF0000"
 }
 ```
@@ -102,7 +102,7 @@ WebSocket API 中使用的核心数据类型参考。
 {
   "type": "multi_color",
   "key": "colors",
-  "label": "调色板",
+  "label": {"raw": "Color Palette", "byLocale": {"zh-CN": "调色板"}},
   "default": ["#FF0000", "#00FF00", "#0000FF"],
   "fixedCount": null,
   "minCount": 2,

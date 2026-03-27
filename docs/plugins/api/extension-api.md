@@ -18,6 +18,49 @@ local config_path = ext.data_dir .. "/config.json"
 
 ---
 
+### ext.plugin
+
+Read-only table containing metadata about the current extension plugin, as declared in `manifest.json`.
+
+```lua
+local p = ext.plugin
+
+ext.log(p.id)           -- Plugin ID, e.g. "extension.my_plugin"
+ext.log(p.name.raw)     -- Display name (raw string)
+ext.log(p.version)      -- Version string, e.g. "1.0.0"
+ext.log(p.publisher)    -- Publisher name
+ext.log(p.type)         -- Always "extension"
+
+-- Optional fields (nil if not declared in manifest)
+if p.description then
+    ext.log(p.description.raw)
+end
+if p.repository then
+    ext.log(p.repository)
+end
+if p.license then
+    ext.log(p.license)
+end
+if p.page_path then
+    ext.log(p.page_path)
+end
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Plugin ID |
+| `name` | [LocalizedText](../../api/data-types.md#localizedtext) | Plugin display name |
+| `version` | string | Plugin version |
+| `publisher` | string | Plugin publisher |
+| `permissions` | string[] | Declared permissions |
+| `type` | string | Always `"extension"` |
+| `description` | LocalizedText? | Plugin description (`nil` if not set) |
+| `repository` | string? | Source repository URL (`nil` if not set) |
+| `license` | string? | License identifier (`nil` if not set) |
+| `page_path` | string? | Relative path to the extension HTML page (`nil` if not set) |
+
+---
+
 ## System Information
 
 :::info Version
@@ -329,14 +372,24 @@ local output_locks = ext.get_led_locks("COM3", "out1")
 
 ### ext.get_effects()
 
-Get all available effects.
+Get all available effects (built-in + Lua plugins).
 
 ```lua
 local effects = ext.get_effects()
 for _, effect in ipairs(effects) do
-    ext.log("Effect: " .. effect.id)
+    ext.log("Effect: " .. effect.id .. " - " .. effect.name.raw)
 end
 ```
+
+Each entry in the returned array has the following fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Effect plugin ID |
+| `name` | [LocalizedText](../../api/data-types.md#localizedtext) | Effect display name |
+| `description` | LocalizedText? | Short description (`nil` if not set) |
+| `group` | LocalizedText? | Category/group name (`nil` if not set) |
+| `icon` | string? | Icon identifier (`nil` if not set) |
 
 ### ext.get_effect_params(effect_id)
 

@@ -18,6 +18,49 @@ local config_path = ext.data_dir .. "/config.json"
 
 ---
 
+### ext.plugin
+
+只读表，包含当前扩展插件的元数据，来自 `manifest.json` 的声明。
+
+```lua
+local p = ext.plugin
+
+ext.log(p.id)           -- 插件 ID，如 "extension.my_plugin"
+ext.log(p.name.raw)     -- 显示名称（原始字符串）
+ext.log(p.version)      -- 版本字符串，如 "1.0.0"
+ext.log(p.publisher)    -- 作者名称
+ext.log(p.type)         -- 始终为 "extension"
+
+-- 可选字段（未在 manifest 中声明则为 nil）
+if p.description then
+    ext.log(p.description.raw)
+end
+if p.repository then
+    ext.log(p.repository)
+end
+if p.license then
+    ext.log(p.license)
+end
+if p.page_path then
+    ext.log(p.page_path)
+end
+```
+
+| 字段 | 类型 | 说明 |
+|-------|------|------|
+| `id` | string | 插件 ID |
+| `name` | [LocalizedText](../../api/data-types.md#localizedtext) | 插件显示名称 |
+| `version` | string | 插件版本 |
+| `publisher` | string | 插件作者 |
+| `permissions` | string[] | 已声明的权限列表 |
+| `type` | string | 始终为 `"extension"` |
+| `description` | LocalizedText? | 插件描述（未设置则为 `nil`） |
+| `repository` | string? | 源代码仓库 URL（未设置则为 `nil`） |
+| `license` | string? | 许可证标识符（未设置则为 `nil`） |
+| `page_path` | string? | 扩展 HTML 页面的相对路径（未设置则为 `nil`） |
+
+---
+
 ## 系统信息
 
 :::info 版本
@@ -329,14 +372,24 @@ local output_locks = ext.get_led_locks("COM3", "out1")
 
 ### ext.get_effects()
 
-获取所有可用灯效。
+获取所有可用的灯效（内置 + Lua 插件）。
 
 ```lua
 local effects = ext.get_effects()
 for _, effect in ipairs(effects) do
-    ext.log("灯效: " .. effect.id)
+    ext.log("灯效：" .. effect.id .. " - " .. effect.name.raw)
 end
 ```
+
+返回数组中每个元素的字段如下：
+
+| 字段 | 类型 | 说明 |
+|-------|------|------|
+| `id` | string | 灯效插件 ID |
+| `name` | [LocalizedText](../../api/data-types.md#localizedtext) | 灯效显示名称 |
+| `description` | LocalizedText? | 简短描述（未设置则为 `nil`） |
+| `group` | LocalizedText? | 分类/分组名称（未设置则为 `nil`） |
+| `icon` | string? | 图标标识符（未设置则为 `nil`） |
 
 ### ext.get_effect_params(effect_id)
 

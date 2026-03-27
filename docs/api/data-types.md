@@ -34,12 +34,12 @@ Describes a configurable parameter exposed by an effect. The `type` field determ
 {
   "type": "slider",
   "key": "speed",
-  "label": "Speed",
+  "label": {"raw": "Speed", "byLocale": {"zh-CN": "速度"}},
   "min": 0.0,
   "max": 5.0,
   "step": 0.1,
   "default": 2.5,
-  "group": "Animation",
+  "group": {"raw": "Animation", "byLocale": {"zh-CN": "动画"}},
   "dependency": null
 }
 ```
@@ -50,7 +50,7 @@ Describes a configurable parameter exposed by an effect. The `type` field determ
 {
   "type": "range_slider",
   "key": "frequency_range",
-  "label": "Frequency Range",
+  "label": {"raw": "Frequency Range", "byLocale": {"zh-CN": "频率范围"}},
   "min": 20.0,
   "max": 20000.0,
   "step": 1.0,
@@ -64,12 +64,12 @@ Describes a configurable parameter exposed by an effect. The `type` field determ
 {
   "type": "select",
   "key": "preset",
-  "label": "Preset",
+  "label": {"raw": "Preset", "byLocale": {"zh-CN": "预设"}},
   "default": 0,
   "options": [
-    {"label": "Custom", "value": 0},
-    {"label": "Rainbow", "value": 1},
-    {"label": "Sunset", "value": 2}
+    {"label": {"raw": "Custom", "byLocale": {"zh-CN": "自定义"}}, "value": 0},
+    {"label": {"raw": "Rainbow", "byLocale": {"zh-CN": "彩虹"}}, "value": 1},
+    {"label": {"raw": "Sunset", "byLocale": {"zh-CN": "日落"}}, "value": 2}
   ]
 }
 ```
@@ -80,7 +80,7 @@ Describes a configurable parameter exposed by an effect. The `type` field determ
 {
   "type": "toggle",
   "key": "reverse",
-  "label": "Reverse Direction",
+  "label": {"raw": "Reverse Direction", "byLocale": {"zh-CN": "反向方向"}},
   "default": false
 }
 ```
@@ -91,7 +91,7 @@ Describes a configurable parameter exposed by an effect. The `type` field determ
 {
   "type": "color",
   "key": "baseColor",
-  "label": "Base Color",
+  "label": {"raw": "Base Color", "byLocale": {"zh-CN": "基础颜色"}},
   "default": "#FF0000"
 }
 ```
@@ -102,7 +102,7 @@ Describes a configurable parameter exposed by an effect. The `type` field determ
 {
   "type": "multi_color",
   "key": "colors",
-  "label": "Color Palette",
+  "label": {"raw": "Color Palette", "byLocale": {"zh-CN": "调色板"}},
   "default": ["#FF0000", "#00FF00", "#0000FF"],
   "fixedCount": null,
   "minCount": 2,
