@@ -37,7 +37,9 @@ sidebar_position: 8
 | 权限 | 说明 |
 |------|------|
 | `media:session` | 访问当前系统媒体会话的元数据、播放状态、进度时间线与封面 *（3.0.0-dev.3 起支持）* |
+| `network` | 允许所有网络访问（TCP 和 HTTP）*（3.0.0-dev.3 起支持）* |
 | `network:tcp` | 建立 TCP 连接 |
+| `network:http` | 发起 HTTP/HTTPS 请求 *（3.0.0-dev.3 起支持）* |
 | `process` | 启动和管理外部进程 |
 | `hardware:hid` | 直接打开并与 HID 设备通信 *（3.0.0-dev.2 起支持）* |
 | `native` | 通过 `require()` 加载原生 C 模块（`.dll`/`.so`），并可使用 `native` 清单块进行精细化库搜索控制 *（3.0.0-dev.2 起支持；`native` 清单配置自 3.0.0-dev.3 起支持）* |

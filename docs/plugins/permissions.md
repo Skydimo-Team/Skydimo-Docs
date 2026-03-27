@@ -37,7 +37,9 @@ Plugins must declare required permissions in `manifest.json`. Core enforces thes
 | Permission | Description |
 |-----------|-------------|
 | `media:session` | Access the current system media session metadata, playback state, timeline, and artwork *(since 3.0.0-dev.3)* |
+| `network` | Allow all network access (TCP and HTTP) *(since 3.0.0-dev.3)* |
 | `network:tcp` | Open TCP connections |
+| `network:http` | Make HTTP/HTTPS requests *(since 3.0.0-dev.3)* |
 | `process` | Spawn and manage external processes |
 | `hardware:hid` | Open and communicate with HID devices directly *(since 3.0.0-dev.2)* |
 | `native` | Load native C modules (`.dll`/`.so`) via `require()` and use the `native` manifest block for fine-grained library search control *(since 3.0.0-dev.2; `native` manifest config since 3.0.0-dev.3)* |

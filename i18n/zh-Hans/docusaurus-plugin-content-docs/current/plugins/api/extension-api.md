@@ -80,6 +80,31 @@ end
 
 ## 工具函数
 
+### ext.json_encode(value)
+
+:::info 版本
+自 **3.0.0-dev.3** 起支持。
+:::
+
+将 Lua 表格或值编码为 JSON 字符串。
+
+```lua
+local json_str = ext.json_encode({ hello = "world", count = 5 })
+```
+
+### ext.json_decode(json_string)
+
+:::info 版本
+自 **3.0.0-dev.3** 起支持。
+:::
+
+将 JSON 字符串解码为 Lua 表格或值。
+
+```lua
+local data = ext.json_decode('{"hello": "world"}')
+ext.log(data.hello)
+```
+
 ### ext.sleep(ms)
 
 休眠指定毫秒数。
@@ -527,60 +552,187 @@ ext.set_scope_brightness({port = "COM3", output_id = "out1"}, 80)
 
 ---
 
-## 网络（TCP）
+## 网络
 
-需要 `"network:tcp"` 权限。
+:::info 版本
+全新的 `ext.net.*` 结构化 API 自 **3.0.0-dev.3** 起支持。
+:::
 
-### ext.tcp_connect(host, port [, timeout_ms])
+根据使用的功能不同，需要 `"network"`、`"network:tcp"` 或 `"network:http"` 权限。
 
-建立 TCP 连接。
+### HTTP 客户端 (`ext.net.http`)
+
+需要 `"network:http"` 或 `"network"` 权限。
+
+#### ext.net.http.request(options)
+
+发起一次性 HTTP 请求。
 
 ```lua
-local handle = ext.tcp_connect("127.0.0.1", 6742)
-local handle = ext.tcp_connect("192.168.1.100", 8080, 5000)
+local response = ext.net.http.request({
+    method = "GET",
+    url = "https://api.github.com/repos/skydimo/light",
+    headers = { ["User-Agent"] = "SkydimoExtension" },
+    timeout_ms = 10000
+})
+
+if response.ok then
+    local data = ext.json_decode(response.body)
+    ext.log("Repo: " .. data.full_name)
+end
 ```
+
+**参数 (options)**:
+- `method` —— HTTP 方法（默认：`"GET"`）。
+- `url` —— 完整的请求目标 URL。
+- `headers` —— 包含 HTTP 请求头的表格。
+- `body` —— 字符串请求载荷。
+- `json` —— 希望作为 JSON 发送的表格/值（会自动设置 `Content-Type: application/json`）。不可与 `body` 同时使用。
+- `timeout_ms` —— 请求整体超时时间（单位：毫秒，默认：`30000`）。
+- `connect_timeout_ms` —— 建立连接超时时间（单位：毫秒，默认：`10000`）。
+- `max_response_bytes` —— 允许响应的最大体积（默认：4MB）。
+- `follow_redirects` —— 是否跟随 HTTP 重定向（默认：`true`）。
+- `max_redirects` —— 允许重定向的最大次数。
+
+**返回**：一个 `HttpResponseData` 表格，包含 `ok` (布尔值)、`status` (状态码整数)、`url` (字符串)、`headers` (表格) 和 `body` (响应体字符串)。
+
+#### ext.net.http.stream(options)
+
+:::note
+也可以通过 `ext.net.http.open()` 调用。
+:::
+
+发起 HTTP 流请求。适用于 Server-Sent Events (SSE) 或是分块下载大型数据。
+事件必须通过 `read()` 进行手动拉取。
+
+```lua
+local handle = ext.net.http.stream({
+    url = "https://example.com/events"
+})
+```
+
+**返回**：`integer` —— 流句柄。
+
+#### ext.net.http.read(handle [, timeout_ms])
+
+从 HTTP 流中拉取下一个事件。
+
+```lua
+local event = ext.net.http.read(handle, 5000)
+
+if event then
+    if event.type == "headers" then
+        ext.log("响应状态码: " .. event.status)
+    elseif event.type == "chunk" then
+        ext.log("收到的切片大小: " .. #event.data)
+    elseif event.type == "done" then
+        ext.log("流结束")
+    elseif event.type == "error" then
+        ext.error("流错误: " .. event.message)
+    end
+end
+```
+
+**返回**：事件表格（包含 `type`、`status`、`data`、`message` 等），如果超时则返回 `nil`。表格内可用的字段取决于事件 `type` (`"headers"`、`"chunk"`、`"done"` 或是 `"error"`)。
+
+#### ext.net.http.close(handle)
+
+关闭运行中的 HTTP 流。流在到达 `"done"` 或 `"error"` 之前不会自动关闭。
+
+```lua
+ext.net.http.close(handle)
+```
+
+---
+
+### TCP 客户端 (`ext.net.tcp`)
+
+需要 `"network:tcp"` 或 `"network"` 权限。
+
+#### ext.net.tcp.connect(options)
+
+建立阻塞的 TCP 连接。
+
+```lua
+local handle = ext.net.tcp.connect({
+    host = "192.168.1.100",
+    port = 8080,
+    connect_timeout_ms = 5000,
+    read_timeout_ms = nil,
+    write_timeout_ms = nil,
+    no_delay = true
+})
+```
+
+**参数 (options)**:
+- `host` —— IP 地址或主机名。
+- `port` —— 端口号。
+- `connect_timeout_ms` —— 连接超时（默认：`5000`）。
+- `read_timeout_ms` —— 此连接上的默认读取超时。
+- `write_timeout_ms` —— 此连接上的默认写入超时。
+- `no_delay` —— 是否开启 `TCP_NODELAY`（默认：`true`）。
 
 **返回**：`integer` —— 连接句柄，失败时抛出错误。
 
-### ext.tcp_send(handle, data)
+#### ext.net.tcp.write(handle, data [, timeout_ms])
 
 通过 TCP 连接发送数据。
 
 ```lua
-local bytes_sent = ext.tcp_send(handle, "HELLO\n")
+local bytes_written = ext.net.tcp.write(handle, "HELLO\n")
 ```
 
-**返回**：`integer` —— 已发送字节数。
+**返回**：`integer` —— 成功写入的字节数。
 
-### ext.tcp_recv(handle, max_len [, timeout_ms])
+#### ext.net.tcp.write_all(handle, data [, timeout_ms])
 
-接收最多 `max_len` 字节。
+通过 TCP 连接发送全部数据。阻塞直到全部载荷发送完毕。
 
 ```lua
-local data = ext.tcp_recv(handle, 4096)
-local data = ext.tcp_recv(handle, 4096, 5000)  -- 5s 超时
+ext.net.tcp.write_all(handle, "HELLO\n")
+```
+
+#### ext.net.tcp.read(handle, max_len [, timeout_ms])
+
+接收最多 `max_len` 个字节。如果 `timeout_ms` 留空或者为 `0`，则取决于该连接的默认读取超时或是被阻断直到接收完毕。
+
+```lua
+local data = ext.net.tcp.read(handle, 4096)
 ```
 
 **返回**：`string` —— 接收到的数据。
 
-### ext.tcp_recv_exact(handle, bytes [, timeout_ms])
+#### ext.net.tcp.read_exact(handle, bytes [, timeout_ms])
 
-精确接收 `bytes` 个字节（阻塞直到全部收到或超时）。
+精确接收 `bytes` 个字节。阻塞直到全部接收或超时/发生错误。
 
 ```lua
-local header = ext.tcp_recv_exact(handle, 4)
-local payload = ext.tcp_recv_exact(handle, payload_len, 10000)
+local data = ext.net.tcp.read_exact(handle, 4)
 ```
 
 **返回**：`string` —— 接收到的数据。
 
-### ext.tcp_close(handle)
+#### ext.net.tcp.close(handle)
 
 关闭 TCP 连接。
 
 ```lua
-ext.tcp_close(handle)
+ext.net.tcp.close(handle)
 ```
+
+---
+
+### 遗留 TCP 接口 (已废弃)
+
+:::caution ⚠️ 废弃警告
+以下作为全局属性的 `ext.tcp_*` 接口已被废弃，并将在未来版本中被移除，旧业务仍兼容使用直至移除为止。请逐步迁移至 `ext.net.tcp.*`。
+:::
+
+- `ext.tcp_connect(host, port [, timeout_ms])` -> `ext.net.tcp.connect({host=host, port=port, connect_timeout_ms=timeout_ms})`
+- `ext.tcp_send(handle, data [, timeout_ms])` -> `ext.net.tcp.write(...)`
+- `ext.tcp_recv(handle, max_len [, timeout_ms])` -> `ext.net.tcp.read(...)`
+- `ext.tcp_recv_exact(handle, bytes [, timeout_ms])` -> `ext.net.tcp.read_exact(...)`
+- `ext.tcp_close(handle)` -> `ext.net.tcp.close(...)`
 
 ---
 

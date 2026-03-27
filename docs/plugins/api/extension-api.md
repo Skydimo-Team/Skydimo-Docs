@@ -80,6 +80,31 @@ end
 
 ## Utility
 
+### ext.json_encode(value)
+
+:::info Version
+Available since **3.0.0-dev.3**.
+:::
+
+Encode a Lua table or value into a JSON string.
+
+```lua
+local json_str = ext.json_encode({ hello = "world", count = 5 })
+```
+
+### ext.json_decode(json_string)
+
+:::info Version
+Available since **3.0.0-dev.3**.
+:::
+
+Decode a JSON string into a Lua table or value.
+
+```lua
+local data = ext.json_decode('{"hello": "world"}')
+ext.log(data.hello)
+```
+
 ### ext.sleep(ms)
 
 Sleep for the specified number of milliseconds.
@@ -527,60 +552,187 @@ ext.set_scope_brightness({port = "COM3", output_id = "out1"}, 80)
 
 ---
 
-## Networking (TCP)
+## Networking
 
-Requires the `"network:tcp"` permission.
+:::info Version
+The new structured `ext.net.*` APIs are available since **3.0.0-dev.3**.
+:::
 
-### ext.tcp_connect(host, port [, timeout_ms])
+Requires the `"network"`, `"network:tcp"`, or `"network:http"` permission depending on the feature used.
 
-Open a TCP connection.
+### HTTP Client (`ext.net.http`)
+
+Requires `"network:http"` or `"network"`.
+
+#### ext.net.http.request(options)
+
+Make a one-shot HTTP request. 
 
 ```lua
-local handle = ext.tcp_connect("127.0.0.1", 6742)
-local handle = ext.tcp_connect("192.168.1.100", 8080, 5000)
+local response = ext.net.http.request({
+    method = "GET",
+    url = "https://api.github.com/repos/skydimo/light",
+    headers = { ["User-Agent"] = "SkydimoExtension" },
+    timeout_ms = 10000
+})
+
+if response.ok then
+    local data = ext.json_decode(response.body)
+    ext.log("Repo: " .. data.full_name)
+end
 ```
 
-**Returns**: `integer` — connection handle, or raises an error on failure.
+**Options**:
+- `method` — HTTP method (default: `"GET"`).
+- `url` — The full target URL.
+- `headers` — Table of HTTP headers.
+- `body` — String payload.
+- `json` — Table/Value to be sent as JSON (sets `Content-Type: application/json` automatically). Cannot be used together with `body`.
+- `timeout_ms` — Request timeout in milliseconds (default: `30000`).
+- `connect_timeout_ms` — Connection timeout in milliseconds (default: `10000`).
+- `max_response_bytes` — Max allowed response size (default: 4MB).
+- `follow_redirects` — Whether to follow HTTP redirects (default: `true`).
+- `max_redirects` — Limit the maximum number of redirects.
 
-### ext.tcp_send(handle, data)
+**Returns**: A `HttpResponseData` table containing `ok` (boolean), `status` (integer), `url` (string), `headers` (table), and `body` (string).
 
-Send data over a TCP connection.
+#### ext.net.http.stream(options)
+
+:::note
+Also available as `ext.net.http.open()`.
+:::
+
+Open a streamed HTTP request. Useful for Server-Sent Events (SSE) or downloading large payloads in chunks.
+Events must be consumed manually using `read()`.
 
 ```lua
-local bytes_sent = ext.tcp_send(handle, "HELLO\n")
+local handle = ext.net.http.stream({
+    url = "https://example.com/events"
+})
 ```
 
-**Returns**: `integer` — number of bytes sent.
+**Returns**: `integer` — Stream handle.
 
-### ext.tcp_recv(handle, max_len [, timeout_ms])
+#### ext.net.http.read(handle [, timeout_ms])
 
-Receive up to `max_len` bytes.
+Read the next event from an HTTP stream.
 
 ```lua
-local data = ext.tcp_recv(handle, 4096)
-local data = ext.tcp_recv(handle, 4096, 5000)  -- 5s timeout
+local event = ext.net.http.read(handle, 5000)
+
+if event then
+    if event.type == "headers" then
+        ext.log("Response status: " .. event.status)
+    elseif event.type == "chunk" then
+        ext.log("Received chunk of size: " .. #event.data)
+    elseif event.type == "done" then
+        ext.log("Stream finished")
+    elseif event.type == "error" then
+        ext.error("Stream error: " .. event.message)
+    end
+end
+```
+
+**Returns**: Event table (`type`, `status`, `data`, `message`), or `nil` if it timed out. The available properties depend on the event `type` (`"headers"`, `"chunk"`, `"done"`, or `"error"`).
+
+#### ext.net.http.close(handle)
+
+Close an active HTTP stream. Streams are not closed automatically until they reach `"done"` or `"error"`.
+
+```lua
+ext.net.http.close(handle)
+```
+
+---
+
+### TCP Client (`ext.net.tcp`)
+
+Requires `"network:tcp"` or `"network"`.
+
+#### ext.net.tcp.connect(options)
+
+Open a blocking TCP connection.
+
+```lua
+local handle = ext.net.tcp.connect({
+    host = "192.168.1.100",
+    port = 8080,
+    connect_timeout_ms = 5000,
+    read_timeout_ms = nil,
+    write_timeout_ms = nil,
+    no_delay = true
+})
+```
+
+**Options**:
+- `host` — IP address or hostname.
+- `port` — Port number.
+- `connect_timeout_ms` — connection timeout (default: `5000`).
+- `read_timeout_ms` — default timeout for reads on this connection.
+- `write_timeout_ms` — default timeout for writes on this connection.
+- `no_delay` — Enables `TCP_NODELAY` (default: `true`).
+
+**Returns**: `integer` — Connection handle, or raises an error on failure.
+
+#### ext.net.tcp.write(handle, data [, timeout_ms])
+
+Write data to a TCP connection.
+
+```lua
+local bytes_written = ext.net.tcp.write(handle, "HELLO\n")
+```
+
+**Returns**: `integer` — Number of bytes successfully written.
+
+#### ext.net.tcp.write_all(handle, data [, timeout_ms])
+
+Write all data to a TCP connection. Blocks until the whole payload is sent.
+
+```lua
+ext.net.tcp.write_all(handle, "HELLO\n")
+```
+
+#### ext.net.tcp.read(handle, max_len [, timeout_ms])
+
+Receive up to `max_len` bytes. If `timeout_ms` is `0` or omitted, it relies on the connection's default read timeout or blocks indefinitely.
+
+```lua
+local data = ext.net.tcp.read(handle, 4096)
 ```
 
 **Returns**: `string` — received data.
 
-### ext.tcp_recv_exact(handle, bytes [, timeout_ms])
+#### ext.net.tcp.read_exact(handle, bytes [, timeout_ms])
 
-Receive exactly `bytes` bytes (blocks until all received or timeout).
+Receive exactly `bytes` bytes. Blocks until all are received or an error/timeout occurs.
 
 ```lua
-local header = ext.tcp_recv_exact(handle, 4)
-local payload = ext.tcp_recv_exact(handle, payload_len, 10000)
+local data = ext.net.tcp.read_exact(handle, 4)
 ```
 
 **Returns**: `string` — received data.
 
-### ext.tcp_close(handle)
+#### ext.net.tcp.close(handle)
 
 Close a TCP connection.
 
 ```lua
-ext.tcp_close(handle)
+ext.net.tcp.close(handle)
 ```
+
+---
+
+### Legacy TCP API (Deprecated)
+
+:::caution Deprecated
+The following global `ext.tcp_*` interfaces are deprecated and will be removed in a future release. Please transition to `ext.net.tcp.*`.
+:::
+
+- `ext.tcp_connect(host, port [, timeout_ms])` -> `ext.net.tcp.connect({host=host, port=port, connect_timeout_ms=timeout_ms})`
+- `ext.tcp_send(handle, data [, timeout_ms])` -> `ext.net.tcp.write(...)`
+- `ext.tcp_recv(handle, max_len [, timeout_ms])` -> `ext.net.tcp.read(...)`
+- `ext.tcp_recv_exact(handle, bytes [, timeout_ms])` -> `ext.net.tcp.read_exact(...)`
+- `ext.tcp_close(handle)` -> `ext.net.tcp.close(...)`
 
 ---
 
