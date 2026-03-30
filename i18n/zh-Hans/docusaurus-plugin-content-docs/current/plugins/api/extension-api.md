@@ -467,6 +467,137 @@ end
 
 ---
 
+## 系统状态
+
+:::info 版本
+自 **3.0.0-dev.4** 起支持。
+:::
+
+系统状态 API 允许扩展监控操作系统级别的状态，例如运行中的进程和当前聚焦窗口。每个主题需要对应的权限。
+
+:::note 平台支持
+系统状态监控目前仅支持 **Windows**。在不支持的平台上，主题显示 `supported = false` 并返回空数据。
+:::
+
+### ext.list_system_state_topics()
+
+列出本扩展可用的系统状态主题，根据已声明的权限进行过滤。
+
+```lua
+local topics = ext.list_system_state_topics()
+for _, topic in ipairs(topics) do
+    ext.log(topic.id .. " supported=" .. tostring(topic.supported))
+end
+```
+
+**返回**：主题信息对象数组：
+
+| 字段 | 类型 | 说明 |
+|-------|------|------|
+| `id` | string | 主题标识符（`"process"`、`"window_focus"`） |
+| `permission` | string | 该主题所需的权限 |
+| `supported` | boolean | 该主题在当前平台是否受支持 |
+
+### ext.get_system_state(topic)
+
+获取指定主题的当前状态快照。
+
+- `topic` — 主题标识符字符串。
+
+```lua
+local state = ext.get_system_state("process")
+local focus = ext.get_system_state("window_focus")
+```
+
+**返回**：快照表格（结构取决于主题）。若主题未知或未声明所需权限则抛出错误。
+
+#### 主题：`process`
+
+需要 `"system:process"` 权限。
+
+**快照** (`ext.get_system_state("process")`):
+
+| 字段 | 类型 | 说明 |
+|-------|------|------|
+| `supported` | boolean | 当前平台是否支持进程监控 |
+| `apps` | array | 运行中的应用程序列表 |
+| `apps[].name` | string | 应用程序可执行文件名（小写、已去除首尾空格） |
+| `apps[].instance_count` | integer | 运行实例数 |
+
+**变化事件** (`on_system_state_changed("process", data)`):
+
+| 字段 | 类型 | 说明 |
+|-------|------|------|
+| `supported` | boolean | 是否支持进程监控 |
+| `apps` | array | 当前运行中的应用程序完整列表 |
+| `changes` | array | 实例数发生变化的应用程序列表 |
+| `changes[].name` | string | 应用程序可执行文件名 |
+| `changes[].previous_instance_count` | integer | 变化前的实例数 |
+| `changes[].current_instance_count` | integer | 变化后的实例数 |
+
+```lua
+-- 快照
+local state = ext.get_system_state("process")
+for _, app in ipairs(state.apps) do
+    ext.log(app.name .. ": " .. app.instance_count)
+end
+
+-- 变化回调
+function plugin.on_system_state_changed(topic, data)
+    if topic == "process" then
+        for _, c in ipairs(data.changes) do
+            ext.log(c.name .. ": " .. c.previous_instance_count .. " → " .. c.current_instance_count)
+        end
+    end
+end
+```
+
+#### 主题：`window_focus`
+
+需要 `"system:window-focus"` 权限。
+
+**快照** (`ext.get_system_state("window_focus")`):
+
+| 字段 | 类型 | 说明 |
+|-------|------|------|
+| `supported` | boolean | 当前平台是否支持窗口焦点监控 |
+| `current` | object? | 当前聚焦窗口，若无则为 `nil` |
+| `current.app_name` | string? | 应用程序可执行文件名（小写） |
+| `current.window_title` | string? | 窗口标题文本 |
+
+**变化事件** (`on_system_state_changed("window_focus", data)`):
+
+| 字段 | 类型 | 说明 |
+|-------|------|------|
+| `supported` | boolean | 是否支持窗口焦点监控 |
+| `reason` | string | 变化原因：`"snapshot"`、`"foreground_changed"` 或 `"title_changed"` |
+| `current` | object? | 当前聚焦窗口，若无则为 `nil` |
+| `previous` | object? | 之前聚焦的窗口，若无则为 `nil` |
+
+```lua
+-- 快照
+local focus = ext.get_system_state("window_focus")
+if focus.current then
+    ext.log("当前聚焦应用: " .. (focus.current.app_name or "未知"))
+    ext.log("窗口标题: " .. (focus.current.window_title or ""))
+end
+
+-- 变化回调
+function plugin.on_system_state_changed(topic, data)
+    if topic == "window_focus" then
+        ext.log("焦点变化原因: " .. data.reason)
+        if data.current then
+            ext.log("当前: " .. (data.current.app_name or ""))
+        end
+        if data.previous then
+            ext.log("之前: " .. (data.previous.app_name or ""))
+        end
+    end
+end
+```
+
+---
+
 ## Scope API
 
 :::info 版本
@@ -857,6 +988,7 @@ ext.page_emit({type = "devices_update", devices = ext.get_devices()})
 | `on_system_media_changed(session)` | `function(table)` | 系统媒体属性/封面变化（需 `media:session`；≥ 3.0.0-dev.3） |
 | `on_system_media_playback_changed(session)` | `function(table)` | 系统媒体播放状态变化（需 `media:session`；≥ 3.0.0-dev.3） |
 | `on_system_media_timeline_changed(session)` | `function(table)` | 系统媒体进度/时长更新（需 `media:session`；≥ 3.0.0-dev.3） |
+| `on_system_state_changed(topic, data)` | `function(string, table)` | 系统状态主题变化（需对应主题权限；≥ 3.0.0-dev.4） |
 | `on_device_frame(port, outputs)` | `function(string, table)` | 实时 LED 帧数据 |
 | `on_page_message(data)` | `function(table)` | 来自 HTML 页面的消息 |
 | `on_stop()` | `function()` | 扩展正在停止 |

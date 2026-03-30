@@ -32,6 +32,7 @@ Core startup → Load enabled extensions
       plugin.on_devices_changed()  ← Device list changed
       plugin.on_led_locks_changed()← LED lock changed
       plugin.on_system_media_*()   ← Media playback changes
+      plugin.on_system_state_changed() ← System state changes
       plugin.on_device_frame()     ← Real-time LED data
       plugin.on_page_message()     ← Message from HTML page
   → plugin.on_stop()              ← Extension stopping
@@ -126,6 +127,35 @@ function plugin.on_system_media_timeline_changed(session)
     -- session.timeline contains progress and length
 end
 ```
+
+### on_system_state_changed(topic, data)
+
+:::info Version
+Available since **3.0.0-dev.4**. Requires the corresponding topic permission (`"system:process"` or `"system:window-focus"`).
+:::
+
+Called when a subscribed system state topic changes. The `topic` string identifies which topic changed, and `data` contains the change payload.
+
+```lua
+function plugin.on_system_state_changed(topic, data)
+    if topic == "process" then
+        ext.log("Running applications: " .. #data.apps)
+        for _, change in ipairs(data.changes) do
+            if change.current_instance_count > change.previous_instance_count then
+                ext.log("Started: " .. change.name)
+            else
+                ext.log("Stopped: " .. change.name)
+            end
+        end
+    elseif topic == "window_focus" then
+        if data.current then
+            ext.log("Focused: " .. (data.current.app_name or "unknown"))
+        end
+    end
+end
+```
+
+See [System State Monitoring](#system-state-monitoring) for available topics and data structures.
 
 ### on_device_frame(port, outputs)
 
@@ -396,6 +426,79 @@ ext.notify_persistent("conn_status", "Connecting...", "Attempting to connect to 
 
 -- Dismiss it later
 ext.dismiss_persistent("conn_status")
+```
+
+## System State Monitoring
+
+> **Since 3.0.0-dev.4**
+
+Extensions can subscribe to and query system state topics such as running processes and the currently focused window. Each topic requires its own permission.
+
+:::note Platform Support
+System state monitoring is currently only supported on **Windows**. On unsupported platforms, `ext.list_system_state_topics()` returns topics with `supported = false`, and `ext.get_system_state()` returns a snapshot with `supported = false` and empty data.
+:::
+
+### Available Topics
+
+| Topic | Permission | Description |
+|-------|-----------|-------------|
+| `process` | `system:process` | Running application processes (name and instance count) |
+| `window_focus` | `system:window-focus` | Currently focused foreground window (app name and title) |
+
+### Querying System State
+
+```lua
+-- List topics available to this plugin (filtered by declared permissions)
+local topics = ext.list_system_state_topics()
+for _, topic in ipairs(topics) do
+    ext.log("Topic: " .. topic.id .. " supported=" .. tostring(topic.supported))
+end
+
+-- Get a snapshot of the current state
+local state = ext.get_system_state("process")
+if state and state.supported then
+    for _, app in ipairs(state.apps) do
+        ext.log(app.name .. " (" .. app.instance_count .. " instances)")
+    end
+end
+
+local focus = ext.get_system_state("window_focus")
+if focus and focus.supported and focus.current then
+    ext.log("Focused: " .. (focus.current.app_name or "?") .. " - " .. (focus.current.window_title or ""))
+end
+```
+
+### Receiving Change Events
+
+Declare the corresponding permission and implement `on_system_state_changed`:
+
+```json title="manifest.json"
+{
+  "permissions": ["system:process", "system:window-focus"]
+}
+```
+
+```lua
+function plugin.on_system_state_changed(topic, data)
+    if topic == "process" then
+        -- data.apps: full list of {name, instance_count}
+        -- data.changes: list of {name, previous_instance_count, current_instance_count}
+        for _, change in ipairs(data.changes) do
+            if change.current_instance_count > change.previous_instance_count then
+                ext.log(change.name .. " launched")
+            elseif change.current_instance_count == 0 then
+                ext.log(change.name .. " closed")
+            end
+        end
+    elseif topic == "window_focus" then
+        -- data.reason: "snapshot", "foreground_changed", or "title_changed"
+        -- data.current: {app_name?, window_title?} or nil
+        -- data.previous: {app_name?, window_title?} or nil
+        if data.current then
+            ext.log("Window focus → " .. (data.current.app_name or ""))
+        end
+    end
+end
 ```
 
 ## Complete Example: Protocol Bridge

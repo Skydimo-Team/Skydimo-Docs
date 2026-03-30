@@ -128,7 +128,72 @@ Fired when an extension’s embedded HTML page sends a message to Core. The even
 ```
 
 Extension Lua code receives this via the `on_page_message(data)` callback.
+---
 
+### system.process.changed
+
+:::info Version
+Available since **3.0.0-dev.4**. Currently only supported on Windows.
+:::
+
+Fired when the list of running application processes changes (an application starts or stops). Extension plugins with the `system:process` permission receive this via the `on_system_state_changed("process", data)` callback.
+
+```json
+{
+  "event": "system.process.changed",
+  "data": {
+    "supported": true,
+    "apps": [
+      { "name": "chrome.exe", "instance_count": 3 },
+      { "name": "code.exe", "instance_count": 1 }
+    ],
+    "changes": [
+      { "name": "notepad.exe", "previous_instance_count": 1, "current_instance_count": 0 }
+    ]
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `supported` | boolean | Whether process monitoring is supported on the current platform |
+| `apps` | array | Full list of currently running applications |
+| `changes` | array | Applications whose instance count changed in this update |
+
+---
+
+### system.focus.changed
+
+:::info Version
+Available since **3.0.0-dev.4**. Currently only supported on Windows.
+:::
+
+Fired when the foreground window focus changes (user switches to a different window, or the current window's title changes). Extension plugins with the `system:window-focus` permission receive this via the `on_system_state_changed("window_focus", data)` callback.
+
+```json
+{
+  "event": "system.focus.changed",
+  "data": {
+    "supported": true,
+    "reason": "foreground_changed",
+    "current": {
+      "app_name": "code.exe",
+      "window_title": "extension-api.md - Light - Visual Studio Code"
+    },
+    "previous": {
+      "app_name": "chrome.exe",
+      "window_title": "GitHub"
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `supported` | boolean | Whether window focus monitoring is supported on the current platform |
+| `reason` | string | `"snapshot"`, `"foreground_changed"`, or `"title_changed"` |
+| `current` | object? | Currently focused window (`app_name`, `window_title`), or `null` |
+| `previous` | object? | Previously focused window, or `null` |
 ## Subscribing to Events
 
 Since `3.0.0-dev.3`, events are automatically pushed to all connected local WebSocket clients. No explicit subscription is required.

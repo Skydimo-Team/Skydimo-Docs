@@ -467,6 +467,137 @@ end
 
 ---
 
+## System State
+
+:::info Version
+Available since **3.0.0-dev.4**.
+:::
+
+System state APIs allow extensions to monitor OS-level state such as running processes and the currently focused window. Each topic requires its own permission.
+
+:::note Platform Support
+System state monitoring is currently only supported on **Windows**. On unsupported platforms, topics report `supported = false` and return empty data.
+:::
+
+### ext.list_system_state_topics()
+
+List available system state topics for this extension, filtered by declared permissions.
+
+```lua
+local topics = ext.list_system_state_topics()
+for _, topic in ipairs(topics) do
+    ext.log(topic.id .. " supported=" .. tostring(topic.supported))
+end
+```
+
+**Returns**: array of topic info objects:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Topic identifier (`"process"`, `"window_focus"`) |
+| `permission` | string | Permission required for this topic |
+| `supported` | boolean | Whether the topic is supported on the current platform |
+
+### ext.get_system_state(topic)
+
+Get a snapshot of the current state for a given topic.
+
+- `topic` — Topic identifier string.
+
+```lua
+local state = ext.get_system_state("process")
+local focus = ext.get_system_state("window_focus")
+```
+
+**Returns**: A snapshot table (structure depends on the topic). Raises an error if the topic is unknown or the required permission is not declared.
+
+#### Topic: `process`
+
+Requires the `"system:process"` permission.
+
+**Snapshot** (`ext.get_system_state("process")`):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `supported` | boolean | Whether process monitoring is supported on the current platform |
+| `apps` | array | List of running applications |
+| `apps[].name` | string | Application executable name (lowercase, trimmed) |
+| `apps[].instance_count` | integer | Number of running instances |
+
+**Change event** (`on_system_state_changed("process", data)`):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `supported` | boolean | Whether process monitoring is supported |
+| `apps` | array | Full list of currently running applications |
+| `changes` | array | List of applications whose instance count changed |
+| `changes[].name` | string | Application executable name |
+| `changes[].previous_instance_count` | integer | Instance count before this change |
+| `changes[].current_instance_count` | integer | Instance count after this change |
+
+```lua
+-- Snapshot
+local state = ext.get_system_state("process")
+for _, app in ipairs(state.apps) do
+    ext.log(app.name .. ": " .. app.instance_count)
+end
+
+-- Change callback
+function plugin.on_system_state_changed(topic, data)
+    if topic == "process" then
+        for _, c in ipairs(data.changes) do
+            ext.log(c.name .. ": " .. c.previous_instance_count .. " → " .. c.current_instance_count)
+        end
+    end
+end
+```
+
+#### Topic: `window_focus`
+
+Requires the `"system:window-focus"` permission.
+
+**Snapshot** (`ext.get_system_state("window_focus")`):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `supported` | boolean | Whether window focus monitoring is supported on the current platform |
+| `current` | object? | Currently focused window, or `nil` if none |
+| `current.app_name` | string? | Application executable name (lowercase) |
+| `current.window_title` | string? | Window title text |
+
+**Change event** (`on_system_state_changed("window_focus", data)`):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `supported` | boolean | Whether window focus monitoring is supported |
+| `reason` | string | Reason for the change: `"snapshot"`, `"foreground_changed"`, or `"title_changed"` |
+| `current` | object? | Currently focused window, or `nil` |
+| `previous` | object? | Previously focused window, or `nil` |
+
+```lua
+-- Snapshot
+local focus = ext.get_system_state("window_focus")
+if focus.current then
+    ext.log("Focused app: " .. (focus.current.app_name or "unknown"))
+    ext.log("Window title: " .. (focus.current.window_title or ""))
+end
+
+-- Change callback
+function plugin.on_system_state_changed(topic, data)
+    if topic == "window_focus" then
+        ext.log("Focus reason: " .. data.reason)
+        if data.current then
+            ext.log("Now: " .. (data.current.app_name or ""))
+        end
+        if data.previous then
+            ext.log("Was: " .. (data.previous.app_name or ""))
+        end
+    end
+end
+```
+
+---
+
 ## Scope API
 
 :::info Version
@@ -857,6 +988,7 @@ ext.page_emit({type = "devices_update", devices = ext.get_devices()})
 | `on_system_media_changed(session)` | `function(table)` | System media metadata/artwork changed (requires `media:session`; ≥ 3.0.0-dev.3) |
 | `on_system_media_playback_changed(session)` | `function(table)` | System media playback status changed (requires `media:session`; ≥ 3.0.0-dev.3) |
 | `on_system_media_timeline_changed(session)` | `function(table)` | System media timeline/progress changed (requires `media:session`; ≥ 3.0.0-dev.3) |
+| `on_system_state_changed(topic, data)` | `function(string, table)` | System state topic changed (requires topic permission; ≥ 3.0.0-dev.4) |
 | `on_device_frame(port, outputs)` | `function(string, table)` | Real-time LED frame data |
 | `on_page_message(data)` | `function(table)` | Message from HTML page |
 | `on_stop()` | `function()` | Extension stopping |
