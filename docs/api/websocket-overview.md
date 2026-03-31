@@ -7,7 +7,7 @@ sidebar_position: 1
 Skydimo Core exposes a **JSON-RPC 2.0** API over WebSocket for full programmatic control of the lighting system.
 
 :::note Since 3.0.0-dev.3
-WebSocket secret-based authentication was removed in `3.0.0-dev.3`. Core now binds locally on `127.0.0.1` and accepts requests immediately after the socket opens. Legacy `auth` calls are still accepted as a compatibility no-op.
+WebSocket secret-based authentication was removed in `3.0.0-dev.3`. Core now binds locally on `127.0.0.1` and accepts requests immediately after the socket opens.
 :::
 
 ## Connection
@@ -22,18 +22,16 @@ CORE_PORT=<port>
 
 Connect to `ws://127.0.0.1:<port>`.
 
+In browser mode, the UI must be opened with `?ws=ws://127.0.0.1:<port>` so it knows which running Core instance to connect to.
+
 Core only binds to the local loopback interface, so the API is only reachable from the same machine.
-
-### Legacy `auth` compatibility
-
-Before `3.0.0-dev.3`, clients had to send an `auth` request after connecting. That handshake is no longer required. Older clients may still send `auth`, and Core will respond successfully without requiring or validating a secret.
 
 ### Timeouts
 
 | Operation | Timeout |
 |-----------|---------|
 | RPC call | 30s |
-| Reconnect interval | 250ms ~ 2s (exponential backoff) |
+| Reconnect interval | 2s |
 
 ## Request Format
 

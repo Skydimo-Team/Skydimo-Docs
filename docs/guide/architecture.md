@@ -39,8 +39,8 @@ Core listens on `127.0.0.1:38967` TCP to prevent multiple instances. If a new in
 
 ## Lifecycle
 
-1. Starting with `3.0.0-dev.3`, Core outputs only `CORE_PORT=<port>` to stdout.
-2. The UI process reads that value and connects via WebSocket on `127.0.0.1`.
+1. Starting with `3.0.0-dev.3`, Core always binds an automatically assigned local WebSocket port and outputs `CORE_PORT=<port>` to stdout.
+2. The desktop UI reads that value and connects via WebSocket on `127.0.0.1`; browser mode must be pointed at the running Core explicitly via `?ws=ws://127.0.0.1:<port>`.
 3. When the UI closes, it can either keep Core running (minimize to tray) or shut down both processes.
 
 ## Scope Configuration System
