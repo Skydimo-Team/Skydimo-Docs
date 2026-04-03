@@ -37,8 +37,8 @@ sidebar_position: 8
 | 权限 | 说明 |
 |------|------|
 | `media:session` | 访问当前系统媒体会话的元数据、播放状态、进度时间线与封面 *（3.0.0-dev.3 起支持）* |
-| `system:process` | 订阅运行中的应用程序进程变化并查询当前进程列表。仅支持 Windows。*（3.0.0-dev.4 起支持）* |
-| `system:window-focus` | 订阅前台窗口焦点变化并查询当前聚焦窗口。仅支持 Windows。*（3.0.0-dev.4 起支持）* |
+| `system:process` | 订阅运行中的应用程序进程变化并查询当前进程列表。仅支持 Windows。*（3.0.0-dev.3 起支持）* |
+| `system:window-focus` | 订阅前台窗口焦点变化并查询当前聚焦窗口。仅支持 Windows。*（3.0.0-dev.3 起支持）* |
 | `network` | 允许所有网络访问（TCP 和 HTTP）*（3.0.0-dev.3 起支持）* |
 | `network:tcp` | 建立 TCP 连接 |
 | `network:http` | 发起 HTTP/HTTPS 请求 *（3.0.0-dev.3 起支持）* |
@@ -65,8 +65,8 @@ sidebar_position: 8
 - 每个插件运行在独立的 Lua 状态中 —— 插件之间无法访问彼此的数据
 - 系统信息访问需要显式声明 `system:info` 权限；控制器插件和扩展插件均可用 *（3.0.0-dev.2 起支持）*
 - 媒体会话访问需要显式声明 `media:session` 权限；仅扩展插件可用 *（3.0.0-dev.3 起支持）*
-- 系统进程监控需要显式声明 `system:process` 权限；仅扩展插件可用。目前仅支持 Windows。*（3.0.0-dev.4 起支持）*
-- 窗口焦点监控需要显式声明 `system:window-focus` 权限；仅扩展插件可用。目前仅支持 Windows。*（3.0.0-dev.4 起支持）*
+- 系统进程监控需要显式声明 `system:process` 权限；仅扩展插件可用。目前仅支持 Windows。*（3.0.0-dev.3 起支持）*
+- 窗口焦点监控需要显式声明 `system:window-focus` 权限；仅扩展插件可用。目前仅支持 Windows。*（3.0.0-dev.3 起支持）*
 - HID 访问需要显式声明 `hardware:hid` 权限；仅扩展插件可用 *（3.0.0-dev.2 起支持）*
 - 原生 C 模块加载需要显式声明 `native` 权限，并使用不安全 Lua VM —— 请谨慎使用 *（3.0.0-dev.2 起支持）*
 - 通过 `native` 清单块进行高级 DLL 搜索路径控制与预加载需要 `3.0.0-dev.3` 或更高版本 *（参见 [Manifest 参考 — 原生库配置](manifest#原生库配置)）*

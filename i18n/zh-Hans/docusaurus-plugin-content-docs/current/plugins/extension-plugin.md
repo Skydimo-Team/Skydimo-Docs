@@ -131,7 +131,7 @@ end
 ### on_system_state_changed(topic, data)
 
 :::info 版本
-自 **3.0.0-dev.4** 起支持。需要对应主题的权限（`"system:process"` 或 `"system:window-focus"`）。
+自 **3.0.0-dev.3** 起支持。需要对应主题的权限（`"system:process"` 或 `"system:window-focus"`）。
 :::
 
 当已订阅的系统状态主题发生变化时调用。`topic` 字符串标识变化的主题，`data` 包含变化数据。
@@ -430,7 +430,7 @@ ext.dismiss_persistent("conn_status")
 
 ## 系统状态监控
 
-> **3.0.0-dev.4 起支持**
+> **3.0.0-dev.3 起支持**
 
 扩展可以订阅和查询系统状态主题，例如运行中的进程和当前聚焦窗口。每个主题需要对应的权限。
 

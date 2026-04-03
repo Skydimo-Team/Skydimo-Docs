@@ -470,7 +470,7 @@ end
 ## 系统状态
 
 :::info 版本
-自 **3.0.0-dev.4** 起支持。
+自 **3.0.0-dev.3** 起支持。
 :::
 
 系统状态 API 允许扩展监控操作系统级别的状态，例如运行中的进程和当前聚焦窗口。每个主题需要对应的权限。
@@ -988,7 +988,7 @@ ext.page_emit({type = "devices_update", devices = ext.get_devices()})
 | `on_system_media_changed(session)` | `function(table)` | 系统媒体属性/封面变化（需 `media:session`；≥ 3.0.0-dev.3） |
 | `on_system_media_playback_changed(session)` | `function(table)` | 系统媒体播放状态变化（需 `media:session`；≥ 3.0.0-dev.3） |
 | `on_system_media_timeline_changed(session)` | `function(table)` | 系统媒体进度/时长更新（需 `media:session`；≥ 3.0.0-dev.3） |
-| `on_system_state_changed(topic, data)` | `function(string, table)` | 系统状态主题变化（需对应主题权限；≥ 3.0.0-dev.4） |
+| `on_system_state_changed(topic, data)` | `function(string, table)` | 系统状态主题变化（需对应主题权限；≥ 3.0.0-dev.3） |
 | `on_device_frame(port, outputs)` | `function(string, table)` | 实时 LED 帧数据 |
 | `on_page_message(data)` | `function(table)` | 来自 HTML 页面的消息 |
 | `on_stop()` | `function()` | 扩展正在停止 |

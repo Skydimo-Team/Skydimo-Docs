@@ -470,7 +470,7 @@ end
 ## System State
 
 :::info Version
-Available since **3.0.0-dev.4**.
+Available since **3.0.0-dev.3**.
 :::
 
 System state APIs allow extensions to monitor OS-level state such as running processes and the currently focused window. Each topic requires its own permission.
@@ -988,7 +988,7 @@ ext.page_emit({type = "devices_update", devices = ext.get_devices()})
 | `on_system_media_changed(session)` | `function(table)` | System media metadata/artwork changed (requires `media:session`; ≥ 3.0.0-dev.3) |
 | `on_system_media_playback_changed(session)` | `function(table)` | System media playback status changed (requires `media:session`; ≥ 3.0.0-dev.3) |
 | `on_system_media_timeline_changed(session)` | `function(table)` | System media timeline/progress changed (requires `media:session`; ≥ 3.0.0-dev.3) |
-| `on_system_state_changed(topic, data)` | `function(string, table)` | System state topic changed (requires topic permission; ≥ 3.0.0-dev.4) |
+| `on_system_state_changed(topic, data)` | `function(string, table)` | System state topic changed (requires topic permission; ≥ 3.0.0-dev.3) |
 | `on_device_frame(port, outputs)` | `function(string, table)` | Real-time LED frame data |
 | `on_page_message(data)` | `function(table)` | Message from HTML page |
 | `on_stop()` | `function()` | Extension stopping |

@@ -133,7 +133,7 @@ Extension Lua code receives this via the `on_page_message(data)` callback.
 ### system.process.changed
 
 :::info Version
-Available since **3.0.0-dev.4**. Currently only supported on Windows.
+Available since **3.0.0-dev.3**. Currently only supported on Windows.
 :::
 
 Fired when the list of running application processes changes (an application starts or stops). Extension plugins with the `system:process` permission receive this via the `on_system_state_changed("process", data)` callback.
@@ -165,7 +165,7 @@ Fired when the list of running application processes changes (an application sta
 ### system.focus.changed
 
 :::info Version
-Available since **3.0.0-dev.4**. Currently only supported on Windows.
+Available since **3.0.0-dev.3**. Currently only supported on Windows.
 :::
 
 Fired when the foreground window focus changes (user switches to a different window, or the current window's title changes). Extension plugins with the `system:window-focus` permission receive this via the `on_system_state_changed("window_focus", data)` callback.

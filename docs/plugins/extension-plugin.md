@@ -131,7 +131,7 @@ end
 ### on_system_state_changed(topic, data)
 
 :::info Version
-Available since **3.0.0-dev.4**. Requires the corresponding topic permission (`"system:process"` or `"system:window-focus"`).
+Available since **3.0.0-dev.3**. Requires the corresponding topic permission (`"system:process"` or `"system:window-focus"`).
 :::
 
 Called when a subscribed system state topic changes. The `topic` string identifies which topic changed, and `data` contains the change payload.
@@ -430,7 +430,7 @@ ext.dismiss_persistent("conn_status")
 
 ## System State Monitoring
 
-> **Since 3.0.0-dev.4**
+> **Since 3.0.0-dev.3**
 
 Extensions can subscribe to and query system state topics such as running processes and the currently focused window. Each topic requires its own permission.
 
