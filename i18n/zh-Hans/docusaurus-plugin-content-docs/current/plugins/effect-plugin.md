@@ -92,6 +92,10 @@ end
 
 灯效 manifest 可以使用 `group` 把相关参数归到同一组。若在该组的参数上设置 `groupCollapsed: true`，对应分组在 UI 中会默认折叠。
 
+:::info 版本
+`groupCollapsed` 自 `3.0.0-dev.4` 起支持。
+:::
+
 ## Buffer API
 
 `buffer` 对象提供设置 LED 颜色的方法：

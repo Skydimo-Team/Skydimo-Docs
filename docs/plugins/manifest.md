@@ -136,6 +136,10 @@ For HID devices that expose multiple interfaces (e.g. keyboards with separate in
 `groupCollapsed` also accepts the snake_case alias `group_collapsed` for compatibility.
 :::
 
+:::info Version
+`groupCollapsed` is available since `3.0.0-dev.4`.
+:::
+
 **Kind-specific fields:**
 
 | Kind | Extra Fields |

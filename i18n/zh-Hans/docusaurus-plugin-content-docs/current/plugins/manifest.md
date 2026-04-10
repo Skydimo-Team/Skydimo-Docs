@@ -136,6 +136,10 @@ sidebar_position: 3
 `groupCollapsed` 也支持蛇形命名别名 `group_collapsed`，便于兼容旧写法。
 :::
 
+:::info 版本
+`groupCollapsed` 自 `3.0.0-dev.4` 起支持。
+:::
+
 **Kind 特有字段：**
 
 | Kind | 额外字段 |
