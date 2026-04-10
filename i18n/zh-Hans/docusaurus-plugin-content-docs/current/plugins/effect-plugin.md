@@ -88,6 +88,10 @@ function plugin.on_shutdown()
 end
 ```
 
+## 参数分组
+
+灯效 manifest 可以使用 `group` 把相关参数归到同一组。若在该组的参数上设置 `groupCollapsed: true`，对应分组在 UI 中会默认折叠。
+
 ## Buffer API
 
 `buffer` 对象提供设置 LED 颜色的方法：

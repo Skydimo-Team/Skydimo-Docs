@@ -129,7 +129,12 @@ sidebar_position: 3
 | `kind` | string | ✅ | `"slider"`、`"select"`、`"toggle"`、`"color"`、`"multi-color"` |
 | `default` | any | ❌ | 默认值 |
 | `group` | string | ❌ | UI 分组标签 |
+| `groupCollapsed` | boolean | ❌ | 让该分组的 UI 区块默认折叠（省略时为 `false`） |
 | `dependency` | Dependency | ❌ | 条件可见性 |
+
+:::tip
+`groupCollapsed` 也支持蛇形命名别名 `group_collapsed`，便于兼容旧写法。
+:::
 
 **Kind 特有字段：**
 
@@ -178,6 +183,7 @@ sidebar_position: 3
       "key": "speed",
       "label": "params.speed",
       "group": "params.groups.animation",
+      "groupCollapsed": true,
       "kind": "slider",
       "default": 2.5,
       "min": 0.0,

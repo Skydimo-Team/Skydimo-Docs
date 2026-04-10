@@ -88,6 +88,10 @@ function plugin.on_shutdown()
 end
 ```
 
+## Organizing Parameters
+
+Effect manifests can use `group` to cluster related parameters in the UI. Set `groupCollapsed: true` on a grouped parameter to make that section start collapsed by default.
+
 ## Buffer API
 
 The `buffer` object provides methods for setting LED colors:
