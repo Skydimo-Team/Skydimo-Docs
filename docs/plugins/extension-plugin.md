@@ -214,6 +214,7 @@ local port = ext.register_device({
             name = "Zone 0",
             leds_count = 8,
             output_type = "linear",
+            default_effect = "rainbow_wave",  -- optional (since 3.0.0-dev.4)
         }
     }
 })

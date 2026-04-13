@@ -157,9 +157,14 @@ device:add_output({
         min_total_leds = 1,
         max_total_leds = 300,
         allowed_total_leds = nil  -- or {60, 120, 144}
-    }
+    },
+    default_effect = "rainbow_wave",  -- optional
 })
 ```
+
+:::info Version
+The `default_effect` field is available since **3.0.0-dev.4**. When set, this effect is automatically applied to the output when no user configuration exists.
+:::
 
 ---
 

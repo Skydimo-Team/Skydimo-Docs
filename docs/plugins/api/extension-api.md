@@ -245,10 +245,15 @@ local port = ext.register_device({
             min_total_leds = 1,
             max_total_leds = 300,
             matrix = nil,              -- or {width, height, map}
+            default_effect = "rainbow_wave",  -- optional
         }
     }
 })
 ```
+
+:::info Version
+The `default_effect` field is available since **3.0.0-dev.4**. When set, this effect is automatically applied to the output when no user configuration exists.
+:::
 
 **Returns**: `string` — the controller port identifier for this device.
 

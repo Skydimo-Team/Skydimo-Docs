@@ -151,6 +151,24 @@ capabilities = {
 }
 ```
 
+## 默认灯效
+
+:::info 版本
+自 **3.0.0-dev.4** 起支持。
+:::
+
+你可以为输出端口指定 `default_effect`。设置后，当该输出端口不存在用户配置时，此灯效将被自动应用。
+
+```lua
+device:add_output({
+    id = "strip",
+    name = "RGB Strip",
+    type = "linear",
+    size = 60,
+    default_effect = "rainbow_wave",
+})
+```
+
 ## 完整示例
 
 ```lua
@@ -188,7 +206,8 @@ function plugin.on_init()
             editable = true,
             min_total_leds = 1,
             max_total_leds = 300,
-        }
+        },
+        default_effect = "rainbow_wave",  -- 可选
     })
 end
 

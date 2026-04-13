@@ -157,9 +157,14 @@ device:add_output({
         min_total_leds = 1,
         max_total_leds = 300,
         allowed_total_leds = nil  -- 或 {60, 120, 144}
-    }
+    },
+    default_effect = "rainbow_wave",  -- 可选
 })
 ```
+
+:::info 版本
+`default_effect` 字段自 **3.0.0-dev.4** 起支持。设置后，当该输出端口不存在用户配置时，此灯效将被自动应用。
+:::
 
 ---
 

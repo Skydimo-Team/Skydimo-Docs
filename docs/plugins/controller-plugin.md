@@ -155,6 +155,24 @@ capabilities = {
 }
 ```
 
+## Default Effect
+
+:::info Version
+Available since **3.0.0-dev.4**.
+:::
+
+You can specify a `default_effect` for an output port. When set, this effect is automatically applied when no user configuration exists for the output.
+
+```lua
+device:add_output({
+    id = "strip",
+    name = "RGB Strip",
+    type = "linear",
+    size = 60,
+    default_effect = "rainbow_wave",
+})
+```
+
 ## Complete Example
 
 ```lua
@@ -193,7 +211,8 @@ function plugin.on_init()
             editable = true,
             min_total_leds = 1,
             max_total_leds = 300,
-        }
+        },
+        default_effect = "rainbow_wave",  -- optional
     })
 end
 
