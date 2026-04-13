@@ -289,9 +289,18 @@ sidebar_position: 3
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|:----:|------|
-| `page` | string | ❌ | 内嵌 HTML 页面的路径（如 `"page/dist/index.html"`） |
+| `page` | string | ❌ | 内嵌 HTML 页面的路径（如 `"page/dist/index.html"`）。仅桌面应用。 |
+| `page_url` | string | ❌ | 扩展页面的外部 URL（如 `"http://localhost:5173"`）。同时支持桌面应用和浏览器。 |
 
-### 示例（扩展）
+:::info 版本
+`page_url` 自 **3.0.0-dev.4** 起支持。
+:::
+
+:::caution
+`page` 和 `page_url` **互斥** —— 不得同时声明。`page_url` 必须使用 `http://` 或 `https://` 协议。
+:::
+
+### 示例（扩展，本地页面）
 
 ```json
 {
@@ -304,6 +313,22 @@ sidebar_position: 3
   "permissions": ["network:tcp", "process", "log"],
   "publisher": "Skydimo",
   "page": "page/dist/index.html"
+}
+```
+
+### 示例（扩展，外部 URL 页面）
+
+```json
+{
+  "id": "my_extension",
+  "version": "1.0.0",
+  "name": "meta.name",
+  "type": "extension",
+  "language": "lua",
+  "entry": "init.lua",
+  "permissions": ["log"],
+  "publisher": "Skydimo",
+  "page_url": "http://localhost:5173"
 }
 ```
 

@@ -289,9 +289,18 @@ Plugins that declare `native` configuration must include `"native"` in their `pe
 
 | Field | Type | Required | Description |
 |-------|------|:--------:|-------------|
-| `page` | string | ❌ | Path to embedded HTML page (e.g. `"page/dist/index.html"`) |
+| `page` | string | ❌ | Path to embedded HTML page (e.g. `"page/dist/index.html"`). Desktop app only. |
+| `page_url` | string | ❌ | External URL for the extension page (e.g. `"http://localhost:5173"`). Works in both desktop app and browser. |
 
-### Example (Extension)
+:::info Version
+`page_url` is available since **3.0.0-dev.4**.
+:::
+
+:::caution
+`page` and `page_url` are **mutually exclusive** — you must not declare both. `page_url` must use `http://` or `https://` scheme.
+:::
+
+### Example (Extension with local page)
 
 ```json
 {
@@ -304,6 +313,22 @@ Plugins that declare `native` configuration must include `"native"` in their `pe
   "permissions": ["network:tcp", "process", "log"],
   "publisher": "Skydimo",
   "page": "page/dist/index.html"
+}
+```
+
+### Example (Extension with external URL page)
+
+```json
+{
+  "id": "my_extension",
+  "version": "1.0.0",
+  "name": "meta.name",
+  "type": "extension",
+  "language": "lua",
+  "entry": "init.lua",
+  "permissions": ["log"],
+  "publisher": "Skydimo",
+  "page_url": "http://localhost:5173"
 }
 ```
 

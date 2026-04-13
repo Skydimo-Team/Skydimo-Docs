@@ -388,13 +388,106 @@ ext.set_effect("COM3", "out1", "rainbow", {speed = 3.0})
 
 ## Page Communication
 
-Extensions can include an embedded HTML page that appears in the Skydimo UI:
+Extensions can include an embedded HTML page that appears in the Skydimo UI. There are two modes:
+
+### Path Mode (Desktop App only)
+
+Point to a local HTML file bundled with the plugin. This works only inside the Skydimo desktop app.
 
 ```json title="manifest.json"
 {
   "page": "page/dist/index.html"
 }
 ```
+
+### URL Mode
+
+:::info Version
+Available since **3.0.0-dev.4**.
+:::
+
+Point to an external URL. This works in **both the desktop app and browser** environments.
+
+```json title="manifest.json"
+{
+  "page_url": "http://localhost:5173"
+}
+```
+
+When using URL mode, Skydimo loads the page as an iframe and automatically appends the following **query parameters** to the URL:
+
+| Parameter | Description |
+|-----------|-------------|
+| `extId` | The extension's plugin ID |
+| `locale` | Current UI locale (e.g. `en-US`, `zh-CN`) |
+| `wsUrl` | WebSocket URL of the Skydimo Core (e.g. `ws://127.0.0.1:42070`) |
+
+For example, if `page_url` is `http://localhost:5173`, the actual iframe URL will be:
+```
+http://localhost:5173?extId=my_extension&locale=en-US&wsUrl=ws://127.0.0.1:42070
+```
+
+### Adapting Your Page for URL Mode
+
+Your page needs to resolve connection info from **either** the host-injected global (`window.__SKYDIMO_EXT_PAGE__`) **or** URL query parameters. Here is the recommended pattern (from the LED Canvas extension):
+
+```typescript title="bridge.ts"
+// Sources (in priority order):
+//  1. window.__SKYDIMO_EXT_PAGE__  — injected by host bootstrap script (path mode)
+//  2. URL query params             — set by UI iframe loader (url mode) or manual dev
+//  3. Hardcoded fallback
+
+interface SkydimoExtPage {
+  extId: string
+  wsUrl: string
+  locale?: string
+}
+
+declare global {
+  interface Window {
+    __SKYDIMO_EXT_PAGE__?: Partial<SkydimoExtPage>
+  }
+}
+
+const _params = new URLSearchParams(window.location.search)
+
+const PAGE: SkydimoExtPage = {
+  extId: window.__SKYDIMO_EXT_PAGE__?.extId ?? _params.get('extId') ?? 'my_extension',
+  wsUrl: window.__SKYDIMO_EXT_PAGE__?.wsUrl ?? _params.get('wsUrl') ?? 'ws://127.0.0.1:42070',
+}
+```
+
+For locale resolution, also fall back to the query parameter:
+
+```typescript title="i18n.ts"
+function resolveLocale(): string {
+  // 1. From host injection or URL query param
+  const injected = window.__SKYDIMO_EXT_PAGE__?.locale
+    ?? new URLSearchParams(window.location.search).get('locale')
+  if (injected && supportedLocales.includes(injected)) return injected
+
+  // 2. Base-language matching from navigator
+  // ...
+}
+```
+
+### Browser Debugging
+
+With URL mode, you can debug extension pages **directly in a browser** without the desktop app:
+
+1. Start your page's dev server (e.g. `npm run dev` → `http://localhost:5173`)
+2. Make sure Skydimo Core is running
+3. Open the page directly in a browser with query parameters:
+   ```
+   http://localhost:5173?extId=my_extension&wsUrl=ws://127.0.0.1:<core_port>
+   ```
+4. You have full access to browser DevTools — inspect elements, debug JS, monitor WebSocket frames, etc.
+
+:::tip
+This is especially useful during development. You can use `page_url` pointing to your dev server for hot-reload, then switch to `page` with the production build for release.
+:::
+
+### Lua ↔ Page Communication
 
 Communicate between Lua and the page:
 

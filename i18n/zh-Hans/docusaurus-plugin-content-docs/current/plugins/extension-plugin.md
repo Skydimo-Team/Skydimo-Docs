@@ -388,7 +388,11 @@ ext.set_effect("COM3", "out1", "rainbow", {speed = 3.0})
 
 ## 页面通信
 
-扩展可以包含一个内嵌 HTML 页面，显示在 Skydimo UI 中：
+扩展可以包含一个内嵌 HTML 页面，显示在 Skydimo UI 中。有两种模式：
+
+### 路径模式（仅桌面应用）
+
+指向插件随附的本地 HTML 文件。该模式仅在 Skydimo 桌面应用中可用。
 
 ```json title="manifest.json"
 {
@@ -396,7 +400,96 @@ ext.set_effect("COM3", "out1", "rainbow", {speed = 3.0})
 }
 ```
 
-Lua 与页面之间双向通信：
+### URL 模式
+
+:::info 版本
+自 **3.0.0-dev.4** 起支持。
+:::
+
+指向一个外部 URL。该模式在 **桌面应用和浏览器** 环境中均可使用。
+
+```json title="manifest.json"
+{
+  "page_url": "http://localhost:5173"
+}
+```
+
+使用 URL 模式时，Skydimo 会将页面加载为 iframe，并自动在 URL 后附加以下 **查询参数**：
+
+| 参数 | 说明 |
+|------|------|
+| `extId` | 扩展的插件 ID |
+| `locale` | 当前 UI 语言（如 `en-US`、`zh-CN`） |
+| `wsUrl` | Skydimo Core 的 WebSocket 地址（如 `ws://127.0.0.1:42070`） |
+
+例如，如果 `page_url` 为 `http://localhost:5173`，实际的 iframe URL 将为：
+```
+http://localhost:5173?extId=my_extension&locale=zh-CN&wsUrl=ws://127.0.0.1:42070
+```
+
+### 适配 URL 模式
+
+你的页面需要能从宿主注入的全局变量（`window.__SKYDIMO_EXT_PAGE__`）**或** URL 查询参数中解析连接信息。以下是推荐的模式（来自 LED Canvas 扩展）：
+
+```typescript title="bridge.ts"
+// 来源（按优先级排序）：
+//  1. window.__SKYDIMO_EXT_PAGE__  — 由宿主启动脚本注入（路径模式）
+//  2. URL 查询参数             — 由 UI iframe 加载器设置（URL 模式）或手动开发
+//  3. 硬编码回退值
+
+interface SkydimoExtPage {
+  extId: string
+  wsUrl: string
+  locale?: string
+}
+
+declare global {
+  interface Window {
+    __SKYDIMO_EXT_PAGE__?: Partial<SkydimoExtPage>
+  }
+}
+
+const _params = new URLSearchParams(window.location.search)
+
+const PAGE: SkydimoExtPage = {
+  extId: window.__SKYDIMO_EXT_PAGE__?.extId ?? _params.get('extId') ?? 'my_extension',
+  wsUrl: window.__SKYDIMO_EXT_PAGE__?.wsUrl ?? _params.get('wsUrl') ?? 'ws://127.0.0.1:42070',
+}
+```
+
+对于语言解析，同样需要回退到查询参数：
+
+```typescript title="i18n.ts"
+function resolveLocale(): string {
+  // 1. 从宿主注入或 URL 查询参数获取
+  const injected = window.__SKYDIMO_EXT_PAGE__?.locale
+    ?? new URLSearchParams(window.location.search).get('locale')
+  if (injected && supportedLocales.includes(injected)) return injected
+
+  // 2. 从 navigator 进行基础语言匹配
+  // ...
+}
+```
+
+### 浏览器调试
+
+使用 URL 模式时，你可以直接在浏览器中调试扩展页面，无需桌面应用：
+
+1. 启动页面的开发服务器（例如 `npm run dev` → `http://localhost:5173`）
+2. 确保 Skydimo Core 正在运行
+3. 在浏览器中直接打开页面，附带查询参数：
+   ```
+   http://localhost:5173?extId=my_extension&wsUrl=ws://127.0.0.1:<core_port>
+   ```
+4. 你可以完整使用浏览器开发者工具 —— 检查元素、调试 JS、监控 WebSocket 帧等。
+
+:::tip
+这在开发过程中非常有用。你可以在开发时使用 `page_url` 指向开发服务器以获得热重载，然后在发布时切换为 `page` 指向生产构建结果。
+:::
+
+### Lua ↔ 页面通信
+
+在 Lua 与页面之间双向通信：
 
 ```lua
 -- 向 HTML 页面发送数据
