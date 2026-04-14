@@ -194,17 +194,23 @@ ext.error("连接失败: " .. err)
 
 ```lua
 ext.notify("发现设备", "Corsair Vengeance RGB 已连接")
-ext.notify("警告", "连接不稳定", "warn")
+ext.notify("警告", "连接不稳定", "warning")
+ext.notify("完成", "固件更新成功", "success")
 ```
 
-- `level` —— `"info"`（默认）、`"warn"` 或 `"error"`
+- `level` —— `"info"`（默认）、`"success"`、`"warning"` 或 `"error"`
 
 ### ext.notify_persistent(id, title, description)
 
-显示持久通知，保持显示直到被关闭。
+显示持久通知，保持显示直到被关闭。通知级别始终为 `"info"`。
+
+如果已存在相同 `id` 的持久通知，其标题和描述将被就地更新。
 
 ```lua
 ext.notify_persistent("conn_status", "正在连接...", "尝试连接到服务器")
+
+-- 更新已有通知
+ext.notify_persistent("conn_status", "已连接", "成功连接到服务器")
 ```
 
 ### ext.dismiss_persistent(id)
@@ -244,6 +250,7 @@ local port = ext.register_device({
             editable = false,
             min_total_leds = 1,
             max_total_leds = 300,
+            allowed_total_leds = {30, 60, 144},  -- 可选：限制为特定数量
             matrix = nil,              -- 或 {width, height, map}
             default_effect = "rainbow_wave",  -- 可选
         }
@@ -327,10 +334,13 @@ ext.update_output("bridge://device_0", "zone0", {
 锁定特定 LED 进行直接控制，覆盖当前活跃灯效。
 
 ```lua
-ext.lock_leds("COM3", "out1", {0, 1, 2, 3, 4})
+local locked, rejected = ext.lock_leds("COM3", "out1", {0, 1, 2, 3, 4})
+ext.log("已锁定: " .. locked .. ", 被拒绝: " .. rejected)
 ```
 
 - `indices` —— 以 0 为基准的 LED 索引数组
+
+**返回**：`integer, integer` —— `(locked_count, rejected_count)`。如果 LED 已被其他扩展锁定，可能会被拒绝。
 
 ### ext.unlock_leds(port, output_id, indices)
 
@@ -426,6 +436,10 @@ ext.set_effect("COM3", "out1", "rainbow", {speed = 3.0, preset = 1})
 :::
 
 ### ext.get_media_session([max_edge])
+
+:::note
+也可以通过 `ext.get_current_media()` 调用。
+:::
 
 需要 `"media:session"` 权限。
 
@@ -922,6 +936,136 @@ ext.net.tcp.close(handle)
 - `ext.tcp_recv(handle, max_len [, timeout_ms])` -> `ext.net.tcp.read(...)`
 - `ext.tcp_recv_exact(handle, bytes [, timeout_ms])` -> `ext.net.tcp.read_exact(...)`
 - `ext.tcp_close(handle)` -> `ext.net.tcp.close(...)`
+- `ext.tcp_write_all(handle, data [, timeout_ms])` -> `ext.net.tcp.write_all(...)`
+
+---
+
+### 遗留 HTTP 接口（已废弃）
+
+:::caution ⚠️ 废弃警告
+以下作为全局属性的 `ext.http_*` 接口已被废弃，并将在未来版本中被移除。请逐步迁移至 `ext.net.http.*`。
+:::
+
+- `ext.http_request(options)` -> `ext.net.http.request(...)`
+- `ext.http_open(options)` -> `ext.net.http.stream(...)`
+- `ext.http_read(handle [, timeout_ms])` -> `ext.net.http.read(...)`
+- `ext.http_close(handle)` -> `ext.net.http.close(...)`
+
+---
+
+## HID 硬件访问
+
+:::info 版本
+自 **3.0.0-dev.3** 起支持。需要 `"hardware:hid"` 权限。
+:::
+
+直接 USB HID 设备通信。句柄由系统自动管理，并在扩展停止时自动清理。
+
+### ext.hid_enumerate([vid [, pid]])
+
+枚举已连接的 HID 设备，可按 Vendor ID 和 Product ID 进行过滤。
+
+```lua
+-- 列出所有 HID 设备
+local devices = ext.hid_enumerate()
+
+-- 按 VID/PID 过滤
+local devices = ext.hid_enumerate(0x1532, 0x0084)
+
+for _, dev in ipairs(devices) do
+    ext.log(dev.product .. " @ " .. dev.path)
+end
+```
+
+**返回**：设备信息表数组：
+
+| 字段 | 类型 | 说明 |
+|-------|------|------|
+| `path` | string | 平台特定的设备路径 |
+| `vid` | integer | USB 厂商 ID |
+| `pid` | integer | USB 产品 ID |
+| `serial` | string | 序列号（可能为空） |
+| `manufacturer` | string | 制造商字符串 |
+| `product` | string | 产品名称字符串 |
+| `interface_number` | integer | USB 接口编号 |
+| `usage` | integer | HID 用途 ID |
+| `usage_page` | integer | HID 用途页面 |
+
+### ext.hid_open(vid, pid [, serial])
+
+通过 VID/PID 打开 HID 设备，可指定序列号以区分同型号设备。
+
+```lua
+local handle = ext.hid_open(0x1532, 0x0084)
+```
+
+**返回**：`integer` —— 设备句柄。
+
+### ext.hid_open_path(path)
+
+通过平台特定的设备路径打开 HID 设备（路径来自 `hid_enumerate`）。
+
+```lua
+local handle = ext.hid_open_path(dev.path)
+```
+
+**返回**：`integer` —— 设备句柄。
+
+### ext.hid_write(handle, data)
+
+向 HID 设备写入数据。
+
+```lua
+local bytes_written = ext.hid_write(handle, "\x00\x01\x02")
+```
+
+- `data` —— 要写入的二进制字符串。
+
+**返回**：`integer` —— 写入的字节数。
+
+### ext.hid_read(handle, length [, timeout_ms])
+
+从 HID 设备读取数据。
+
+```lua
+local data = ext.hid_read(handle, 64, 1000)
+```
+
+- `length` —— 最大读取字节数。
+- `timeout_ms` —— 读取超时（毫秒，默认 `0` 为阻塞模式）。
+
+**返回**：`string` —— 从设备读取的二进制数据。
+
+### ext.hid_send_feature_report(handle, data)
+
+发送 HID Feature Report。
+
+```lua
+local bytes_written = ext.hid_send_feature_report(handle, "\x06\x00\x01")
+```
+
+**返回**：`integer` —— 写入的字节数。
+
+### ext.hid_get_feature_report(handle, length [, report_id])
+
+获取 HID Feature Report。
+
+```lua
+local report = ext.hid_get_feature_report(handle, 64, 0x06)
+```
+
+- `length` —— 最大报告长度。
+- `report_id` —— Report ID（默认为 `0`）。
+
+**返回**：`string` —— 二进制报告数据。
+
+### ext.hid_close(handle)
+
+关闭 HID 设备句柄。
+
+```lua
+ext.hid_close(handle)
+```
 
 ---
 

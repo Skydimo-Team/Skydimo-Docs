@@ -194,17 +194,23 @@ Show a toast notification to the user.
 
 ```lua
 ext.notify("Device Found", "Corsair Vengeance RGB connected")
-ext.notify("Warning", "Connection unstable", "warn")
+ext.notify("Warning", "Connection unstable", "warning")
+ext.notify("Done", "Firmware updated successfully", "success")
 ```
 
-- `level` — `"info"` (default), `"warn"`, or `"error"`
+- `level` — `"info"` (default), `"success"`, `"warning"`, or `"error"`
 
 ### ext.notify_persistent(id, title, description)
 
-Show a persistent notification that remains until dismissed.
+Show a persistent notification that remains until dismissed. The notification level is always `"info"`.
+
+If a persistent notification with the same `id` already exists, its title and description will be updated in place.
 
 ```lua
 ext.notify_persistent("conn_status", "Connecting...", "Attempting to connect to server")
+
+-- Update existing notification
+ext.notify_persistent("conn_status", "Connected", "Successfully connected to server")
 ```
 
 ### ext.dismiss_persistent(id)
@@ -244,6 +250,7 @@ local port = ext.register_device({
             editable = false,
             min_total_leds = 1,
             max_total_leds = 300,
+            allowed_total_leds = {30, 60, 144},  -- optional: restrict to specific counts
             matrix = nil,              -- or {width, height, map}
             default_effect = "rainbow_wave",  -- optional
         }
@@ -327,10 +334,13 @@ ext.update_output("bridge://device_0", "zone0", {
 Lock specific LEDs for direct control, overriding the active effect.
 
 ```lua
-ext.lock_leds("COM3", "out1", {0, 1, 2, 3, 4})
+local locked, rejected = ext.lock_leds("COM3", "out1", {0, 1, 2, 3, 4})
+ext.log("Locked: " .. locked .. ", Rejected: " .. rejected)
 ```
 
 - `indices` — Zero-based LED indices to lock
+
+**Returns**: `integer, integer` — `(locked_count, rejected_count)`. LEDs may be rejected if already locked by another extension.
 
 ### ext.unlock_leds(port, output_id, indices)
 
@@ -426,6 +436,10 @@ Available since **3.0.0-dev.3**.
 :::
 
 ### ext.get_media_session([max_edge])
+
+:::note
+Also available as `ext.get_current_media()`.
+:::
 
 Requires the `"media:session"` permission.
 
@@ -922,6 +936,136 @@ The following global `ext.tcp_*` interfaces are deprecated and will be removed i
 - `ext.tcp_recv(handle, max_len [, timeout_ms])` -> `ext.net.tcp.read(...)`
 - `ext.tcp_recv_exact(handle, bytes [, timeout_ms])` -> `ext.net.tcp.read_exact(...)`
 - `ext.tcp_close(handle)` -> `ext.net.tcp.close(...)`
+- `ext.tcp_write_all(handle, data [, timeout_ms])` -> `ext.net.tcp.write_all(...)`
+
+---
+
+### Legacy HTTP API (Deprecated)
+
+:::caution Deprecated
+The following global `ext.http_*` interfaces are deprecated and will be removed in a future release. Please transition to `ext.net.http.*`.
+:::
+
+- `ext.http_request(options)` -> `ext.net.http.request(...)`
+- `ext.http_open(options)` -> `ext.net.http.stream(...)`
+- `ext.http_read(handle [, timeout_ms])` -> `ext.net.http.read(...)`
+- `ext.http_close(handle)` -> `ext.net.http.close(...)`
+
+---
+
+## HID Hardware Access
+
+:::info Version
+Available since **3.0.0-dev.3**. Requires the `"hardware:hid"` permission.
+:::
+
+Direct USB HID device communication. Handles are managed automatically and cleaned up when the extension stops.
+
+### ext.hid_enumerate([vid [, pid]])
+
+Enumerate connected HID devices, optionally filtered by Vendor ID and Product ID.
+
+```lua
+-- List all HID devices
+local devices = ext.hid_enumerate()
+
+-- Filter by VID/PID
+local devices = ext.hid_enumerate(0x1532, 0x0084)
+
+for _, dev in ipairs(devices) do
+    ext.log(dev.product .. " @ " .. dev.path)
+end
+```
+
+**Returns**: array of device info tables:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `path` | string | Platform-specific device path |
+| `vid` | integer | USB Vendor ID |
+| `pid` | integer | USB Product ID |
+| `serial` | string | Serial number (may be empty) |
+| `manufacturer` | string | Manufacturer string |
+| `product` | string | Product string |
+| `interface_number` | integer | USB interface number |
+| `usage` | integer | HID usage ID |
+| `usage_page` | integer | HID usage page |
+
+### ext.hid_open(vid, pid [, serial])
+
+Open a HID device by VID/PID, optionally specifying a serial number to disambiguate.
+
+```lua
+local handle = ext.hid_open(0x1532, 0x0084)
+```
+
+**Returns**: `integer` — Device handle.
+
+### ext.hid_open_path(path)
+
+Open a HID device by its platform-specific path (from `hid_enumerate`).
+
+```lua
+local handle = ext.hid_open_path(dev.path)
+```
+
+**Returns**: `integer` — Device handle.
+
+### ext.hid_write(handle, data)
+
+Write data to a HID device.
+
+```lua
+local bytes_written = ext.hid_write(handle, "\x00\x01\x02")
+```
+
+- `data` — Binary string to write.
+
+**Returns**: `integer` — Number of bytes written.
+
+### ext.hid_read(handle, length [, timeout_ms])
+
+Read data from a HID device.
+
+```lua
+local data = ext.hid_read(handle, 64, 1000)
+```
+
+- `length` — Maximum number of bytes to read.
+- `timeout_ms` — Read timeout in milliseconds (default: `0` for blocking).
+
+**Returns**: `string` — Binary data read from the device.
+
+### ext.hid_send_feature_report(handle, data)
+
+Send a HID feature report.
+
+```lua
+local bytes_written = ext.hid_send_feature_report(handle, "\x06\x00\x01")
+```
+
+**Returns**: `integer` — Number of bytes written.
+
+### ext.hid_get_feature_report(handle, length [, report_id])
+
+Get a HID feature report.
+
+```lua
+local report = ext.hid_get_feature_report(handle, 64, 0x06)
+```
+
+- `length` — Maximum report length.
+- `report_id` — Report ID (default: `0`).
+
+**Returns**: `string` — Binary report data.
+
+### ext.hid_close(handle)
+
+Close a HID device handle.
+
+```lua
+ext.hid_close(handle)
+```
 
 ---
 

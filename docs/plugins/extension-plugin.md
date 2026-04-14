@@ -515,8 +515,15 @@ ext.notify("Connection Established", "Connected to OpenRGB server")
 -- With level
 ext.notify("Warning", "Device not responding", "warn")  -- "info", "warn", "error"
 
--- Persistent notification (stays until dismissed)
+// Persistent notification (stays until dismissed, same ID updates text in place)
 ext.notify_persistent("conn_status", "Connecting...", "Attempting to connect to server")
+
+// Trick: Real-time Progress Updates
+// Submitting a new persistent notification with the EXACT SAME ID will just change the existing toast's 
+// title and description instead of spawning a new one. This is very useful for rendering progress.
+ext.notify_persistent("conn_status", "Connecting...", "Step 1 of 3: Authenticaton")
+ext.notify_persistent("conn_status", "Connecting...", "Step 2 of 3: Syncing devices")
+ext.notify_persistent("conn_status", "Connecting...", "Step 3 of 3: Finalizing")
 
 -- Dismiss it later
 ext.dismiss_persistent("conn_status")

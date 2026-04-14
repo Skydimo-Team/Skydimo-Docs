@@ -84,6 +84,8 @@ A toast notification from Core or a plugin.
 
 **Levels**: `"info"`, `"warn"`, `"error"`
 
+**Persistent Updates**: If `persistent` is `true` and the UI receives another `notification` event with the EXACT SAME `id`, the existing toast's title and description will be updated in-place instead of creating a new one. This is extremely useful for progress bars or real-time status updates (e.g. `Scanning... 10/100`).
+
 ---
 
 ### notification-dismiss

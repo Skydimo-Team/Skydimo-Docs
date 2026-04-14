@@ -515,8 +515,15 @@ ext.notify("连接成功", "已连接到 OpenRGB 服务器")
 -- 带级别
 ext.notify("警告", "设备无响应", "warn")  -- "info", "warn", "error"
 
--- 持久通知（保持显示直到关闭）
+-- 持久通知（保持显示直到关闭，相同 ID 会就地更新文本）
 ext.notify_persistent("conn_status", "正在连接...", "尝试连接到服务器")
+
+-- 技巧：实现实时进度更新
+-- 如果在之后多次发送具有**完全相同 ID**的持久通知，Chakra UI 会直接就地更新已存在 Toast 的
+-- title 和 description，而不是弹出新的 Toast。这对实现「进度条」文字更新非常实用。
+ext.notify_persistent("conn_status", "正在同步...", "步骤 1/3：认证中")
+ext.notify_persistent("conn_status", "正在同步...", "步骤 2/3：同步设备")
+ext.notify_persistent("conn_status", "正在同步...", "步骤 3/3：完成")
 
 -- 稍后关闭
 ext.dismiss_persistent("conn_status")
