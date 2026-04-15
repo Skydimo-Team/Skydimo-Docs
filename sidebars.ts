@@ -31,6 +31,7 @@ const sidebars: SidebarsConfig = {
   pluginsSidebar: [
     'plugins/overview',
     'plugins/getting-started',
+    'plugins/plugin-management',
     'plugins/manifest',
     {
       type: 'category',

@@ -6,18 +6,22 @@ sidebar_position: 2
 
 This guide walks you through creating your first Skydimo plugin — a simple color-cycling effect.
 
+:::info Version
+This workflow is supported since **`3.0.0-dev.4`**.
+:::
+
 ## Prerequisites
 
 - Skydimo installed and running
 - A text editor
 - Basic Lua knowledge ([Lua 5.4 Reference](https://www.lua.org/manual/5.4/))
 
-## Step 1: Create the Plugin Directory
+## Step 1: Create a Source Package Directory
 
-Create a folder in the `plugins/` directory:
+Create a source folder under the development import queue:
 
 ```
-plugins/effect.my_first_effect/
+import/plugin-dev/effect.my_first_effect/
 ```
 
 The directory name must follow the pattern `<type>.<id>` where:
@@ -26,7 +30,7 @@ The directory name must follow the pattern `<type>.<id>` where:
 
 ## Step 2: Write manifest.json
 
-Create `plugins/effect.my_first_effect/manifest.json`:
+Create `import/plugin-dev/effect.my_first_effect/manifest.json`:
 
 ```json
 {
@@ -61,7 +65,7 @@ Create `plugins/effect.my_first_effect/manifest.json`:
 
 ## Step 3: Write main.lua
 
-Create `plugins/effect.my_first_effect/main.lua`:
+Create `import/plugin-dev/effect.my_first_effect/main.lua`:
 
 ```lua
 local plugin = {}
@@ -110,16 +114,32 @@ end
 return plugin
 ```
 
-## Step 4: Test Your Plugin
+## Step 4: Import and Load the Plugin
 
-1. Restart Skydimo Core (or trigger a plugin rescan)
-2. Select any device in the UI
-3. Find "My First Effect" in the effect list
-4. Adjust the Speed and Color parameters
+1. In the Plugins page, trigger **Refresh Plugins** (or restart Core).
+2. Core imports your package and updates the plugin registry.
+3. Open any device and find **My First Effect** in the effect list.
+4. Adjust parameters to verify live behavior.
+
+:::tip
+Use `import/plugin-dev/` while developing. The source package is kept, so you can iterate quickly: edit files → refresh plugins → retest.
+:::
+
+## Step 5: Development Iteration Loop
+
+Recommended loop:
+
+1. Edit source package in `import/plugin-dev/<type>.<id>/`
+2. Trigger **Refresh Plugins**
+3. Verify behavior in UI / logs
+4. Repeat
+
+When moving to production/distribution, package clean plugin content and install through import/download flows.
 
 ## What's Next?
 
 - [Manifest Reference](manifest) — All manifest options
+- [Plugin Management](plugin-management) — Import queues, delete/reset behavior, and troubleshooting
 - [Effect Plugin Guide](effect-plugin) — Advanced effect techniques
 - [Controller Plugin Guide](controller-plugin) — Write hardware drivers
 - [Extension Plugin Guide](extension-plugin) — Build background services
@@ -131,6 +151,7 @@ Check the Core log output for Lua errors. Plugin errors are logged with the plug
 :::
 
 Common issues:
-- **Plugin not showing up**: Verify the directory name matches `effect.<id>` and `manifest.json` is valid JSON
+- **Plugin not showing up**: Verify the directory name matches `effect.<id>`, `manifest.json` is valid JSON, and you triggered **Refresh Plugins**
 - **Lua errors**: Ensure your entry file returns a table with the expected callback functions
 - **Parameters not working**: Make sure `params` keys in `manifest.json` match what you read in `on_params`
+- **Changes not applied immediately**: Trigger refresh again and confirm you are editing the source package under `import/plugin-dev/`

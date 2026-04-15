@@ -6,18 +6,22 @@ sidebar_position: 2
 
 本指南将带你创建第一个 Skydimo 插件 —— 一个简单的颜色循环灯效。
 
+:::info 版本说明
+本工作流在 **`3.0.0-dev.4`** 及之后版本可用。
+:::
+
 ## 前提条件
 
 - 已安装并运行 Skydimo
 - 文本编辑器
 - 基础 Lua 知识（[Lua 5.4 参考手册](https://www.lua.org/manual/5.4/)）
 
-## 第一步：创建插件目录
+## 第一步：创建源码包目录
 
-在 `plugins/` 目录下创建一个文件夹：
+在开发导入目录下创建插件源码包：
 
 ```
-plugins/effect.my_first_effect/
+import/plugin-dev/effect.my_first_effect/
 ```
 
 目录名必须遵循 `<type>.<id>` 格式，其中：
@@ -26,7 +30,7 @@ plugins/effect.my_first_effect/
 
 ## 第二步：编写 manifest.json
 
-创建 `plugins/effect.my_first_effect/manifest.json`：
+创建 `import/plugin-dev/effect.my_first_effect/manifest.json`：
 
 ```json
 {
@@ -61,7 +65,7 @@ plugins/effect.my_first_effect/
 
 ## 第三步：编写 main.lua
 
-创建 `plugins/effect.my_first_effect/main.lua`：
+创建 `import/plugin-dev/effect.my_first_effect/main.lua`：
 
 ```lua
 local plugin = {}
@@ -110,16 +114,33 @@ end
 return plugin
 ```
 
-## 第四步：测试插件
+## 第四步：导入并加载插件
 
-1. 重启 Skydimo Core（或触发插件重新扫描）
-2. 在 UI 中选择任意设备
-3. 在灯效列表中找到"My First Effect"
-4. 调整速度和颜色参数
+1. 在插件页面执行“刷新插件”（或重启 Core）。
+2. Core 导入你的源码包并更新插件注册信息。
+3. 在 UI 中选择任意设备。
+4. 在灯效列表中找到 “My First Effect”。
+5. 调整速度和颜色参数进行验证。
+
+:::tip
+开发阶段建议使用 `import/plugin-dev/`。源码包会被保留，你可以持续编辑 → 刷新 → 验证。
+:::
+
+## 第五步：开发迭代循环
+
+推荐循环：
+
+1. 修改 `import/plugin-dev/<type>.<id>/` 下源码
+2. 执行“刷新插件”
+3. 在 UI / 日志中验证行为
+4. 重复以上步骤
+
+发布时再使用导入/下载安装流程进行分发。
 
 ## 下一步
 
 - [Manifest 参考](manifest) —— 所有 manifest 选项
+- [插件管理](plugin-management) —— 导入队列、删除/重置行为与排障
 - [灯效插件指南](effect-plugin) —— 高级灯效技巧
 - [控制器插件指南](controller-plugin) —— 编写硬件驱动
 - [扩展插件指南](extension-plugin) —— 构建后台服务
@@ -131,6 +152,7 @@ return plugin
 :::
 
 常见问题：
-- **插件未显示**：确认目录名匹配 `effect.<id>` 格式，且 `manifest.json` 是有效 JSON
+- **插件未显示**：确认目录名匹配 `effect.<id>`、`manifest.json` 有效，并且已执行“刷新插件”
 - **Lua 错误**：确保入口文件返回包含预期回调函数的表
 - **参数不生效**：确认 `manifest.json` 中 `params` 的 key 与 `on_params` 中读取的 key 一致
+- **改动未生效**：再次刷新插件，并确认你编辑的是 `import/plugin-dev/` 下源码包
