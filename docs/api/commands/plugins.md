@@ -41,130 +41,6 @@ Returns metadata for all installed plugins.
     }
   ],
   "extensions": [
-
-  ### Additional Metadata Fields
-
-  Each plugin item can include:
-
-  | Field | Type | Description |
-  |-------|------|-------------|
-  | `pluginDir` | string | Resolved runtime plugin directory |
-  | `dataDir` | string \| null | Plugin data directory (if exists) |
-  | `builtIn` | boolean | Whether plugin is bundled with app |
-  | `installSource` | string | `built-in` \| `import` \| `import-dev` \| `download` \| `manual` |
-
-  ---
-
-  ## refresh_plugins
-
-  Refresh plugin state and apply pending imports.
-
-  **Parameters**: none
-
-  ```json
-  → {"jsonrpc":"2.0","method":"refresh_plugins","id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  Typical effects of refresh:
-
-  - Import queued plugins
-  - Reload plugin registries
-  - Refresh runtime state so plugin updates are picked up
-  - Emit plugin-changed event to UI
-
-  ---
-
-  ## open_plugin_dir
-
-  Open plugin directory in system file manager.
-
-  **Parameters**:
-
-  | Field | Type | Required | Description |
-  |-------|------|:--------:|-------------|
-  | `pluginId` | string | ❌ | If provided, opens this plugin's resolved directory; otherwise opens plugin root directory |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"open_plugin_dir","params":{"pluginId":"rainbow"},"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  ---
-
-  ## open_plugin_data_dir
-
-  Open a plugin's data directory in system file manager.
-
-  **Parameters**:
-
-  | Field | Type | Description |
-  |-------|------|-------------|
-  | `pluginId` | string | Plugin ID |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"open_plugin_data_dir","params":{"pluginId":"rainbow"},"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  ---
-
-  ## delete_plugin
-
-  Delete an installed plugin copy.
-
-  **Parameters**:
-
-  | Field | Type | Description |
-  |-------|------|-------------|
-  | `pluginId` | string | Plugin ID |
-  | `deleteData` | boolean | Whether to delete plugin data directory too |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"delete_plugin","params":{
-    "pluginId":"my_effect",
-    "deleteData":true
-  },"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  :::caution
-  Built-in plugins cannot be deleted directly. Use [`reset_plugin`](#reset_plugin) instead.
-  :::
-
-  ---
-
-  ## reset_plugin
-
-  Reset a plugin to default bundled state by removing user override copy.
-
-  **Parameters**:
-
-  | Field | Type | Description |
-  |-------|------|-------------|
-  | `pluginId` | string | Plugin ID |
-  | `resetData` | boolean | Whether to also reset plugin data |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"reset_plugin","params":{
-    "pluginId":"rainbow",
-    "resetData":false
-  },"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  ---
-
-  ## get_plugin_dir
-
-  Get plugin root directory path as string.
-
-  **Parameters**: none
-
-  ```json
-  → {"jsonrpc":"2.0","method":"get_plugin_dir","id":1}
-  ← {"jsonrpc":"2.0","result":"C:/.../plugins","id":1}
-  ```
     {
       "id": "openrgb",
       "name": "OpenRGB Bridge",
@@ -174,6 +50,130 @@ Returns metadata for all installed plugins.
     }
   ]
 },"id":1}
+```
+
+### Additional Metadata Fields
+
+Each plugin item can include:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `pluginDir` | string | Resolved runtime plugin directory |
+| `dataDir` | string \| null | Plugin data directory (if exists) |
+| `builtIn` | boolean | Whether plugin is bundled with app |
+| `installSource` | string | `built-in` \| `import` \| `import-dev` \| `download` \| `manual` |
+
+---
+
+## refresh_plugins
+
+Refresh plugin state and apply pending imports.
+
+**Parameters**: none
+
+```json
+→ {"jsonrpc":"2.0","method":"refresh_plugins","id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+Typical effects of refresh:
+
+- Import queued plugins
+- Reload plugin registries
+- Refresh runtime state so plugin updates are picked up
+- Emit plugin-changed event to UI
+
+---
+
+## open_plugin_dir
+
+Open plugin directory in system file manager.
+
+**Parameters**:
+
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `pluginId` | string | ❌ | If provided, opens this plugin's resolved directory; otherwise opens plugin root directory |
+
+```json
+→ {"jsonrpc":"2.0","method":"open_plugin_dir","params":{"pluginId":"rainbow"},"id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+---
+
+## open_plugin_data_dir
+
+Open a plugin's data directory in system file manager.
+
+**Parameters**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `pluginId` | string | Plugin ID |
+
+```json
+→ {"jsonrpc":"2.0","method":"open_plugin_data_dir","params":{"pluginId":"rainbow"},"id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+---
+
+## delete_plugin
+
+Delete an installed plugin copy.
+
+**Parameters**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `pluginId` | string | Plugin ID |
+| `deleteData` | boolean | Whether to delete plugin data directory too |
+
+```json
+→ {"jsonrpc":"2.0","method":"delete_plugin","params":{
+  "pluginId":"my_effect",
+  "deleteData":true
+},"id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+:::caution
+Built-in plugins cannot be deleted directly. Use [`reset_plugin`](#reset_plugin) instead.
+:::
+
+---
+
+## reset_plugin
+
+Reset a plugin to default bundled state by removing user override copy.
+
+**Parameters**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `pluginId` | string | Plugin ID |
+| `resetData` | boolean | Whether to also reset plugin data |
+
+```json
+→ {"jsonrpc":"2.0","method":"reset_plugin","params":{
+  "pluginId":"rainbow",
+  "resetData":false
+},"id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+---
+
+## get_plugin_dir
+
+Get plugin root directory path as string.
+
+**Parameters**: none
+
+```json
+→ {"jsonrpc":"2.0","method":"get_plugin_dir","id":1}
+← {"jsonrpc":"2.0","result":"C:/.../plugins","id":1}
 ```
 
 ---

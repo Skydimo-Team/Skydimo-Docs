@@ -41,123 +41,6 @@ sidebar_position: 5
     }
   ],
   "extensions": [
-
-  ### 新增元数据字段
-
-  | 字段 | 类型 | 说明 |
-  |------|------|------|
-  | `pluginDir` | string | 插件运行时目录 |
-  | `dataDir` | string \| null | 插件数据目录（若存在） |
-  | `builtIn` | boolean | 是否为内置插件 |
-  | `installSource` | string | `built-in` \| `import` \| `import-dev` \| `download` \| `manual` |
-
-  ---
-
-  ## refresh_plugins
-
-  刷新插件状态并处理导入队列。
-
-  **参数**：无
-
-  ```json
-  → {"jsonrpc":"2.0","method":"refresh_plugins","id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  通常会触发：导入队列处理、插件重载、运行时刷新、UI 插件变更通知。
-
-  ---
-
-  ## open_plugin_dir
-
-  在系统文件管理器中打开插件目录。
-
-  **参数**：
-
-  | 字段 | 类型 | 必填 | 说明 |
-  |------|------|:----:|------|
-  | `pluginId` | string | ❌ | 传入时打开指定插件目录；不传时打开插件总目录 |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"open_plugin_dir","params":{"pluginId":"rainbow"},"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  ---
-
-  ## open_plugin_data_dir
-
-  在系统文件管理器中打开指定插件的数据目录。
-
-  **参数**：
-
-  | 字段 | 类型 | 说明 |
-  |------|------|------|
-  | `pluginId` | string | 插件 ID |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"open_plugin_data_dir","params":{"pluginId":"rainbow"},"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  ---
-
-  ## delete_plugin
-
-  删除已安装插件副本。
-
-  **参数**：
-
-  | 字段 | 类型 | 说明 |
-  |------|------|------|
-  | `pluginId` | string | 插件 ID |
-  | `deleteData` | boolean | 是否同时删除插件数据目录 |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"delete_plugin","params":{
-    "pluginId":"my_effect",
-    "deleteData":true
-  },"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  :::caution
-  内置插件不可直接删除，需使用 [`reset_plugin`](#reset_plugin)。
-  :::
-
-  ---
-
-  ## reset_plugin
-
-  重置插件：移除用户覆盖副本并回到默认（若有内置版本）。
-
-  **参数**：
-
-  | 字段 | 类型 | 说明 |
-  |------|------|------|
-  | `pluginId` | string | 插件 ID |
-  | `resetData` | boolean | 是否同时重置插件数据 |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"reset_plugin","params":{
-    "pluginId":"rainbow",
-    "resetData":false
-  },"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  ---
-
-  ## get_plugin_dir
-
-  获取插件总目录路径。
-
-  **参数**：无
-
-  ```json
-  → {"jsonrpc":"2.0","method":"get_plugin_dir","id":1}
-  ← {"jsonrpc":"2.0","result":"C:/.../plugins","id":1}
-  ```
     {
       "id": "openrgb",
       "name": "OpenRGB Bridge",
@@ -167,6 +50,123 @@ sidebar_position: 5
     }
   ]
 },"id":1}
+```
+
+### 新增元数据字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `pluginDir` | string | 插件运行时目录 |
+| `dataDir` | string \| null | 插件数据目录（若存在） |
+| `builtIn` | boolean | 是否为内置插件 |
+| `installSource` | string | `built-in` \| `import` \| `import-dev` \| `download` \| `manual` |
+
+---
+
+## refresh_plugins
+
+刷新插件状态并处理导入队列。
+
+**参数**：无
+
+```json
+→ {"jsonrpc":"2.0","method":"refresh_plugins","id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+通常会触发：导入队列处理、插件重载、运行时刷新、UI 插件变更通知。
+
+---
+
+## open_plugin_dir
+
+在系统文件管理器中打开插件目录。
+
+**参数**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|:----:|------|
+| `pluginId` | string | ❌ | 传入时打开指定插件目录；不传时打开插件总目录 |
+
+```json
+→ {"jsonrpc":"2.0","method":"open_plugin_dir","params":{"pluginId":"rainbow"},"id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+---
+
+## open_plugin_data_dir
+
+在系统文件管理器中打开指定插件的数据目录。
+
+**参数**：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `pluginId` | string | 插件 ID |
+
+```json
+→ {"jsonrpc":"2.0","method":"open_plugin_data_dir","params":{"pluginId":"rainbow"},"id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+---
+
+## delete_plugin
+
+删除已安装插件副本。
+
+**参数**：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `pluginId` | string | 插件 ID |
+| `deleteData` | boolean | 是否同时删除插件数据目录 |
+
+```json
+→ {"jsonrpc":"2.0","method":"delete_plugin","params":{
+  "pluginId":"my_effect",
+  "deleteData":true
+},"id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+:::caution
+内置插件不可直接删除，需使用 [`reset_plugin`](#reset_plugin)。
+:::
+
+---
+
+## reset_plugin
+
+重置插件：移除用户覆盖副本并回到默认（若有内置版本）。
+
+**参数**：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `pluginId` | string | 插件 ID |
+| `resetData` | boolean | 是否同时重置插件数据 |
+
+```json
+→ {"jsonrpc":"2.0","method":"reset_plugin","params":{
+  "pluginId":"rainbow",
+  "resetData":false
+},"id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+---
+
+## get_plugin_dir
+
+获取插件总目录路径。
+
+**参数**：无
+
+```json
+→ {"jsonrpc":"2.0","method":"get_plugin_dir","id":1}
+← {"jsonrpc":"2.0","result":"C:/.../plugins","id":1}
 ```
 
 ---
