@@ -160,9 +160,33 @@ ext.sleep(1000)  -- Sleep 1 second
 
 ## Logging
 
-### ext.log(msg)
+### ext.trace(msg)
+
+Log at trace level.
+
+```lua
+ext.trace("USB scan tick")
+```
+
+### ext.debug(msg)
+
+Log at debug level.
+
+```lua
+ext.debug("Matched VID/PID candidate")
+```
+
+### ext.info(msg)
 
 Log at info level.
+
+```lua
+ext.info("Extension initialized")
+```
+
+### ext.log(msg)
+
+Legacy alias for `ext.info(msg)`.
 
 ```lua
 ext.log("Extension initialized")

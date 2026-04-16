@@ -160,9 +160,33 @@ ext.sleep(1000)  -- 休眠 1 秒
 
 ## 日志
 
-### ext.log(msg)
+### ext.trace(msg)
+
+记录 trace 级别日志。
+
+```lua
+ext.trace("USB 扫描 tick")
+```
+
+### ext.debug(msg)
+
+记录 debug 级别日志。
+
+```lua
+ext.debug("匹配到一个 VID/PID 候选设备")
+```
+
+### ext.info(msg)
 
 记录 info 级别日志。
+
+```lua
+ext.info("扩展已初始化")
+```
+
+### ext.log(msg)
+
+`ext.info(msg)` 的兼容别名。
 
 ```lua
 ext.log("扩展已初始化")
