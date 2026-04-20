@@ -35,7 +35,15 @@ Device Discovery (USB VID/PID + interface_number match)
 ```
 
 :::info
-For HID devices, if `interface_number` is specified in `manifest.json` match rules, Core filters candidates **before** opening a device handle. Only the matching HID interface is offered to `on_validate()`, eliminating the need for manual interface checks in Lua code.
+For **HID** devices, if `interface_number` is specified in `manifest.json` match rules, Core filters candidates **before** opening a device handle. Only the matching HID interface is offered to `on_validate()`, eliminating the need for manual interface checks in Lua code.
+
+This HID workflow is already verified and is the recommended approach for multi-interface HID devices.
+
+For **Serial (CDC)** devices, `interface_number` matching is also supported, allowing you to target a specific USB CDC interface on composite devices. See [`device:interface_number()`](./api/controller-api#deviceinterface_number) for reading the interface number at runtime.
+
+:::warning
+Serial `interface_number` matching has not been verified in production and is **not recommended**. Available in version **3.0.1** and later.
+:::
 :::
 
 ## Lifecycle Hooks

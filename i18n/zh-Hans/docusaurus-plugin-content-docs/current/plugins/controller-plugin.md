@@ -35,7 +35,15 @@ plugins/controller.my_device/
 ```
 
 :::info
-对于 HID 设备，如果在 `manifest.json` 匹配规则中指定了 `interface_number`，Core 会在**打开设备句柄之前**过滤候选设备。只有匹配的 HID 接口才会被传递给 `on_validate()`，无需在 Lua 代码中手动检查接口号。
+对于 **HID** 设备，如果在 `manifest.json` 匹配规则中指定了 `interface_number`，Core 会在**打开设备句柄之前**过滤候选设备。只有匹配的 HID 接口才会被传递给 `on_validate()`，无需在 Lua 代码中手动检查接口号。
+
+这套 HID 用法已经过验证，也是多接口 HID 设备的推荐做法。
+
+对于**串口（CDC）**设备，同样支持 `interface_number` 匹配，可用于精确定位复合 USB 设备中的特定 CDC 接口。可通过 [`device:interface_number()`](./api/controller-api#deviceinterface_number) 在运行时读取接口号。
+
+:::warning
+串口 `interface_number` 匹配尚未在生产环境中得到验证，**不推荐使用**。在 **3.0.1** 及更高版本中可用。
+:::
 :::
 
 ## 生命周期钩子

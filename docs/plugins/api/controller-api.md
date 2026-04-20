@@ -48,6 +48,22 @@ Returns the USB Vendor ID as a number, or `nil`.
 
 Returns the USB Product ID as a number, or `nil`.
 
+### device:interface_number()
+
+Returns the USB interface number for the claimed device as a number, or `nil` if not available.
+
+For HID devices this corresponds to the `interface_number` declared in the manifest match rule. For Serial (CDC) devices, the value is read from the OS USB enumeration API when available.
+
+```lua
+local iface = device:interface_number()  -- e.g. 1, or nil
+```
+
+:::warning
+This warning applies only to the **Serial (CDC)** path. HID `interface_number` usage is already verified and can be used normally.
+
+The Serial `interface_number` field has not been verified in production and is **not recommended** for use at this time. This API is available in version **3.0.1** and later.
+:::
+
 ---
 
 ## Device Configuration

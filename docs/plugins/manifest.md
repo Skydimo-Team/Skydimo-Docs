@@ -60,10 +60,20 @@ Defines how the controller matches hardware devices.
 |-------|------|-------------|
 | `vid` | string | USB Vendor ID in hex (e.g. `"0x1A86"`) |
 | `pid` | string | USB Product ID in hex (e.g. `"0x7523"`) |
-| `interface_number` | number | HID interface number (HID only, optional). When specified, Core only matches the HID collection on that interface. Omit to match all interfaces. |
+| `interface_number` | number | USB interface number (optional). When specified, Core only matches the device on that interface. See protocol-specific notes below. |
 
 :::tip
-For HID devices that expose multiple interfaces (e.g. keyboards with separate input and lighting endpoints), specifying `interface_number` in the match rule lets Core filter at the matching stage — **before** `on_validate()` is called — avoiding unnecessary device handle opens and duplicate claims.
+For **HID** devices that expose multiple interfaces (e.g. keyboards with separate input and lighting endpoints), specifying `interface_number` in the match rule lets Core filter at the matching stage — **before** `on_validate()` is called — avoiding unnecessary device handle opens and duplicate claims.
+
+This HID usage is already verified and is the recommended approach for multi-interface HID devices.
+:::
+
+:::warning Serial `interface_number` — Not Yet Verified
+This warning applies only to **Serial (CDC)** matching. HID `interface_number` matching is already verified.
+
+For **Serial (CDC)** devices, `interface_number` is now read from the OS USB enumeration API (requires the `usbportinfo-interface` feature of the `serialport` crate) and will be matched against this field. This enables distinguishing multiple serial interfaces on the same composite USB device.
+
+**This usage has not been verified in production and is not recommended.** Available in version **3.0.1** and later.
 :::
 
 ### Example (Serial Controller)
@@ -83,6 +93,34 @@ For HID devices that expose multiple interfaces (e.g. keyboards with separate in
     "timeout_ms": 200,
     "rules": [
       { "vid": "0x1A86", "pid": "0x7523" }
+    ]
+  }
+}
+```
+
+### Example (Serial Controller with interface_number)
+
+:::warning Not Yet Verified
+Matching Serial devices by `interface_number` has not been verified in production and is **not recommended**. Available in version **3.0.1** and later.
+:::
+
+For composite USB devices that expose multiple serial interfaces (e.g. a single USB device that has both a control CDC interface and a data CDC interface), you can target a specific interface:
+
+```json
+{
+  "id": "my_composite_serial",
+  "version": "1.0.0",
+  "name": "Composite Serial Controller (Interface 1)",
+  "type": "controller",
+  "language": "lua",
+  "entry": "main.lua",
+  "permissions": ["serial:read", "serial:write", "log"],
+  "match": {
+    "protocol": "serial",
+    "baud_rate": 115200,
+    "timeout_ms": 200,
+    "rules": [
+      { "vid": "0x1A86", "pid": "0x7523", "interface_number": 1 }
     ]
   }
 }
