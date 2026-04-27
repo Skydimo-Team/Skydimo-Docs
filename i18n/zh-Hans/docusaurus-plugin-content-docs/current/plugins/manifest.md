@@ -17,6 +17,7 @@ sidebar_position: 3
 | `language` | string | ✅ | 始终为 `"lua"` |
 | `entry` | string | ✅ | 入口脚本文件名（如 `"main.lua"` 或 `"init.lua"`） |
 | `permissions` | string[] | ❌ | 所需权限列表 |
+| `locales` | object | ❌ | 以 locale 代码为键的内联本地化词典；也兼容 `i18n` 和 `translations` |
 | `publisher` | string | ❌ | 作者或组织名称 |
 | `description` | string | ❌ | 人类可读描述（或 i18n 键） |
 | `repository` | string | ❌ | 源仓库 URL |
@@ -60,10 +61,18 @@ sidebar_position: 3
 |------|------|------|
 | `vid` | string | USB 供应商 ID，十六进制（如 `"0x1A86"`） |
 | `pid` | string | USB 产品 ID，十六进制（如 `"0x7523"`） |
-| `interface_number` | number | HID 接口号（仅 HID，可选）。指定后 Core 仅匹配该接口号的 HID 集合。省略则匹配所有接口。 |
+| `interface_number` | number | USB 接口号（可选）。指定后 Core 仅匹配该接口号。对于 HID，用于过滤多接口设备中的特定 HID 集合；对于串口（CDC），用于识别复合设备中的特定 CDC 接口。省略则匹配所有接口。 |
 
 :::tip
 对于暴露多个接口的 HID 设备（例如键盘的输入端点和灯控端点分别在不同接口上），在匹配规则中指定 `interface_number` 可以让 Core 在匹配阶段就完成过滤——**在 `on_validate()` 被调用之前**——避免不必要的设备句柄打开和重复认领。
+
+这套 HID 用法已经过验证，也是多接口 HID 设备的推荐做法。
+:::
+
+:::warning
+以下警告**仅适用于串口（CDC）匹配**。HID 的 `interface_number` 匹配已经过验证。
+
+串口 `interface_number` 匹配尚未在生产环境中得到验证，**不推荐使用**。在 **3.0.1** 及更高版本中可用。
 :::
 
 ### 示例（串口控制器）
@@ -83,6 +92,31 @@ sidebar_position: 3
     "timeout_ms": 200,
     "rules": [
       { "vid": "0x1A86", "pid": "0x7523" }
+    ]
+  }
+}
+```
+
+### 示例（串口控制器，带 interface_number）
+
+:::warning 尚未验证
+串口 `interface_number` 匹配尚未在生产环境中得到验证，**不推荐使用**。在 **3.0.1** 及更高版本中可用。
+:::
+
+```json
+{
+  "id": "my_composite_serial",
+  "version": "1.0.0",
+  "name": "Composite Serial Controller",
+  "type": "controller",
+  "language": "lua",
+  "entry": "main.lua",
+  "permissions": ["serial:read", "serial:write", "log"],
+  "match": {
+    "protocol": "serial",
+    "baud_rate": 115200,
+    "rules": [
+      { "vid": "0x1A86", "pid": "0x7523", "interface_number": 1 }
     ]
   }
 }
@@ -129,16 +163,7 @@ sidebar_position: 3
 | `kind` | string | ✅ | `"slider"`、`"select"`、`"toggle"`、`"color"`、`"multi-color"` |
 | `default` | any | ❌ | 默认值 |
 | `group` | string | ❌ | UI 分组标签 |
-| `groupCollapsed` | boolean | ❌ | 让该分组的 UI 区块默认折叠（省略时为 `false`） |
 | `dependency` | Dependency | ❌ | 条件可见性 |
-
-:::tip
-`groupCollapsed` 也支持蛇形命名别名 `group_collapsed`，便于兼容旧写法。
-:::
-
-:::info 版本
-`groupCollapsed` 自 `3.0.0-dev.4` 起支持。
-:::
 
 **Kind 特有字段：**
 
@@ -187,7 +212,6 @@ sidebar_position: 3
       "key": "speed",
       "label": "params.speed",
       "group": "params.groups.animation",
-      "groupCollapsed": true,
       "kind": "slider",
       "default": 2.5,
       "min": 0.0,
@@ -336,6 +360,8 @@ sidebar_position: 3
 
 ## 国际化（i18n）键
 
-`name`、`description`、`label`、`category` 和 `group` 等字段可使用 i18n 键代替字面字符串。使用键值时，Skydimo 会从插件的 `locales/` 目录中解析翻译。
+`name`、`description`、`label`、`category` 和 `group` 等字段可使用 i18n 键代替字面字符串。Skydimo 会从插件合并后的本地化来源中解析翻译：优先推荐 `manifest.json` 中内联的 `locales`（也兼容 `i18n`、`translations`），同时继续支持旧的 `locales/` 目录。
+
+如果两处声明了相同键，则以 `manifest.json` 中的值为准。
 
 详情请参阅[国际化](i18n)。

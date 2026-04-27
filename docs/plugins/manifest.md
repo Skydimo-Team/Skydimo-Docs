@@ -17,6 +17,7 @@ Every plugin requires a `manifest.json` file in its root directory. This page do
 | `language` | string | ✅ | Always `"lua"` |
 | `entry` | string | ✅ | Entry script filename (e.g. `"main.lua"` or `"init.lua"`) |
 | `permissions` | string[] | ❌ | Required permissions |
+| `locales` | object | ❌ | Inline locale dictionaries keyed by locale code. Also accepts `i18n` and `translations` |
 | `publisher` | string | ❌ | Author or organization name |
 | `description` | string | ❌ | Human-readable description (or i18n key) |
 | `repository` | string | ❌ | Source repository URL |
@@ -60,10 +61,20 @@ Defines how the controller matches hardware devices.
 |-------|------|-------------|
 | `vid` | string | USB Vendor ID in hex (e.g. `"0x1A86"`) |
 | `pid` | string | USB Product ID in hex (e.g. `"0x7523"`) |
-| `interface_number` | number | HID interface number (HID only, optional). When specified, Core only matches the HID collection on that interface. Omit to match all interfaces. |
+| `interface_number` | number | USB interface number (optional). When specified, Core only matches the device on that interface. See protocol-specific notes below. |
 
 :::tip
-For HID devices that expose multiple interfaces (e.g. keyboards with separate input and lighting endpoints), specifying `interface_number` in the match rule lets Core filter at the matching stage — **before** `on_validate()` is called — avoiding unnecessary device handle opens and duplicate claims.
+For **HID** devices that expose multiple interfaces (e.g. keyboards with separate input and lighting endpoints), specifying `interface_number` in the match rule lets Core filter at the matching stage — **before** `on_validate()` is called — avoiding unnecessary device handle opens and duplicate claims.
+
+This HID usage is already verified and is the recommended approach for multi-interface HID devices.
+:::
+
+:::warning Serial `interface_number` — Not Yet Verified
+This warning applies only to **Serial (CDC)** matching. HID `interface_number` matching is already verified.
+
+For **Serial (CDC)** devices, `interface_number` is now read from the OS USB enumeration API (requires the `usbportinfo-interface` feature of the `serialport` crate) and will be matched against this field. This enables distinguishing multiple serial interfaces on the same composite USB device.
+
+**This usage has not been verified in production and is not recommended.** Available in version **3.0.1** and later.
 :::
 
 ### Example (Serial Controller)
@@ -83,6 +94,34 @@ For HID devices that expose multiple interfaces (e.g. keyboards with separate in
     "timeout_ms": 200,
     "rules": [
       { "vid": "0x1A86", "pid": "0x7523" }
+    ]
+  }
+}
+```
+
+### Example (Serial Controller with interface_number)
+
+:::warning Not Yet Verified
+Matching Serial devices by `interface_number` has not been verified in production and is **not recommended**. Available in version **3.0.1** and later.
+:::
+
+For composite USB devices that expose multiple serial interfaces (e.g. a single USB device that has both a control CDC interface and a data CDC interface), you can target a specific interface:
+
+```json
+{
+  "id": "my_composite_serial",
+  "version": "1.0.0",
+  "name": "Composite Serial Controller (Interface 1)",
+  "type": "controller",
+  "language": "lua",
+  "entry": "main.lua",
+  "permissions": ["serial:read", "serial:write", "log"],
+  "match": {
+    "protocol": "serial",
+    "baud_rate": 115200,
+    "timeout_ms": 200,
+    "rules": [
+      { "vid": "0x1A86", "pid": "0x7523", "interface_number": 1 }
     ]
   }
 }
@@ -129,16 +168,7 @@ For HID devices that expose multiple interfaces (e.g. keyboards with separate in
 | `kind` | string | ✅ | `"slider"`, `"select"`, `"toggle"`, `"color"`, `"multi-color"` |
 | `default` | any | ❌ | Default value |
 | `group` | string | ❌ | Group label for UI organization |
-| `groupCollapsed` | boolean | ❌ | Start this group's UI section collapsed by default (`false` if omitted) |
 | `dependency` | Dependency | ❌ | Conditional visibility |
-
-:::tip
-`groupCollapsed` also accepts the snake_case alias `group_collapsed` for compatibility.
-:::
-
-:::info Version
-`groupCollapsed` is available since `3.0.0-dev.4`.
-:::
 
 **Kind-specific fields:**
 
@@ -187,7 +217,6 @@ Controls when a parameter is visible or enabled:
       "key": "speed",
       "label": "params.speed",
       "group": "params.groups.animation",
-      "groupCollapsed": true,
       "kind": "slider",
       "default": 2.5,
       "min": 0.0,
@@ -336,6 +365,8 @@ Plugins that declare `native` configuration must include `"native"` in their `pe
 
 ## Internationalization (i18n) Keys
 
-Fields like `name`, `description`, `label`, `category`, and `group` can use i18n keys instead of literal strings. When a key is used, Skydimo resolves it from the plugin's `locales/` directory.
+Fields like `name`, `description`, `label`, `category`, and `group` can use i18n keys instead of literal strings. Translations are resolved from the plugin's merged locale sources: inline `locales` in `manifest.json` (preferred, with `i18n` and `translations` accepted as aliases) plus the legacy `locales/` directory.
+
+If the same key exists in both places, the value declared in `manifest.json` wins.
 
 See [Internationalization](i18n) for details.

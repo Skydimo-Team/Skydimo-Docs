@@ -90,11 +90,7 @@ end
 
 ## Organizing Parameters
 
-Effect manifests can use `group` to cluster related parameters in the UI. Set `groupCollapsed: true` on a grouped parameter to make that section start collapsed by default.
-
-:::info Version
-`groupCollapsed` is available since `3.0.0-dev.4`.
-:::
+Effect manifests can use `group` to cluster related parameters in the UI. Group expand/collapse state is controlled by the UI and can be adjusted by the user.
 
 ## Buffer API
 

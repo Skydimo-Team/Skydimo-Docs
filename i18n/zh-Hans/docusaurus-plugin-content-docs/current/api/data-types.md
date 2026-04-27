@@ -26,11 +26,7 @@ WebSocket API 中使用的核心数据类型参考。
 
 ## EffectParamInfo
 
-描述灯效暴露的可配置参数。`type` 字段决定 UI 控件类型。灯效参数还可以携带可选的 `groupCollapsed` 字段；当它为 `true` 时，UI 会默认以折叠状态显示该分组。
-
-:::info 版本
-`groupCollapsed` 自 `3.0.0-dev.4` 起可用。
-:::
+描述灯效暴露的可配置参数。`type` 字段决定 UI 控件类型。灯效参数还可以携带可选的 `group` 字段，用于 UI 分组。
 
 ### Slider（滑块）
 
@@ -44,7 +40,6 @@ WebSocket API 中使用的核心数据类型参考。
   "step": 0.1,
   "default": 2.5,
   "group": {"raw": "Animation", "byLocale": {"zh-CN": "动画"}},
-  "groupCollapsed": true,
   "dependency": null
 }
 ```
