@@ -17,6 +17,7 @@ Every plugin requires a `manifest.json` file in its root directory. This page do
 | `language` | string | ✅ | Always `"lua"` |
 | `entry` | string | ✅ | Entry script filename (e.g. `"main.lua"` or `"init.lua"`) |
 | `permissions` | string[] | ❌ | Required permissions |
+| `locales` | object | ❌ | Inline locale dictionaries keyed by locale code. Also accepts `i18n` and `translations` |
 | `publisher` | string | ❌ | Author or organization name |
 | `description` | string | ❌ | Human-readable description (or i18n key) |
 | `repository` | string | ❌ | Source repository URL |
@@ -374,6 +375,8 @@ Plugins that declare `native` configuration must include `"native"` in their `pe
 
 ## Internationalization (i18n) Keys
 
-Fields like `name`, `description`, `label`, `category`, and `group` can use i18n keys instead of literal strings. When a key is used, Skydimo resolves it from the plugin's `locales/` directory.
+Fields like `name`, `description`, `label`, `category`, and `group` can use i18n keys instead of literal strings. Translations are resolved from the plugin's merged locale sources: inline `locales` in `manifest.json` (preferred, with `i18n` and `translations` accepted as aliases) plus the legacy `locales/` directory.
+
+If the same key exists in both places, the value declared in `manifest.json` wins.
 
 See [Internationalization](i18n) for details.

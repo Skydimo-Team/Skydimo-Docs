@@ -17,6 +17,7 @@ sidebar_position: 3
 | `language` | string | ✅ | 始终为 `"lua"` |
 | `entry` | string | ✅ | 入口脚本文件名（如 `"main.lua"` 或 `"init.lua"`） |
 | `permissions` | string[] | ❌ | 所需权限列表 |
+| `locales` | object | ❌ | 以 locale 代码为键的内联本地化词典；也兼容 `i18n` 和 `translations` |
 | `publisher` | string | ❌ | 作者或组织名称 |
 | `description` | string | ❌ | 人类可读描述（或 i18n 键） |
 | `repository` | string | ❌ | 源仓库 URL |
@@ -369,6 +370,8 @@ sidebar_position: 3
 
 ## 国际化（i18n）键
 
-`name`、`description`、`label`、`category` 和 `group` 等字段可使用 i18n 键代替字面字符串。使用键值时，Skydimo 会从插件的 `locales/` 目录中解析翻译。
+`name`、`description`、`label`、`category` 和 `group` 等字段可使用 i18n 键代替字面字符串。Skydimo 会从插件合并后的本地化来源中解析翻译：优先推荐 `manifest.json` 中内联的 `locales`（也兼容 `i18n`、`translations`），同时继续支持旧的 `locales/` 目录。
+
+如果两处声明了相同键，则以 `manifest.json` 中的值为准。
 
 详情请参阅[国际化](i18n)。
