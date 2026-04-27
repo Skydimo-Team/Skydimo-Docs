@@ -48,7 +48,7 @@ Returns the USB Vendor ID as a number, or `nil`.
 
 Returns the USB Product ID as a number, or `nil`.
 
-### device:interface_number()
+### device:interface_number() {#deviceinterface_number}
 
 Returns the USB interface number for the claimed device as a number, or `nil` if not available.
 

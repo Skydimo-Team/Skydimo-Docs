@@ -718,7 +718,7 @@ ext.set_scope_audio_device_index({port = "COM3", output_id = "out1"}, 0)
 
 ### Scope 模式管理
 
-#### ext.set_scope_effect(scope, effect_id [, params])
+#### ext.set_scope_effect(scope, effect_id [, params]) {#extsetscopeeffectscope-effect_id-params}
 
 在 scope 上设置活跃灯效，支持 `segment_id`。
 

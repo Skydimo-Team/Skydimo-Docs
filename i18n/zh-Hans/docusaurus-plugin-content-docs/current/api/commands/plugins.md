@@ -41,8 +41,18 @@ sidebar_position: 5
     }
   ],
   "extensions": [
+    {
+      "id": "openrgb",
+      "name": "OpenRGB Bridge",
+      "version": "1.0.0",
+      "enabled": true,
+      "hasPage": true
+    }
+  ]
+},"id":1}
+```
 
-  ### 新增元数据字段
+### 新增元数据字段
 
   | 字段 | 类型 | 说明 |
   |------|------|------|
@@ -158,16 +168,6 @@ sidebar_position: 5
   → {"jsonrpc":"2.0","method":"get_plugin_dir","id":1}
   ← {"jsonrpc":"2.0","result":"C:/.../plugins","id":1}
   ```
-    {
-      "id": "openrgb",
-      "name": "OpenRGB Bridge",
-      "version": "1.0.0",
-      "enabled": true,
-      "hasPage": true
-    }
-  ]
-},"id":1}
-```
 
 ---
 

@@ -41,8 +41,18 @@ Returns metadata for all installed plugins.
     }
   ],
   "extensions": [
+    {
+      "id": "openrgb",
+      "name": "OpenRGB Bridge",
+      "version": "1.0.0",
+      "enabled": true,
+      "hasPage": true
+    }
+  ]
+},"id":1}
+```
 
-  ### Additional Metadata Fields
+### Additional Metadata Fields
 
   Each plugin item can include:
 
@@ -165,16 +175,6 @@ Returns metadata for all installed plugins.
   → {"jsonrpc":"2.0","method":"get_plugin_dir","id":1}
   ← {"jsonrpc":"2.0","result":"C:/.../plugins","id":1}
   ```
-    {
-      "id": "openrgb",
-      "name": "OpenRGB Bridge",
-      "version": "1.0.0",
-      "enabled": true,
-      "hasPage": true
-    }
-  ]
-},"id":1}
-```
 
 ---
 

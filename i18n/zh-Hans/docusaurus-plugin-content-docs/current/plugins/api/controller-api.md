@@ -48,7 +48,7 @@ local port = device:controller_port()  -- 如 "COM3"、"/dev/ttyUSB0"
 
 返回 USB 产品 ID（数字），或 `nil`。
 
-### device:interface_number()
+### device:interface_number() {#deviceinterface_number}
 
 返回已声明设备的 USB 接口号（数字），不可用时返回 `nil`。
 对于 HID 设备，该值对应 manifest 匹配规则中声明的 `interface_number`。对于串口（CDC）设备，该值在可用时从操作系统 USB 枚举 API 中读取。
