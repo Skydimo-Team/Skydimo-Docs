@@ -26,11 +26,7 @@ The `raw` field is used as a fallback when no matching locale is found.
 
 ## EffectParamInfo
 
-Describes a configurable parameter exposed by an effect. The `type` field determines the UI control. Parameters can also include an optional `groupCollapsed` flag; when it is `true`, the UI starts that group collapsed by default.
-
-:::info Version
-`groupCollapsed` is available since `3.0.0-dev.4`.
-:::
+Describes a configurable parameter exposed by an effect. The `type` field determines the UI control. Parameters can also include an optional `group` field for UI grouping.
 
 ### Slider
 
@@ -44,7 +40,6 @@ Describes a configurable parameter exposed by an effect. The `type` field determ
   "step": 0.1,
   "default": 2.5,
   "group": {"raw": "Animation", "byLocale": {"zh-CN": "动画"}},
-  "groupCollapsed": true,
   "dependency": null
 }
 ```

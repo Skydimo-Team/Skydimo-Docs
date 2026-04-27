@@ -168,16 +168,7 @@ For composite USB devices that expose multiple serial interfaces (e.g. a single 
 | `kind` | string | ✅ | `"slider"`, `"select"`, `"toggle"`, `"color"`, `"multi-color"` |
 | `default` | any | ❌ | Default value |
 | `group` | string | ❌ | Group label for UI organization |
-| `groupCollapsed` | boolean | ❌ | Start this group's UI section collapsed by default (`false` if omitted) |
 | `dependency` | Dependency | ❌ | Conditional visibility |
-
-:::tip
-`groupCollapsed` also accepts the snake_case alias `group_collapsed` for compatibility.
-:::
-
-:::info Version
-`groupCollapsed` is available since `3.0.0-dev.4`.
-:::
 
 **Kind-specific fields:**
 
@@ -226,7 +217,6 @@ Controls when a parameter is visible or enabled:
       "key": "speed",
       "label": "params.speed",
       "group": "params.groups.animation",
-      "groupCollapsed": true,
       "kind": "slider",
       "default": 2.5,
       "min": 0.0,
