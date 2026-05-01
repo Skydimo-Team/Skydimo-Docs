@@ -438,7 +438,7 @@ Get the parameter schema for an effect.
 local params = ext.get_effect_params("rainbow")
 ```
 
-### ext.set_effect(port, output_id, effect_id [, params])
+### ext.set_effect(port, output_id, effect_id [, params [, options]]) {#extset_effectport-output_id-effect_id--params}
 
 :::note Legacy
 This is a legacy convenience wrapper. For new plugins, prefer [`ext.set_scope_effect(scope, ...)`](#extsetscopeeffectscope-effect_id-params) which supports `segment_id`.
@@ -449,7 +449,10 @@ Set the active effect on a device output.
 ```lua
 ext.set_effect("COM3", "out1", "rainbow")
 ext.set_effect("COM3", "out1", "rainbow", {speed = 3.0, preset = 1})
+ext.set_effect("COM3", "out1", "rainbow", nil, {skip_transition = true})
 ```
+
+The optional `options` table uses the same [transition options](#transition-options) as `ext.set_scope_effect`. If you only need options, pass `nil` for `params`.
 
 ---
 
@@ -718,7 +721,29 @@ ext.set_scope_audio_device_index({port = "COM3", output_id = "out1"}, 0)
 
 ### Scope Mode Management
 
-#### ext.set_scope_effect(scope, effect_id [, params]) {#extsetscopeeffectscope-effect_id-params}
+:::info Version
+The optional transition `options` table for `ext.set_scope_effect`, `ext.set_scope_power`, and legacy `ext.set_effect` is available in versions after **3.0.2**.
+:::
+
+#### Transition options
+
+Pass an optional `options` table when an effect or power change should apply immediately instead of using the normal effect-switch fade. The option only affects the current mutation and is not persisted.
+
+Any of these boolean keys can be set to `true`:
+
+- `skip_transition`
+- `skipTransition`
+- `no_transition`
+- `immediate`
+
+```lua
+local immediate = {skip_transition = true}
+
+ext.set_scope_effect({port = "COM3", output_id = "out1"}, "rainbow", nil, immediate)
+ext.set_scope_power({port = "COM3", output_id = "out1"}, false, {immediate = true})
+```
+
+#### ext.set_scope_effect(scope, effect_id [, params [, options]]) {#extsetscopeeffectscope-effect_id-params}
 
 Set the active effect on a scope. Supports `segment_id`.
 
@@ -730,6 +755,7 @@ ext.set_scope_effect(
     {speed = 2.0}
 )
 ext.set_scope_effect({port = "COM3", output_id = "out1"}, nil) -- clear effect
+ext.set_scope_effect({port = "COM3", output_id = "out1"}, "rainbow", nil, {skipTransition = true})
 ```
 
 #### ext.update_scope_effect_params(scope, params)
@@ -760,13 +786,14 @@ ext.set_scope_mode_paused({port = "COM3", output_id = "out1"}, true)  -- pause
 ext.set_scope_mode_paused({port = "COM3", output_id = "out1"}, false) -- resume
 ```
 
-#### ext.set_scope_power(scope, is_off)
+#### ext.set_scope_power(scope, is_off [, options])
 
 Turn a scope's output on or off.
 
 ```lua
 ext.set_scope_power({port = "COM3", output_id = "out1"}, true)  -- turn off
 ext.set_scope_power({port = "COM3", output_id = "out1"}, false) -- turn on
+ext.set_scope_power({port = "COM3", output_id = "out1"}, false, {immediate = true})
 ```
 
 #### ext.set_scope_brightness(scope, brightness)

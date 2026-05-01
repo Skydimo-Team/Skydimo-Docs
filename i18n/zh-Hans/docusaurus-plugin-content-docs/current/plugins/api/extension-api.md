@@ -438,7 +438,7 @@ end
 local params = ext.get_effect_params("rainbow")
 ```
 
-### ext.set_effect(port, output_id, effect_id [, params])
+### ext.set_effect(port, output_id, effect_id [, params [, options]]) {#extset_effectport-output_id-effect_id--params}
 
 :::note 旧版接口
 这是一个旧版便捷封装。新插件建议使用 [`ext.set_scope_effect(scope, ...)`](#extsetscopeeffectscope-effect_id-params)，后者支持 `segment_id`。
@@ -449,7 +449,10 @@ local params = ext.get_effect_params("rainbow")
 ```lua
 ext.set_effect("COM3", "out1", "rainbow")
 ext.set_effect("COM3", "out1", "rainbow", {speed = 3.0, preset = 1})
+ext.set_effect("COM3", "out1", "rainbow", nil, {skip_transition = true})
 ```
+
+可选 `options` 表与 `ext.set_scope_effect` 使用相同的[过渡选项](#过渡选项)。如果只需要传入选项，请将 `params` 位置传为 `nil`。
 
 ---
 
@@ -718,7 +721,29 @@ ext.set_scope_audio_device_index({port = "COM3", output_id = "out1"}, 0)
 
 ### Scope 模式管理
 
-#### ext.set_scope_effect(scope, effect_id [, params]) {#extsetscopeeffectscope-effect_id-params}
+:::info 版本
+`ext.set_scope_effect`、`ext.set_scope_power` 以及旧版 `ext.set_effect` 的可选过渡 `options` 表在 **3.0.2** 之后版本支持。
+:::
+
+#### 过渡选项
+
+当灯效或电源变更需要立即生效，而不是使用默认灯效切换淡入淡出时，可以传入可选 `options` 表。该选项只影响当前这次调用，不会写入持久配置。
+
+以下任意布尔字段设为 `true` 即可：
+
+- `skip_transition`
+- `skipTransition`
+- `no_transition`
+- `immediate`
+
+```lua
+local immediate = {skip_transition = true}
+
+ext.set_scope_effect({port = "COM3", output_id = "out1"}, "rainbow", nil, immediate)
+ext.set_scope_power({port = "COM3", output_id = "out1"}, false, {immediate = true})
+```
+
+#### ext.set_scope_effect(scope, effect_id [, params [, options]]) {#extsetscopeeffectscope-effect_id-params}
 
 在 scope 上设置活跃灯效，支持 `segment_id`。
 
@@ -730,6 +755,7 @@ ext.set_scope_effect(
     {speed = 2.0}
 )
 ext.set_scope_effect({port = "COM3", output_id = "out1"}, nil) -- 清除灯效
+ext.set_scope_effect({port = "COM3", output_id = "out1"}, "rainbow", nil, {skipTransition = true})
 ```
 
 #### ext.update_scope_effect_params(scope, params)
@@ -760,13 +786,14 @@ ext.set_scope_mode_paused({port = "COM3", output_id = "out1"}, true)  -- 暂停
 ext.set_scope_mode_paused({port = "COM3", output_id = "out1"}, false) -- 恢复
 ```
 
-#### ext.set_scope_power(scope, is_off)
+#### ext.set_scope_power(scope, is_off [, options])
 
 开启或关闭 scope 的输出。
 
 ```lua
 ext.set_scope_power({port = "COM3", output_id = "out1"}, true)  -- 关闭输出
 ext.set_scope_power({port = "COM3", output_id = "out1"}, false) -- 开启输出
+ext.set_scope_power({port = "COM3", output_id = "out1"}, false, {immediate = true})
 ```
 
 #### ext.set_scope_brightness(scope, brightness)
