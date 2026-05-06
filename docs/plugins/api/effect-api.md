@@ -45,6 +45,53 @@ buffer:set_hsv(2, 120, 1.0, 1.0)  -- Green
 buffer:set_hsv(3, 240, 1.0, 1.0)  -- Blue
 ```
 
+### buffer:set_rgb_bytes(bytes)
+
+:::info Version
+Available in version **3.0.2** and later.
+:::
+
+Set LED colors from a binary Lua string containing packed RGB triples.
+
+- `bytes` — Raw bytes in `R,G,B,R,G,B,...` order
+- Starts at LED 1
+- Writes only complete RGB triples
+- If more colors are provided than the buffer length, extra data is ignored
+- If fewer colors are provided, remaining LEDs are left unchanged
+
+```lua
+buffer:set_rgb_bytes(string.char(
+    255, 0, 0,   -- LED 1 = red
+    0, 255, 0,   -- LED 2 = green
+    0, 0, 255    -- LED 3 = blue
+))
+```
+
+### buffer:set_hsv_bytes(bytes)
+
+:::info Version
+Available in version **3.0.2** and later.
+:::
+
+Set LED colors from a binary Lua string containing packed HSV triples. This is useful for HSV-based effects that want one batch write per frame while letting the host perform HSV-to-RGB conversion.
+
+- `bytes` — Raw bytes in `H,S,V,H,S,V,...` order
+- `H` — Hue byte scaled by `360 / 255`
+- `S` — Saturation byte scaled to `0.0–1.0`
+- `V` — Value/brightness byte scaled to `0.0–1.0`
+- Starts at LED 1
+- Writes only complete HSV triples
+- If more colors are provided than the buffer length, extra data is ignored
+- If fewer colors are provided, remaining LEDs are left unchanged
+
+```lua
+buffer:set_hsv_bytes(string.char(
+    0, 255, 255,     -- LED 1 = red
+    85, 255, 255,    -- LED 2 = green
+    170, 255, 255    -- LED 3 = blue
+))
+```
+
 ---
 
 ## Host Object

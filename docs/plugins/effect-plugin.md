@@ -101,6 +101,8 @@ The `buffer` object provides methods for setting LED colors:
 | `buffer:len()` | Returns the number of LEDs |
 | `buffer:set(i, r, g, b)` | Set LED color by RGB (1-indexed, 0–255) |
 | `buffer:set_hsv(i, h, s, v)` | Set LED color by HSV (h: 0–360, s/v: 0.0–1.0) |
+| `buffer:set_rgb_bytes(bytes)` | Set LED colors from packed RGB bytes (`R,G,B,...`). Available in version **3.0.2** and later. |
+| `buffer:set_hsv_bytes(bytes)` | Set LED colors from packed HSV bytes (`H,S,V,...`; `H` maps to 0–360, `S/V` map to 0.0–1.0). Available in version **3.0.2** and later. |
 
 ## Host Utilities
 

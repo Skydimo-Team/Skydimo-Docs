@@ -101,6 +101,8 @@ end
 | `buffer:len()` | 返回 LED 数量 |
 | `buffer:set(i, r, g, b)` | 通过 RGB 设置 LED 颜色（1-indexed，0–255） |
 | `buffer:set_hsv(i, h, s, v)` | 通过 HSV 设置 LED 颜色（h: 0–360，s/v: 0.0–1.0） |
+| `buffer:set_rgb_bytes(bytes)` | 通过打包 RGB 字节（`R,G,B,...`）批量设置 LED 颜色。**3.0.2** 及之后版本可用。 |
+| `buffer:set_hsv_bytes(bytes)` | 通过打包 HSV 字节（`H,S,V,...`）批量设置 LED 颜色（`H` 映射到 0–360，`S/V` 映射到 0.0–1.0）。**3.0.2** 及之后版本可用。 |
 
 ## Host 工具函数
 
