@@ -30,7 +30,7 @@ Why this is recommended:
 
 - More predictable install/update behavior
 - Better separation between plugin code and runtime data
-- Clear source provenance (built-in, import, import-dev, download, manual)
+- Clear source provenance (bundled, import, import-dev, package, manual)
 
 See [Plugin Management](plugin-management) for complete operational details.
 
@@ -58,7 +58,7 @@ For extension/plugin code, always use host APIs (for example `ext.data_dir`) ins
 
 ## High-Level Loading Flow
 
-1. Core resolves plugin sources (built-in + user-installed)
+1. Core resolves plugin sources (bundled + user-installed)
 2. Core loads plugin manifests and metadata
 3. Core initializes plugin runtimes by type
 4. UI receives plugin metadata via `get_plugins`
@@ -70,10 +70,10 @@ Each plugin reports an installation source:
 
 | Source | Meaning |
 |--------|---------|
-| `built-in` | Bundled with application |
+| `bundled` | Bundled with application |
 | `import` | Imported from user import queue |
 | `import-dev` | Imported from development queue (source kept) |
-| `download` | Installed from download flow |
+| `package` | Installed from package import flow |
 | `manual` | Manually introduced/legacy source |
 
 This is useful for support, migration, and deciding whether to **delete** or **reset**.
@@ -82,7 +82,7 @@ This is useful for support, migration, and deciding whether to **delete** or **r
 
 - If a plugin has a bundled default version, **Reset** removes user override and falls back to bundled one.
 - Optional plugin data cleanup can be performed during reset.
-- Built-in plugins are resettable, not directly deletable.
+- Bundled plugins are resettable, not directly deletable.
 
 ## What “Delete” Means
 

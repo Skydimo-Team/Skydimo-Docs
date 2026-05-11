@@ -28,7 +28,7 @@ Returns metadata for all installed plugins.
       "language": "lua",
       "pluginDir": "...",
       "dataDir": "...",
-      "builtIn": false,
+      "bundled": false,
       "installSource": "import-dev"
     }
   ],
@@ -60,8 +60,8 @@ Returns metadata for all installed plugins.
   |-------|------|-------------|
   | `pluginDir` | string | Resolved runtime plugin directory |
   | `dataDir` | string \| null | Plugin data directory (if exists) |
-  | `builtIn` | boolean | Whether plugin is bundled with app |
-  | `installSource` | string | `built-in` \| `import` \| `import-dev` \| `download` \| `manual` |
+  | `bundled` | boolean | Whether plugin is bundled with app |
+  | `installSource` | string | `bundled` \| `import` \| `import-dev` \| `package` \| `manual` |
 
   ---
 
@@ -139,7 +139,7 @@ Returns metadata for all installed plugins.
   ```
 
   :::caution
-  Built-in plugins cannot be deleted directly. Use [`reset_plugin`](#reset_plugin) instead.
+  Bundled plugins cannot be deleted directly. Use [`reset_plugin`](#reset_plugin) instead.
   :::
 
   ---
@@ -184,8 +184,8 @@ Each plugin item can include:
 |-------|------|-------------|
 | `pluginDir` | string | Resolved runtime plugin directory |
 | `dataDir` | string \| null | Plugin data directory (if exists) |
-| `builtIn` | boolean | Whether plugin is bundled with app |
-| `installSource` | string | `built-in` \| `import` \| `import-dev` \| `download` \| `manual` |
+| `bundled` | boolean | Whether plugin is bundled with app |
+| `installSource` | string | `bundled` \| `import` \| `import-dev` \| `package` \| `manual` |
 
 ---
 
@@ -263,7 +263,7 @@ Delete an installed plugin copy.
 ```
 
 :::caution
-Built-in plugins cannot be deleted directly. Use [`reset_plugin`](#reset_plugin) instead.
+Bundled plugins cannot be deleted directly. Use [`reset_plugin`](#reset_plugin) instead.
 :::
 
 ---

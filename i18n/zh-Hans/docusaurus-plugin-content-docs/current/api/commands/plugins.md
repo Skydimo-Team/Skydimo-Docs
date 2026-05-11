@@ -28,7 +28,7 @@ sidebar_position: 5
       "language": "lua",
       "pluginDir": "...",
       "dataDir": "...",
-      "builtIn": false,
+      "bundled": false,
       "installSource": "import-dev"
     }
   ],
@@ -58,8 +58,8 @@ sidebar_position: 5
   |------|------|------|
   | `pluginDir` | string | 插件运行时目录 |
   | `dataDir` | string \| null | 插件数据目录（若存在） |
-  | `builtIn` | boolean | 是否为内置插件 |
-  | `installSource` | string | `built-in` \| `import` \| `import-dev` \| `download` \| `manual` |
+  | `bundled` | boolean | 是否为应用打包插件 |
+  | `installSource` | string | `bundled` \| `import` \| `import-dev` \| `package` \| `manual` |
 
   ---
 
@@ -132,14 +132,14 @@ sidebar_position: 5
   ```
 
   :::caution
-  内置插件不可直接删除，需使用 [`reset_plugin`](#reset_plugin)。
+  应用打包插件不可直接删除，需使用 [`reset_plugin`](#reset_plugin)。
   :::
 
   ---
 
   ## reset_plugin
 
-  重置插件：移除用户覆盖副本并回到默认（若有内置版本）。
+  重置插件：移除用户覆盖副本并回到默认（若有打包版本）。
 
   **参数**：
 
@@ -175,8 +175,8 @@ sidebar_position: 5
 |------|------|------|
 | `pluginDir` | string | 插件运行时目录 |
 | `dataDir` | string \| null | 插件数据目录（若存在） |
-| `builtIn` | boolean | 是否为内置插件 |
-| `installSource` | string | `built-in` \| `import` \| `import-dev` \| `download` \| `manual` |
+| `bundled` | boolean | 是否为应用打包插件 |
+| `installSource` | string | `bundled` \| `import` \| `import-dev` \| `package` \| `manual` |
 
 ---
 
@@ -249,14 +249,14 @@ sidebar_position: 5
 ```
 
 :::caution
-内置插件不可直接删除，需使用 [`reset_plugin`](#reset_plugin)。
+应用打包插件不可直接删除，需使用 [`reset_plugin`](#reset_plugin)。
 :::
 
 ---
 
 ## reset_plugin
 
-重置插件：移除用户覆盖副本并回到默认（若有内置版本）。
+重置插件：移除用户覆盖副本并回到默认（若有打包版本）。
 
 **参数**：
 

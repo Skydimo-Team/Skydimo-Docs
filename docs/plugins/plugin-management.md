@@ -63,14 +63,14 @@ If a plugin update changes runtime behavior (effects/controllers/extensions), re
 
 - `pluginDir`: resolved plugin runtime directory
 - `dataDir`: plugin data directory (if present)
-- `builtIn`: whether plugin is bundled
-- `installSource`: one of `built-in | import | import-dev | download | manual`
+- `bundled`: whether plugin is bundled
+- `installSource`: one of `bundled | import | import-dev | package | manual`
 
 Use this metadata in tools and support workflows instead of guessing installation origin.
 
-## Built-In vs User-Installed Plugins
+## Bundled vs User-Installed Plugins
 
-### Built-In Plugins
+### Bundled Plugins
 
 - Bundled with the app
 - Should be **reset**, not deleted
