@@ -8,7 +8,7 @@ Commands for listing effects, applying effects to devices, and controlling param
 
 ## get_effects
 
-Returns all available effects (built-in + Lua plugins).
+Returns all available effects (built-in + plugin effects).
 
 **Parameters**: none
 

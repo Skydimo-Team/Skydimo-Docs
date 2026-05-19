@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Plugin Development Overview
 
-Skydimo's plugin system lets you extend the application with custom hardware drivers, lighting effects, and background services — all written in **Lua 5.4**.
+Skydimo's plugin system lets you extend the application with custom hardware drivers, lighting effects, and background services. The current production runtimes are **Lua 5.4** and **native-c**.
 
 :::info Version
 The workflow described on this page is supported since **`3.0.0-dev.4`**.
@@ -17,6 +17,15 @@ The workflow described on this page is supported since **`3.0.0-dev.4`**.
 | **Controller** | `controller.<id>/` | Hardware device drivers (serial, HID, mDNS) |
 | **Effect** | `effect.<id>/` | Visual lighting patterns and animations |
 | **Extension** | `extension.<id>/` | Background services, protocol bridges, custom UI |
+
+## Runtime Choices
+
+| Runtime | `language` | Best for |
+|---------|------------|----------|
+| Lua | `"lua"` | Fast iteration, small integrations, device protocol glue |
+| Native C ABI | `"native-c"` | High-performance effects/controllers/extensions built from the public C, Rust, C#, C++, Zig, or other C ABI-capable SDK packages |
+
+`native-c` plugins are shared libraries loaded in the Core process. Use [Native-C Plugin Runtime](native-c-plugin) when you need native performance or one of the public SDK language packages.
 
 ## Recommended Workflow (3.0.0-dev.4+)
 
@@ -41,12 +50,35 @@ Your source package should still use a standard plugin folder layout:
 ```
 <type>.<id>/
 ├── manifest.json
-├── main.lua / init.lua
+├── main.lua / init.lua      # Lua plugins
+├── native/<platform>/       # native-c shared libraries
 ├── lib/            # optional
 ├── locales/        # optional
 ├── data/           # optional initial data
 └── page/           # extension only, optional
 ```
+
+Native-c source projects can live in the same source package during development, but the installable package must include the compiled library referenced by `entry`.
+
+## Plugin Packs
+
+A package directory can also be a **pack manifest** with `"type": "pack"` and a `plugins` list. A pack does not load a runtime by itself; it groups child plugin folders:
+
+```json
+{
+  "id": "my_effect_pack",
+  "version": "1.0.0",
+  "name": "My Effect Pack",
+  "publisher": "Example",
+  "type": "pack",
+  "plugins": [
+    "Rainbow",
+    { "path": "Audio/Bars" }
+  ]
+}
+```
+
+Pack entries must point to child directories inside the pack. Nested packs are not supported.
 
 ## Runtime Storage (Managed by Core)
 
@@ -98,6 +130,7 @@ This is useful for support, migration, and deciding whether to **delete** or **r
 - [Controller Plugin Guide](controller-plugin)
 - [Effect Plugin Guide](effect-plugin)
 - [Extension Plugin Guide](extension-plugin)
+- [Native-C Plugin Runtime](native-c-plugin)
 
 ## Legacy Note
 

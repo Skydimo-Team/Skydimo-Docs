@@ -5,7 +5,7 @@ slug: /intro
 
 # Welcome to Skydimo
 
-**Skydimo** is a cross-platform RGB lighting control application with a powerful **Lua plugin system** for extending device support and creating custom lighting effects.
+**Skydimo** is a cross-platform RGB lighting control application with a Core-driven plugin system for extending device support, creating custom lighting effects, and building local integrations.
 
 ## Who is this for?
 
@@ -21,7 +21,8 @@ Skydimo uses a **Core + UI** separation:
 ┌─────────────────────────────────┐
 │  Core Process (core.exe)        │
 │  ├─ Lighting Manager            │
-│  ├─ Lua Plugin Runtime          │
+│  ├─ Plugin Runtimes             │
+│  │  (Lua + native-c)            │
 │  ├─ WebSocket JSON-RPC Server   │
 │  └─ System Tray                 │
 └──────────┬──────────────────────┘
@@ -32,7 +33,7 @@ Skydimo uses a **Core + UI** separation:
 └─────────────────────────────────┘
 ```
 
-- **Core** is a standalone native executable handling device management, the lighting engine, plugin runtime, and WebSocket server.
+- **Core** is a standalone native executable handling device management, the lighting engine, Lua/native-c plugin runtimes, and WebSocket server.
 - **UI** is a React frontend communicating with Core via WebSocket JSON-RPC 2.0. It can run as a desktop app or in a standard browser.
 
 ## Quick Links

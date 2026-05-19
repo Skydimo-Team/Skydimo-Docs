@@ -10,7 +10,7 @@ Skydimo adopts a **Core + UI separation** architecture, where all business logic
 
 1. **Backend Authority** — The Core is the single source of truth for device state, effect capabilities, and all business logic.
 2. **Frontend Agnosticism** — The UI is a dynamic renderer that requires minimal changes to support new Core features. Core can run headless (without any UI).
-3. **Open/Closed Principle** — New effects, controllers, and extensions can be added via Lua plugins without modifying core logic.
+3. **Open/Closed Principle** — New effects, controllers, and extensions can be added through plugin runtimes without modifying core logic.
 
 ## Process Model
 
@@ -21,7 +21,8 @@ Skydimo adopts a **Core + UI separation** architecture, where all business logic
 │  │   + system tray              │
 │  └─ Async Runtime:              │
 │     ├─ LightingManager          │
-│     ├─ Lua Plugin Manager       │
+│     ├─ Plugin Manager           │
+│     │  (Lua + native-c runtime) │
 │     ├─ WebSocket Server         │
 │     └─ Control Socket (38967)   │
 └──────────┬──────────────────────┘
@@ -68,3 +69,17 @@ Skydimo supports multiple hardware discovery methods:
 - **mDNS** — Network devices via service discovery
 
 USB hot-plug is automatically handled on all supported platforms (Windows, macOS, Linux).
+
+## Plugin Runtime Dispatch
+
+Plugin metadata is resolved from `manifest.json`, then Core dispatches by `language`:
+
+| Runtime | Status | Purpose |
+|---------|--------|---------|
+| `lua` | Supported | Sandboxed Lua 5.4 plugins for controllers, effects, and extensions |
+| `native-c` | Supported | In-process native shared libraries loaded through the Skydimo C ABI |
+| `wasm` | Reserved | Future WebAssembly runtime |
+| `abi-stable` | Reserved | Future Rust-oriented ABI experiment |
+| `process` | Reserved | Future out-of-process plugin runtime |
+
+Only supported runtimes are registered for a plugin type. Unsupported or reserved runtimes are ignored by the active registries.

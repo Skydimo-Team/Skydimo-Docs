@@ -12,7 +12,7 @@ sidebar_position: 3
 
 ## 快速心智模型
 
-- **源码包（Source Package）**：你编写/分发的插件目录（manifest + Lua + 可选资源）
+- **源码包（Source Package）**：你编写/分发的插件目录（manifest + Lua 或原生库 + 可选资源）
 - **已安装插件（Installed Plugin）**：Core 管理的运行时插件副本
 - **插件数据（Plugin Data）**：插件运行产生的配置、缓存、状态数据
 
@@ -54,6 +54,7 @@ Core 负责安装与运行时存储管理。建议将运行时路径视为内部
 - 重载插件注册信息
 - 刷新插件运行时状态，使更新尽快生效
 - 通知 UI 插件列表发生变化
+- native-c 入口会通过 shadow copy 缓存加载，因此运行中的进程不会锁住原始 DLL/共享库，更新时可以替换原文件
 
 ## 可用于运维的插件元数据
 
@@ -120,6 +121,8 @@ node_modules/
 !important.log
 ```
 
+对于 native-c 源码包，建议排除 `target/`、`bin/`、`obj/` 等构建目录，并确保已编译产物位于 `manifest.json` 的 `entry` 声明路径下。
+
 ## 常见问题
 
 ### 刷新后看不到插件
@@ -127,7 +130,7 @@ node_modules/
 - 目录命名是否为 `<type>.<id>`
 - `manifest.json` 是否合法
 - 是否放在正确导入队列
-- Core 日志是否有 manifest/lua 报错
+- Core 日志是否有 manifest/runtime 报错
 
 ### 删除后插件又出现
 

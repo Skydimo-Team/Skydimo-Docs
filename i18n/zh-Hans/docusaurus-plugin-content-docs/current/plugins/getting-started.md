@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # 快速入门
 
-本指南将带你创建第一个 Skydimo 插件 —— 一个简单的颜色循环灯效。
+本指南将带你创建第一个 Skydimo 插件：一个简单的 Lua 颜色循环灯效。原生共享库插件请参阅 [Native-C 插件运行时](native-c-plugin)。
 
 :::info 版本说明
 本工作流在 **`3.0.0-dev.4`** 及之后版本可用。
@@ -144,6 +144,7 @@ return plugin
 - [灯效插件指南](effect-plugin) —— 高级灯效技巧
 - [控制器插件指南](controller-plugin) —— 编写硬件驱动
 - [扩展插件指南](extension-plugin) —— 构建后台服务
+- [Native-C 插件运行时](native-c-plugin) —— 使用 C、Rust、C# 或类似语言构建 C ABI 插件
 
 ## 故障排查
 

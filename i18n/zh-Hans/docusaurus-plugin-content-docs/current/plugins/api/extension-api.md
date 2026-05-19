@@ -411,7 +411,7 @@ local output_locks = ext.get_led_locks("COM3", "out1")
 
 ### ext.get_effects()
 
-获取所有可用的灯效（内置 + Lua 插件）。
+获取所有可用的灯效（内置 + 插件灯效）。
 
 ```lua
 local effects = ext.get_effects()

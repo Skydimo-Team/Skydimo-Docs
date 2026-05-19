@@ -129,7 +129,7 @@ Skydimo 以 JSON-RPC 2.0 通知的形式广播实时事件。事件由服务端�
 }
 ```
 
-扩展 Lua 代码通过 `on_page_message(data)` 回调接收此消息。
+Lua 扩展通过 `on_page_message(data)` 回调接收此消息。native-c 扩展通过 `on_page_message_json` 接收同一载荷。
 
 ---
 

@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Getting Started
 
-This guide walks you through creating your first Skydimo plugin — a simple color-cycling effect.
+This guide walks you through creating your first Skydimo plugin: a simple Lua color-cycling effect. For native shared-library plugins, see [Native-C Plugin Runtime](native-c-plugin).
 
 :::info Version
 This workflow is supported since **`3.0.0-dev.4`**.
@@ -143,6 +143,7 @@ When moving to production/distribution, package clean plugin content and install
 - [Effect Plugin Guide](effect-plugin) — Advanced effect techniques
 - [Controller Plugin Guide](controller-plugin) — Write hardware drivers
 - [Extension Plugin Guide](extension-plugin) — Build background services
+- [Native-C Plugin Runtime](native-c-plugin) — Build C ABI plugins from C, Rust, C#, or similar languages
 
 ## Troubleshooting
 

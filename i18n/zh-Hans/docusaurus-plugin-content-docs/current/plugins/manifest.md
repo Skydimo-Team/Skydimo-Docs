@@ -13,12 +13,13 @@ sidebar_position: 3
 | `id` | string | ✅ | 唯一插件标识符（必须与目录后缀匹配） |
 | `version` | string | ✅ | 语义版本号（如 `"1.0.0"`） |
 | `name` | string | ✅ | 显示名称（或 i18n 键，如 `"meta.name"`） |
-| `type` | string | ✅ | 插件类型：`"controller"`、`"effect"` 或 `"extension"` |
-| `language` | string | ✅ | 始终为 `"lua"` |
-| `entry` | string | ✅ | 入口脚本文件名（如 `"main.lua"` 或 `"init.lua"`） |
+| `type` | string | ✅ | 插件类型：`"controller"`、`"effect"`、`"extension"` 或 `"pack"` |
+| `language` | string | 运行时插件必填 | 运行时语言。使用 `"lua"` 或 `"native-c"` |
+| `abi` | string | native-c 必填 | 原生 ABI 标识符，例如 `"skydimo-effect-c-v3"` |
+| `entry` | string 或 object | 运行时插件必填 | 运行时入口。Lua 使用脚本路径；native-c 通常使用平台映射指向共享库。 |
 | `permissions` | string[] | ❌ | 所需权限列表 |
 | `locales` | object | ❌ | 以 locale 代码为键的内联本地化词典；也兼容 `i18n` 和 `translations` |
-| `publisher` | string | ❌ | 作者或组织名称 |
+| `publisher` | string | ✅ | 作者或组织名称 |
 | `description` | string | ❌ | 人类可读描述（或 i18n 键） |
 | `repository` | string | ❌ | 源仓库 URL |
 | `license` | string | ❌ | 许可证标识符（如 `"MIT"`） |
@@ -39,6 +40,43 @@ sidebar_position: 3
   "license": "MIT"
 }
 ```
+
+### Entry 平台映射
+
+`entry` 可以是单个相对路径，也可以是平台映射。native-c 插件推荐使用平台映射：
+
+```json
+{
+  "entry": {
+    "windows-x86_64": "native/windows-x86_64/my_plugin.dll",
+    "linux-x86_64": "native/linux-x86_64/libmy_plugin.so",
+    "macos-aarch64": "native/macos-aarch64/libmy_plugin.dylib",
+    "default": "native/windows-x86_64/my_plugin.dll"
+  }
+}
+```
+
+支持的平台键包括 `windows-x86_64`、`windows-aarch64`、`linux-x86_64`、`linux-aarch64`、`macos-x86_64` 和 `macos-aarch64`。`default` 是可选回退。入口路径必须相对于插件目录，不能包含 `..` 或绝对路径前缀。
+
+### 插件包组 Manifest
+
+包组 manifest 用于组织子插件，不需要 `language`、`abi` 或 `entry`。它需要 `id`、`version`、`name`、`publisher`、`type: "pack"` 和 `plugins`：
+
+```json
+{
+  "id": "my_effect_pack",
+  "version": "1.0.0",
+  "name": "My Effect Pack",
+  "publisher": "Example",
+  "type": "pack",
+  "plugins": [
+    "Rainbow",
+    { "path": "Audio/Bars" }
+  ]
+}
+```
+
+包组插件路径必须留在包组目录内。嵌套包组会被忽略。
 
 ---
 
@@ -252,6 +290,8 @@ sidebar_position: 3
 > **自 `3.0.0-dev.3` 起支持**
 
 可选的 `native` 对象用于控制插件运行时如何加载原生（C/Rust/…）Lua 模块及其共享库依赖。所有路径均相对于插件目录，且不能逃出插件目录（禁止 `..` 或绝对路径）。
+
+本节只适用于通过 Lua `require()` 加载 C 模块的 Lua 插件。它不同于 `native-c` 运行时；在 `native-c` 中，插件入口本身就是共享库。详情请参阅 [Native-C 插件运行时](native-c-plugin)。
 
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|

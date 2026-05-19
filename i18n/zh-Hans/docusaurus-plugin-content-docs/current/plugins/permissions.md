@@ -46,6 +46,10 @@ sidebar_position: 8
 | `hardware:hid` | 直接打开并与 HID 设备通信 *（3.0.0-dev.2 起支持）* |
 | `native` | 通过 `require()` 加载原生 C 模块（`.dll`/`.so`），并可使用 `native` 清单块进行精细化库搜索控制 *（3.0.0-dev.2 起支持；`native` 清单配置自 3.0.0-dev.3 起支持）* |
 
+:::note native-c 运行时
+`native` 权限用于 Lua 插件加载原生 Lua 模块。`language` 为 `"native-c"` 的插件本身就是原生共享库，不需要仅为了加载自身而声明 `native` 权限。但它仍然必须声明所调用宿主能力所需的权限，例如 `audio:capture`、`screen:capture`、`network:http`、`process` 或 `hardware:hid`。
+:::
+
 ## 声明权限
 
 在 `manifest.json` 中添加 `permissions` 数组：
@@ -58,15 +62,17 @@ sidebar_position: 8
 
 ## 安全模型
 
-- 插件运行在沙箱化的 Lua 5.4 环境中
-- 文件系统访问限制在插件自身目录内
+- Lua 插件运行在沙箱化的 Lua 5.4 环境中
+- native-c 插件作为原生代码运行在 Core 进程内
+- 通过宿主 API 的文件系统访问限制在插件自身目录内
 - 网络访问需要显式声明 `network:tcp` 权限
 - 进程启动需要显式声明 `process` 权限
-- 每个插件运行在独立的 Lua 状态中 —— 插件之间无法访问彼此的数据
+- 每个 Lua 插件运行在独立的 Lua 状态中 —— 插件之间无法访问彼此的数据
 - 系统信息访问需要显式声明 `system:info` 权限；控制器插件和扩展插件均可用 *（3.0.0-dev.2 起支持）*
 - 媒体会话访问需要显式声明 `media:session` 权限；仅扩展插件可用 *（3.0.0-dev.3 起支持）*
 - 系统进程监控需要显式声明 `system:process` 权限；仅扩展插件可用。目前仅支持 Windows。*（3.0.0-dev.3 起支持）*
 - 窗口焦点监控需要显式声明 `system:window-focus` 权限；仅扩展插件可用。目前仅支持 Windows。*（3.0.0-dev.3 起支持）*
 - HID 访问需要显式声明 `hardware:hid` 权限；仅扩展插件可用 *（3.0.0-dev.2 起支持）*
-- 原生 C 模块加载需要显式声明 `native` 权限，并使用不安全 Lua VM —— 请谨慎使用 *（3.0.0-dev.2 起支持）*
+- 原生 Lua 模块加载需要显式声明 `native` 权限，并使用不安全 Lua VM —— 请谨慎使用 *（3.0.0-dev.2 起支持）*
 - 通过 `native` 清单块进行高级 DLL 搜索路径控制与预加载需要 `3.0.0-dev.3` 或更高版本 *（参见 [Manifest 参考 — 原生库配置](manifest#原生库配置)）*
+- native-c 插件运行在 Core 进程内并拥有原生代码权限。审查、签名和分发时应按应用二进制同等标准处理。

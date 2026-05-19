@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Plugin Commands
 
-Commands for managing plugins (controllers, effects, extensions).
+Commands for managing plugin catalogs, installed plugin copies, enabled state, and extension pages.
 
 :::info Version
 The extended management commands and metadata on this page are supported since **`3.0.0-dev.4`**.
@@ -12,7 +12,7 @@ The extended management commands and metadata on this page are supported since *
 
 ## get_plugins
 
-Returns metadata for all installed plugins.
+Returns metadata for all installed effect, controller, and extension plugins.
 
 **Parameters**: none
 
@@ -22,170 +22,77 @@ Returns metadata for all installed plugins.
   "effects": [
     {
       "id": "rainbow",
-      "name": "Rainbow",
+      "name": {"raw": "Rainbow", "byLocale": {"zh-CN": "彩虹"}},
+      "enabled": true,
+      "description": {"raw": "Flowing rainbow animation"},
+      "icon": "Waves",
+      "permissions": ["log"],
       "version": "1.0.0",
       "publisher": "Skydimo",
-      "language": "lua",
+      "language": "native-c",
+      "abi": "skydimo-effect-c-v3",
+      "repository": "https://github.com/...",
+      "license": "MIT",
+      "params": [],
       "pluginDir": "...",
       "dataDir": "...",
       "bundled": false,
-      "installSource": "import-dev"
+      "installSource": "import-dev",
+      "reimportsOnRefresh": false
     }
   ],
   "controllers": [
     {
       "id": "skydimo_serial",
-      "name": "Skydimo Serial",
+      "name": {"raw": "Skydimo Serial"},
+      "enabled": true,
       "version": "1.0.0",
-      "enabled": true
+      "publisher": "Skydimo",
+      "language": "lua",
+      "pluginDir": "...",
+      "bundled": true,
+      "installSource": "bundled",
+      "reimportsOnRefresh": false
     }
   ],
   "extensions": [
     {
-      "id": "openrgb",
-      "name": "OpenRGB Bridge",
-      "version": "1.0.0",
+      "id": "led_canvas",
+      "name": {"raw": "LED Canvas"},
       "enabled": true,
-      "hasPage": true
+      "version": "1.0.0",
+      "publisher": "Skydimo",
+      "language": "native-c",
+      "abi": "skydimo-extension-c-v2",
+      "page": {"type": "path", "value": ".../page/dist/index.html"},
+      "pluginDir": "...",
+      "bundled": false,
+      "installSource": "import-dev",
+      "reimportsOnRefresh": false
     }
   ]
 },"id":1}
 ```
 
-### Additional Metadata Fields
-
-  Each plugin item can include:
-
-  | Field | Type | Description |
-  |-------|------|-------------|
-  | `pluginDir` | string | Resolved runtime plugin directory |
-  | `dataDir` | string \| null | Plugin data directory (if exists) |
-  | `bundled` | boolean | Whether plugin is bundled with app |
-  | `installSource` | string | `bundled` \| `import` \| `import-dev` \| `package` \| `manual` |
-
-  ---
-
-  ## refresh_plugins
-
-  Refresh plugin state and apply pending imports.
-
-  **Parameters**: none
-
-  ```json
-  → {"jsonrpc":"2.0","method":"refresh_plugins","id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  Typical effects of refresh:
-
-  - Import queued plugins
-  - Reload plugin registries
-  - Refresh runtime state so plugin updates are picked up
-  - Emit plugin-changed event to UI
-
-  ---
-
-  ## open_plugin_dir
-
-  Open plugin directory in system file manager.
-
-  **Parameters**:
-
-  | Field | Type | Required | Description |
-  |-------|------|:--------:|-------------|
-  | `pluginId` | string | ❌ | If provided, opens this plugin's resolved directory; otherwise opens plugin root directory |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"open_plugin_dir","params":{"pluginId":"rainbow"},"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  ---
-
-  ## open_plugin_data_dir
-
-  Open a plugin's data directory in system file manager.
-
-  **Parameters**:
-
-  | Field | Type | Description |
-  |-------|------|-------------|
-  | `pluginId` | string | Plugin ID |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"open_plugin_data_dir","params":{"pluginId":"rainbow"},"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  ---
-
-  ## delete_plugin
-
-  Delete an installed plugin copy.
-
-  **Parameters**:
-
-  | Field | Type | Description |
-  |-------|------|-------------|
-  | `pluginId` | string | Plugin ID |
-  | `deleteData` | boolean | Whether to delete plugin data directory too |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"delete_plugin","params":{
-    "pluginId":"my_effect",
-    "deleteData":true
-  },"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  :::caution
-  Bundled plugins cannot be deleted directly. Use [`reset_plugin`](#reset_plugin) instead.
-  :::
-
-  ---
-
-  ## reset_plugin
-
-  Reset a plugin to default bundled state by removing user override copy.
-
-  **Parameters**:
-
-  | Field | Type | Description |
-  |-------|------|-------------|
-  | `pluginId` | string | Plugin ID |
-  | `resetData` | boolean | Whether to also reset plugin data |
-
-  ```json
-  → {"jsonrpc":"2.0","method":"reset_plugin","params":{
-    "pluginId":"rainbow",
-    "resetData":false
-  },"id":1}
-  ← {"jsonrpc":"2.0","result":null,"id":1}
-  ```
-
-  ---
-
-  ## get_plugin_dir
-
-  Get plugin root directory path as string.
-
-  **Parameters**: none
-
-  ```json
-  → {"jsonrpc":"2.0","method":"get_plugin_dir","id":1}
-  ← {"jsonrpc":"2.0","result":"C:/.../plugins","id":1}
-  ```
-
-### Additional Metadata Fields
-
 Each plugin item can include:
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `id` | string | Plugin ID |
+| `name` | LocalizedText | Display name |
+| `enabled` | boolean | Whether the plugin is enabled |
+| `version` | string | Manifest version |
+| `publisher` | string | Manifest publisher |
+| `language` | string | Runtime language, e.g. `lua` or `native-c` |
+| `abi` | string \| null | Native ABI identifier for native-c plugins |
+| `repository` | string \| null | Source repository URL |
+| `license` | string \| null | License identifier |
 | `pluginDir` | string | Resolved runtime plugin directory |
-| `dataDir` | string \| null | Plugin data directory (if exists) |
-| `bundled` | boolean | Whether plugin is bundled with app |
+| `dataDir` | string \| null | Plugin data directory, if it exists |
+| `bundled` | boolean | Whether plugin is bundled with the application |
 | `installSource` | string | `bundled` \| `import` \| `import-dev` \| `package` \| `manual` |
+| `reimportsOnRefresh` | boolean | Whether refresh can reimport this plugin from a source queue |
+| `page` | object \| null | Extension page source, if the extension declares one |
 
 ---
 
@@ -205,19 +112,19 @@ Typical effects of refresh:
 - Import queued plugins
 - Reload plugin registries
 - Refresh runtime state so plugin updates are picked up
-- Emit plugin-changed event to UI
+- Emit plugin-changed events to UI
 
 ---
 
 ## open_plugin_dir
 
-Open plugin directory in system file manager.
+Open the plugin root directory or one plugin's resolved directory in the system file manager.
 
 **Parameters**:
 
 | Field | Type | Required | Description |
 |-------|------|:--------:|-------------|
-| `pluginId` | string | ❌ | If provided, opens this plugin's resolved directory; otherwise opens plugin root directory |
+| `pluginId` | string | no | If provided, opens this plugin's resolved directory; otherwise opens the plugin root directory |
 
 ```json
 → {"jsonrpc":"2.0","method":"open_plugin_dir","params":{"pluginId":"rainbow"},"id":1}
@@ -228,13 +135,13 @@ Open plugin directory in system file manager.
 
 ## open_plugin_data_dir
 
-Open a plugin's data directory in system file manager.
+Open a plugin's data directory in the system file manager.
 
 **Parameters**:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `pluginId` | string | Plugin ID |
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `pluginId` | string | yes | Plugin ID |
 
 ```json
 → {"jsonrpc":"2.0","method":"open_plugin_data_dir","params":{"pluginId":"rainbow"},"id":1}
@@ -245,14 +152,14 @@ Open a plugin's data directory in system file manager.
 
 ## delete_plugin
 
-Delete an installed plugin copy.
+Delete an installed user plugin copy.
 
 **Parameters**:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `pluginId` | string | Plugin ID |
-| `deleteData` | boolean | Whether to delete plugin data directory too |
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `pluginId` | string | yes | Plugin ID |
+| `deleteData` | boolean | no | Whether to delete plugin data directory too |
 
 ```json
 → {"jsonrpc":"2.0","method":"delete_plugin","params":{
@@ -270,14 +177,14 @@ Bundled plugins cannot be deleted directly. Use [`reset_plugin`](#reset_plugin) 
 
 ## reset_plugin
 
-Reset a plugin to default bundled state by removing user override copy.
+Reset a plugin to default bundled state by removing a user override copy.
 
 **Parameters**:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `pluginId` | string | Plugin ID |
-| `resetData` | boolean | Whether to also reset plugin data |
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `pluginId` | string | yes | Plugin ID |
+| `resetData` | boolean | no | Whether to also reset plugin data |
 
 ```json
 → {"jsonrpc":"2.0","method":"reset_plugin","params":{
@@ -291,7 +198,7 @@ Reset a plugin to default bundled state by removing user override copy.
 
 ## get_plugin_dir
 
-Get plugin root directory path as string.
+Get the plugin root directory path as a string.
 
 **Parameters**: none
 
@@ -308,10 +215,10 @@ Enable or disable controller plugins.
 
 **Parameters**:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `pluginIds` | string[] | List of controller plugin IDs |
-| `enabled` | boolean | `true` to enable, `false` to disable |
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `pluginIds` | string[] | yes | List of controller plugin IDs |
+| `enabled` | boolean | yes | `true` to enable, `false` to disable |
 
 ```json
 → {"jsonrpc":"2.0","method":"set_controller_plugins_enabled","params":{
@@ -321,7 +228,7 @@ Enable or disable controller plugins.
 ```
 
 :::info
-Disabling a controller plugin will disconnect all devices currently managed by that plugin.
+Disabling a controller plugin disconnects all devices currently managed by that plugin.
 :::
 
 ---
@@ -332,10 +239,10 @@ Enable or disable effect plugins.
 
 **Parameters**:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `pluginIds` | string[] | List of effect plugin IDs |
-| `enabled` | boolean | `true` to enable, `false` to disable |
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `pluginIds` | string[] | yes | List of effect plugin IDs |
+| `enabled` | boolean | yes | `true` to enable, `false` to disable |
 
 ```json
 → {"jsonrpc":"2.0","method":"set_effect_plugins_enabled","params":{
@@ -352,10 +259,10 @@ Enable or disable extension plugins.
 
 **Parameters**:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `pluginIds` | string[] | List of extension plugin IDs |
-| `enabled` | boolean | `true` to enable, `false` to disable |
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `pluginIds` | string[] | yes | List of extension plugin IDs |
+| `enabled` | boolean | yes | `true` to enable, `false` to disable |
 
 ```json
 → {"jsonrpc":"2.0","method":"set_extension_plugins_enabled","params":{
@@ -368,14 +275,14 @@ Enable or disable extension plugins.
 
 ## ext_page_send
 
-Send a message to an extension's embedded HTML page.
+Send a message to an extension's embedded page.
 
 **Parameters**:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `extId` | string | Extension plugin ID |
-| `data` | any | Arbitrary JSON data to send |
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `extId` | string | yes | Extension plugin ID |
+| `data` | any | yes | Arbitrary JSON data to send |
 
 ```json
 → {"jsonrpc":"2.0","method":"ext_page_send","params":{
@@ -384,7 +291,7 @@ Send a message to an extension's embedded HTML page.
 },"id":1}
 ```
 
-The extension receives this via its `on_page_message(data)` callback.
+Lua extensions receive this through `on_page_message(data)`. Native-c extensions receive it through `on_page_message_json`.
 
 ---
 

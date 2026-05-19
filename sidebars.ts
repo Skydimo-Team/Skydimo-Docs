@@ -40,6 +40,7 @@ const sidebars: SidebarsConfig = {
         'plugins/controller-plugin',
         'plugins/effect-plugin',
         'plugins/extension-plugin',
+        'plugins/native-c-plugin',
       ],
     },
     {

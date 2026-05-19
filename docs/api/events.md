@@ -129,7 +129,7 @@ Fired when an extension’s embedded HTML page sends a message to Core. The even
 }
 ```
 
-Extension Lua code receives this via the `on_page_message(data)` callback.
+Lua extensions receive this via `on_page_message(data)`. Native-c extensions receive the same payload through `on_page_message_json`.
 ---
 
 ### system.process.changed

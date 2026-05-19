@@ -46,6 +46,10 @@ Plugins must declare required permissions in `manifest.json`. Core enforces thes
 | `hardware:hid` | Open and communicate with HID devices directly *(since 3.0.0-dev.2)* |
 | `native` | Load native C modules (`.dll`/`.so`) via `require()` and use the `native` manifest block for fine-grained library search control *(since 3.0.0-dev.2; `native` manifest config since 3.0.0-dev.3)* |
 
+:::note Native-c runtime
+The `native` permission is for Lua plugins that load native Lua modules. A plugin whose `language` is `"native-c"` is itself a native shared library and does not need the `native` permission just to be loaded. It still must declare permissions for host capabilities it uses, such as `audio:capture`, `screen:capture`, `network:http`, `process`, or `hardware:hid`.
+:::
+
 ## Declaring Permissions
 
 Add a `permissions` array to your `manifest.json`:
@@ -58,15 +62,17 @@ Add a `permissions` array to your `manifest.json`:
 
 ## Security Model
 
-- Plugins run in a sandboxed Lua 5.4 environment
-- File system access is restricted to the plugin's own directory
+- Lua plugins run in a sandboxed Lua 5.4 environment
+- Native-c plugins run inside the Core process as native code
+- File system access through host APIs is restricted to the plugin's own directory
 - Network access requires explicit `network:tcp` permission
 - Process spawning requires explicit `process` permission
-- Each plugin runs in an isolated Lua state — plugins cannot access each other's data
+- Each Lua plugin runs in an isolated Lua state — plugins cannot access each other's data
 - System info access requires explicit `system:info` permission; available to controller and extension plugins *(since 3.0.0-dev.2)*
 - Media session access requires explicit `media:session` permission; only available to extension plugins *(since 3.0.0-dev.3)*
 - System process monitoring requires explicit `system:process` permission; only available to extension plugins. Currently only supported on Windows. *(since 3.0.0-dev.3)*
 - Window focus monitoring requires explicit `system:window-focus` permission; only available to extension plugins. Currently only supported on Windows. *(since 3.0.0-dev.3)*
 - HID access requires explicit `hardware:hid` permission; only available to extension plugins *(since 3.0.0-dev.2)*
-- Native C module loading requires explicit `native` permission and uses an unsafe Lua VM — use with caution *(since 3.0.0-dev.2)*
+- Native Lua module loading requires explicit `native` permission and uses an unsafe Lua VM — use with caution *(since 3.0.0-dev.2)*
 - Advanced DLL search path control and preloading via the `native` manifest block requires `3.0.0-dev.3` or later *(see [Manifest Reference — Native Library Configuration](manifest#native-library-configuration))*
+- Native-c plugins run inside the Core process and have native-code privileges. Review and sign/distribute them with the same care as application binaries.

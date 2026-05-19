@@ -15,8 +15,8 @@ An overview of Skydimo's capabilities.
 
 ## Lighting Effects
 
-- **Built-in effects** — Includes essential effects like monochrome, rainbow, and matrix test
-- **Lua effect plugins** — Install community effects or write your own in Lua
+- **Built-in effects** — Includes essential effects like monochrome and matrix test
+- **Effect plugins** — Install community effects or write your own in Lua or native-c
 - **Parameterizable** — Each effect exposes configurable parameters (sliders, selects, toggles, colors)
 - **Per-scope configuration** — Apply different effects to different outputs or segments on the same device
 
@@ -35,7 +35,7 @@ An overview of Skydimo's capabilities.
 
 ## Plugin System
 
-Three types of Lua plugins extend Skydimo's capabilities:
+Three plugin types extend Skydimo's capabilities:
 
 | Type | Purpose | Example |
 |------|---------|---------|
@@ -44,6 +44,13 @@ Three types of Lua plugins extend Skydimo's capabilities:
 | **Extension** | Background services & integrations | OpenRGB bridge, custom protocols |
 
 See the [Plugin Development Guide](../plugins/overview) for details.
+
+Plugin runtimes currently supported by Core:
+
+| Runtime | Use case |
+|---------|----------|
+| `lua` | Fast iteration, hardware protocol glue, extension logic |
+| `native-c` | High-performance effects, native integrations, language bindings through a stable C ABI |
 
 ## WebSocket API
 

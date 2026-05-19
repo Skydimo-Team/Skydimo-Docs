@@ -184,20 +184,24 @@ Each plugin info contains:
 ```json
 {
   "id": "plugin_id",
-  "name": "Display Name",
+  "name": {"raw": "Display Name"},
+  "enabled": true,
   "version": "1.0.0",
   "publisher": "Author",
   "description": "Description",
-  "language": "lua",
-  "enabled": true,
-  "metadata": {
-    "version": "1.0.0",
-    "publisher": "Author",
-    "repository": "https://github.com/...",
-    "license": "MIT"
-  }
+  "language": "native-c",
+  "abi": "skydimo-effect-c-v3",
+  "repository": "https://github.com/...",
+  "license": "MIT",
+  "pluginDir": "...",
+  "dataDir": "...",
+  "bundled": false,
+  "installSource": "import-dev",
+  "reimportsOnRefresh": false
 }
 ```
+
+`language` is the runtime language (`"lua"` or `"native-c"` for currently supported runtimes). `abi` is present for native-c plugins.
 
 ---
 

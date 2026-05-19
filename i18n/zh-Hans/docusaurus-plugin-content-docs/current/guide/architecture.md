@@ -10,7 +10,7 @@ Skydimo 采用 **Core + UI 分离**架构，所有业务逻辑都位于独立的
 
 1. **后端权威 (Backend Authority)** —— Core 是设备状态、灯效能力和所有业务逻辑的唯一真实来源。
 2. **前端无关性 (Frontend Agnosticism)** —— UI 是一个动态渲染器，支持新 Core 功能只需极少改动。Core 可在无 UI 的情况下独立运行（headless 模式）。
-3. **开闭原则 (Open/Closed Principle)** —— 新的灯效、控制器和扩展可通过 Lua 插件添加，无需修改核心逻辑。
+3. **开闭原则 (Open/Closed Principle)** —— 新的灯效、控制器和扩展可通过插件运行时添加，无需修改核心逻辑。
 
 ## 进程模型
 
@@ -21,7 +21,8 @@ Skydimo 采用 **Core + UI 分离**架构，所有业务逻辑都位于独立的
 │  │   + 系统托盘                  │
 │  └─ 异步运行时:               │
 │     ├─ LightingManager          │
-│     ├─ Lua 插件管理器            │
+│     ├─ 插件管理器                │
+│     │  (Lua + native-c 运行时)   │
 │     ├─ WebSocket 服务器          │
 │     └─ 控制 Socket (38967)      │
 └──────────┬──────────────────────┘
@@ -68,3 +69,17 @@ Skydimo 支持多种硬件发现方式：
 - **mDNS** —— 通过服务发现检测网络设备
 
 所有支持的平台（Windows、macOS、Linux）均自动处理 USB 热插拔检测。
+
+## 插件运行时分发
+
+Core 会先从 `manifest.json` 解析插件元数据，再根据 `language` 分发到对应运行时：
+
+| 运行时 | 状态 | 用途 |
+|--------|------|------|
+| `lua` | 已支持 | 沙箱化 Lua 5.4 插件，用于控制器、灯效和扩展 |
+| `native-c` | 已支持 | 通过 Skydimo C ABI 加载的进程内原生共享库 |
+| `wasm` | 预留 | 未来 WebAssembly 运行时 |
+| `abi-stable` | 预留 | 未来 Rust 友好 ABI 实验 |
+| `process` | 预留 | 未来进程外插件运行时 |
+
+只有已注册到当前插件类型的运行时会被加载。未支持或预留运行时会被当前注册表忽略。

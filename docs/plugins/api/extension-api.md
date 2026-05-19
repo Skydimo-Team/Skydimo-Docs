@@ -411,7 +411,7 @@ local output_locks = ext.get_led_locks("COM3", "out1")
 
 ### ext.get_effects()
 
-Get all available effects (built-in + Lua plugins).
+Get all available effects (built-in + plugin effects).
 
 ```lua
 local effects = ext.get_effects()

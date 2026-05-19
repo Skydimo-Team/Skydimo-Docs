@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # 插件开发概览
 
-Skydimo 的插件系统允许你用 **Lua 5.4** 编写自定义硬件驱动、灯光效果和后台服务，从而扩展应用能力。
+Skydimo 的插件系统允许你扩展自定义硬件驱动、灯光效果和后台服务。当前生产可用运行时为 **Lua 5.4** 与 **native-c**。
 
 :::info 版本说明
 本页所述工作流在 **`3.0.0-dev.4`** 及之后版本可用。
@@ -17,6 +17,15 @@ Skydimo 的插件系统允许你用 **Lua 5.4** 编写自定义硬件驱动、�
 | **Controller（控制器）** | `controller.<id>/` | 硬件设备驱动（串口、HID、mDNS） |
 | **Effect（灯效）** | `effect.<id>/` | 视觉灯光图案与动画 |
 | **Extension（扩展）** | `extension.<id>/` | 后台服务、协议网桥、自定义 UI |
+
+## 运行时选择
+
+| 运行时 | `language` | 适合场景 |
+|--------|------------|----------|
+| Lua | `"lua"` | 快速迭代、小型集成、设备协议胶水 |
+| Native C ABI | `"native-c"` | 基于公开 C、Rust、C#、C++、Zig 等 C ABI SDK 包构建的高性能灯效/控制器/扩展 |
+
+`native-c` 插件是加载到 Core 进程内的共享库。需要原生性能或公开 SDK 语言包时，请参阅 [Native-C 插件运行时](native-c-plugin)。
 
 ## 推荐工作流（3.0.0-dev.4+）
 
@@ -41,12 +50,35 @@ Skydimo 的插件系统允许你用 **Lua 5.4** 编写自定义硬件驱动、�
 ```
 <type>.<id>/
 ├── manifest.json
-├── main.lua / init.lua
+├── main.lua / init.lua      # Lua 插件
+├── native/<platform>/       # native-c 共享库
 ├── lib/            # 可选
 ├── locales/        # 可选
 ├── data/           # 可选初始化数据
 └── page/           # 仅 extension 可选
 ```
+
+开发阶段 native-c 源码工程可以与源码包放在一起，但可安装/分发的插件包必须包含 `entry` 指向的已编译共享库。
+
+## 插件包组（Pack）
+
+一个包目录也可以是 `"type": "pack"` 的包组 manifest，并通过 `plugins` 列表引用子插件目录。包组自身不加载运行时，只用于组织多个子插件：
+
+```json
+{
+  "id": "my_effect_pack",
+  "version": "1.0.0",
+  "name": "My Effect Pack",
+  "publisher": "Example",
+  "type": "pack",
+  "plugins": [
+    "Rainbow",
+    { "path": "Audio/Bars" }
+  ]
+}
+```
+
+包组条目必须指向包组目录内的子目录。不支持嵌套包组。
 
 ## 运行时存储（由 Core 管理）
 
@@ -98,6 +130,7 @@ Skydimo 的插件系统允许你用 **Lua 5.4** 编写自定义硬件驱动、�
 - [控制器插件指南](controller-plugin) —— 构建硬件驱动
 - [灯效插件指南](effect-plugin) —— 创建灯光效果
 - [扩展插件指南](extension-plugin) —— 构建集成方案和后台服务
+- [Native-C 插件运行时](native-c-plugin)
 
 ## 兼容说明
 

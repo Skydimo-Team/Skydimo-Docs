@@ -8,7 +8,7 @@ sidebar_position: 3
 
 ## get_effects
 
-返回所有可用灯效（内置 + Lua 插件）。
+返回所有可用灯效（内置 + 插件灯效）。
 
 **参数**：无
 

@@ -149,6 +149,62 @@ type ScreenRegion =
 
 ---
 
+## EffectInfo
+
+`get_effects` 返回的完整灯效元数据：
+
+```json
+{
+  "id": "rainbow",
+  "name": {"raw": "Rainbow", "byLocale": {"zh-CN": "彩虹"}},
+  "description": {"raw": "Flowing rainbow animation"},
+  "icon": "Waves",
+  "category": "animation",
+  "permissions": ["log"],
+  "params": [ ... ]
+}
+```
+
+---
+
+## PluginsResponse
+
+`get_plugins` 返回：
+
+```json
+{
+  "effects": [EffectPluginInfo, ...],
+  "controllers": [ControllerPluginInfo, ...],
+  "extensions": [ExtensionPluginInfo, ...]
+}
+```
+
+每个插件项包含：
+
+```json
+{
+  "id": "plugin_id",
+  "name": {"raw": "Display Name"},
+  "enabled": true,
+  "version": "1.0.0",
+  "publisher": "Author",
+  "description": "Description",
+  "language": "native-c",
+  "abi": "skydimo-effect-c-v3",
+  "repository": "https://github.com/...",
+  "license": "MIT",
+  "pluginDir": "...",
+  "dataDir": "...",
+  "bundled": false,
+  "installSource": "import-dev",
+  "reimportsOnRefresh": false
+}
+```
+
+`language` 是运行时语言（当前支持 `"lua"` 与 `"native-c"`）。`abi` 仅 native-c 插件会返回。
+
+---
+
 ## SystemInfo
 
 :::info 版本

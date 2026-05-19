@@ -13,12 +13,13 @@ Every plugin requires a `manifest.json` file in its root directory. This page do
 | `id` | string | ✅ | Unique plugin identifier (must match directory suffix) |
 | `version` | string | ✅ | Semantic version (e.g. `"1.0.0"`) |
 | `name` | string | ✅ | Display name (or i18n key like `"meta.name"`) |
-| `type` | string | ✅ | Plugin type: `"controller"`, `"effect"`, or `"extension"` |
-| `language` | string | ✅ | Always `"lua"` |
-| `entry` | string | ✅ | Entry script filename (e.g. `"main.lua"` or `"init.lua"`) |
+| `type` | string | ✅ | Plugin type: `"controller"`, `"effect"`, `"extension"`, or `"pack"` |
+| `language` | string | ✅ for runtime plugins | Runtime language. Use `"lua"` or `"native-c"` |
+| `abi` | string | ✅ for `native-c` | Native ABI identifier, e.g. `"skydimo-effect-c-v3"` |
+| `entry` | string or object | ✅ for runtime plugins | Runtime entry. Lua uses a script path. Native-c usually uses a platform map to a shared library. |
 | `permissions` | string[] | ❌ | Required permissions |
 | `locales` | object | ❌ | Inline locale dictionaries keyed by locale code. Also accepts `i18n` and `translations` |
-| `publisher` | string | ❌ | Author or organization name |
+| `publisher` | string | ✅ | Author or organization name |
 | `description` | string | ❌ | Human-readable description (or i18n key) |
 | `repository` | string | ❌ | Source repository URL |
 | `license` | string | ❌ | License identifier (e.g. `"MIT"`) |
@@ -39,6 +40,43 @@ Every plugin requires a `manifest.json` file in its root directory. This page do
   "license": "MIT"
 }
 ```
+
+### Entry Platform Map
+
+`entry` can be a single relative path or a platform map. Platform maps are recommended for native-c plugins:
+
+```json
+{
+  "entry": {
+    "windows-x86_64": "native/windows-x86_64/my_plugin.dll",
+    "linux-x86_64": "native/linux-x86_64/libmy_plugin.so",
+    "macos-aarch64": "native/macos-aarch64/libmy_plugin.dylib",
+    "default": "native/windows-x86_64/my_plugin.dll"
+  }
+}
+```
+
+Supported platform keys are `windows-x86_64`, `windows-aarch64`, `linux-x86_64`, `linux-aarch64`, `macos-x86_64`, and `macos-aarch64`. `default` is optional fallback. Entry paths must be relative to the plugin directory and cannot contain `..` or absolute path prefixes.
+
+### Plugin Pack Manifest
+
+A pack manifest groups child plugins and does not have `language`, `abi`, or `entry`. It requires `id`, `version`, `name`, `publisher`, `type: "pack"`, and `plugins`:
+
+```json
+{
+  "id": "my_effect_pack",
+  "version": "1.0.0",
+  "name": "My Effect Pack",
+  "publisher": "Example",
+  "type": "pack",
+  "plugins": [
+    "Rainbow",
+    { "path": "Audio/Bars" }
+  ]
+}
+```
+
+Pack plugin paths must stay inside the pack directory. Nested packs are ignored.
 
 ---
 
@@ -257,6 +295,8 @@ Controls when a parameter is visible or enabled:
 > **Available since: `3.0.0-dev.3`**
 
 The optional `native` object controls how the plugin runtime loads native (C/Rust/…) Lua modules and their shared-library dependencies. All paths are relative to the plugin directory and must not escape it (no `..` or absolute paths).
+
+This section is only for Lua plugins that load C modules through Lua's `require()`. It is different from the `native-c` runtime, where the plugin entry itself is a shared library. See [Native-C Plugin Runtime](native-c-plugin).
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
