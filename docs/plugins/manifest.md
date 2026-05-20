@@ -14,9 +14,9 @@ Every plugin requires a `manifest.json` file in its root directory. This page do
 | `version` | string | ✅ | Semantic version (e.g. `"1.0.0"`) |
 | `name` | string | ✅ | Display name (or i18n key like `"meta.name"`) |
 | `type` | string | ✅ | Plugin type: `"controller"`, `"effect"`, `"extension"`, or `"pack"` |
-| `language` | string | ✅ for runtime plugins | Runtime language. Use `"lua"` or `"native-c"` |
+| `language` | string | ✅ for runtime plugins | Runtime language. Use `"lua"` or `"native-c"`; Core also accepts `"c-abi"` and `"native"` as aliases for native-c. |
 | `abi` | string | ✅ for `native-c` | Native ABI identifier, e.g. `"skydimo-effect-c-v3"` |
-| `entry` | string or object | ✅ for runtime plugins | Runtime entry. Lua uses a script path. Native-c usually uses a platform map to a shared library. |
+| `entry` | string or object | ✅ for runtime plugins | Runtime entry. Lua uses a script path. Native-c can use a shared library path or platform entry map. |
 | `permissions` | string[] | ❌ | Required permissions |
 | `locales` | object | ❌ | Inline locale dictionaries keyed by locale code. Also accepts `i18n` and `translations` |
 | `publisher` | string | ✅ | Author or organization name |
@@ -58,9 +58,30 @@ Every plugin requires a `manifest.json` file in its root directory. This page do
 
 Supported platform keys are `windows-x86_64`, `windows-aarch64`, `linux-x86_64`, `linux-aarch64`, `macos-x86_64`, and `macos-aarch64`. `default` is optional fallback. Entry paths must be relative to the plugin directory and cannot contain `..` or absolute path prefixes.
 
+### Example (Native-C)
+
+```json
+{
+  "id": "my_native_effect",
+  "version": "1.0.0",
+  "name": "My Native Effect",
+  "type": "effect",
+  "language": "native-c",
+  "abi": "skydimo-effect-c-v3",
+  "entry": {
+    "windows-x86_64": "native/windows-x86_64/my_native_effect.dll",
+    "linux-x86_64": "native/linux-x86_64/libmy_native_effect.so",
+    "macos-aarch64": "native/macos-aarch64/libmy_native_effect.dylib",
+    "default": "native/current/libmy_native_effect.so"
+  },
+  "permissions": ["log"],
+  "publisher": "Your Name"
+}
+```
+
 ### Plugin Pack Manifest
 
-A pack manifest groups child plugins and does not have `language`, `abi`, or `entry`. It requires `id`, `version`, `name`, `publisher`, `type: "pack"`, and `plugins`:
+A pack manifest groups child plugins and does not have `language`, `abi`, or `entry`. Core reads `id`, `name`, `publisher`, `type: "pack"`, and `plugins`; `version` is recommended for distribution metadata.
 
 ```json
 {

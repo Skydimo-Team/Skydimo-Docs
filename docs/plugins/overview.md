@@ -131,6 +131,7 @@ This is useful for support, migration, and deciding whether to **delete** or **r
 - [Effect Plugin Guide](effect-plugin)
 - [Extension Plugin Guide](extension-plugin)
 - [Native-C Plugin Runtime](native-c-plugin)
+- [Native-C API Reference](api/native-c-api)
 
 ## Legacy Note
 

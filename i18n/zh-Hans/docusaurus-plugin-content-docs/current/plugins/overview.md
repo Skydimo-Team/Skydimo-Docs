@@ -131,6 +131,7 @@ Skydimo 的插件系统允许你扩展自定义硬件驱动、灯光效果和后
 - [灯效插件指南](effect-plugin) —— 创建灯光效果
 - [扩展插件指南](extension-plugin) —— 构建集成方案和后台服务
 - [Native-C 插件运行时](native-c-plugin)
+- [Native-C API 参考](api/native-c-api)
 
 ## 兼容说明
 

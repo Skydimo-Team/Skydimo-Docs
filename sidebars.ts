@@ -33,6 +33,7 @@ const sidebars: SidebarsConfig = {
     'plugins/getting-started',
     'plugins/plugin-management',
     'plugins/manifest',
+    'plugins/native-c-plugin',
     {
       type: 'category',
       label: 'Plugin Types',
@@ -50,6 +51,7 @@ const sidebars: SidebarsConfig = {
         'plugins/api/controller-api',
         'plugins/api/effect-api',
         'plugins/api/extension-api',
+        'plugins/api/native-c-api',
       ],
     },
     'plugins/permissions',

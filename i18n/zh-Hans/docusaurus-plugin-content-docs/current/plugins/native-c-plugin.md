@@ -4,11 +4,13 @@ sidebar_position: 4
 
 # Native-C 插件运行时
 
-`native-c` 运行时会把平台共享库直接加载进 Skydimo Core，并通过 Skydimo C ABI 调用它。Lua 不适合时再选择 native-c：例如高性能灯效、底层硬件集成，或者使用 C、C++、Rust、C#、Zig 等能够导出 C ABI 的语言开发插件。
+`native-c` 运行时会把已编译的平台共享库直接加载进 Skydimo Core，并通过 Skydimo C ABI 调用它。Lua 不适合时再选择 native-c：例如高性能灯效、底层硬件集成，或者使用 C、C++、Rust、C#、Zig 等能够导出 C ABI 的语言开发插件。
 
 Skydimo 不加载源码。native-c 插件包必须包含已经编译好的 `.dll`、`.so` 或 `.dylib`，并由 `manifest.json` 指定每个平台要加载的文件。
 
-## 状态
+完整 ABI 函数表与宿主方法请参阅 [Native-C API 参考](api/native-c-api)。
+
+## 运行时状态
 
 | 能力 | 状态 |
 |------|------|
@@ -338,7 +340,9 @@ C ABI 同时暴露类型化回调和 `call_json`：
 | Platform key | 典型产物名 |
 |--------------|------------|
 | `windows-x86_64` | `my_plugin.dll` |
+| `windows-aarch64` | `my_plugin.dll` |
 | `linux-x86_64` | `libmy_plugin.so` |
+| `linux-aarch64` | `libmy_plugin.so` |
 | `macos-x86_64` | `libmy_plugin.dylib` |
 | `macos-aarch64` | `libmy_plugin.dylib` |
 

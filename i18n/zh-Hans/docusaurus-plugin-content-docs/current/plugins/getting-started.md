@@ -144,7 +144,8 @@ return plugin
 - [灯效插件指南](effect-plugin) —— 高级灯效技巧
 - [控制器插件指南](controller-plugin) —— 编写硬件驱动
 - [扩展插件指南](extension-plugin) —— 构建后台服务
-- [Native-C 插件运行时](native-c-plugin) —— 使用 C、Rust、C# 或类似语言构建 C ABI 插件
+- [Native-C 插件运行时](native-c-plugin) —— 使用 C、Rust、C# 或其他 C ABI 语言构建插件
+- [Native-C API 参考](api/native-c-api) —— ABI 函数表与宿主方法
 
 ## 故障排查
 

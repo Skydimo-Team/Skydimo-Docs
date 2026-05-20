@@ -14,9 +14,9 @@ sidebar_position: 3
 | `version` | string | ✅ | 语义版本号（如 `"1.0.0"`） |
 | `name` | string | ✅ | 显示名称（或 i18n 键，如 `"meta.name"`） |
 | `type` | string | ✅ | 插件类型：`"controller"`、`"effect"`、`"extension"` 或 `"pack"` |
-| `language` | string | 运行时插件必填 | 运行时语言。使用 `"lua"` 或 `"native-c"` |
+| `language` | string | 运行时插件必填 | 运行时语言。使用 `"lua"` 或 `"native-c"`；Core 也接受 `"c-abi"`、`"native"` 作为 native-c 别名。 |
 | `abi` | string | native-c 必填 | 原生 ABI 标识符，例如 `"skydimo-effect-c-v3"` |
-| `entry` | string 或 object | 运行时插件必填 | 运行时入口。Lua 使用脚本路径；native-c 通常使用平台映射指向共享库。 |
+| `entry` | string 或 object | 运行时插件必填 | 运行时入口。Lua 使用脚本路径；native-c 可使用共享库路径或平台入口映射。 |
 | `permissions` | string[] | ❌ | 所需权限列表 |
 | `locales` | object | ❌ | 以 locale 代码为键的内联本地化词典；也兼容 `i18n` 和 `translations` |
 | `publisher` | string | ✅ | 作者或组织名称 |
@@ -58,9 +58,30 @@ sidebar_position: 3
 
 支持的平台键包括 `windows-x86_64`、`windows-aarch64`、`linux-x86_64`、`linux-aarch64`、`macos-x86_64` 和 `macos-aarch64`。`default` 是可选回退。入口路径必须相对于插件目录，不能包含 `..` 或绝对路径前缀。
 
+### 示例（Native-C）
+
+```json
+{
+  "id": "my_native_effect",
+  "version": "1.0.0",
+  "name": "My Native Effect",
+  "type": "effect",
+  "language": "native-c",
+  "abi": "skydimo-effect-c-v3",
+  "entry": {
+    "windows-x86_64": "native/windows-x86_64/my_native_effect.dll",
+    "linux-x86_64": "native/linux-x86_64/libmy_native_effect.so",
+    "macos-aarch64": "native/macos-aarch64/libmy_native_effect.dylib",
+    "default": "native/current/libmy_native_effect.so"
+  },
+  "permissions": ["log"],
+  "publisher": "Your Name"
+}
+```
+
 ### 插件包组 Manifest
 
-包组 manifest 用于组织子插件，不需要 `language`、`abi` 或 `entry`。它需要 `id`、`version`、`name`、`publisher`、`type: "pack"` 和 `plugins`：
+包组 manifest 用于组织子插件，不需要 `language`、`abi` 或 `entry`。Core 会读取 `id`、`name`、`publisher`、`type: "pack"` 和 `plugins`；`version` 建议用于分发元数据。
 
 ```json
 {

@@ -143,7 +143,8 @@ When moving to production/distribution, package clean plugin content and install
 - [Effect Plugin Guide](effect-plugin) — Advanced effect techniques
 - [Controller Plugin Guide](controller-plugin) — Write hardware drivers
 - [Extension Plugin Guide](extension-plugin) — Build background services
-- [Native-C Plugin Runtime](native-c-plugin) — Build C ABI plugins from C, Rust, C#, or similar languages
+- [Native-C Plugin Runtime](native-c-plugin) — Build plugins from C, Rust, C#, or another C ABI-capable language
+- [Native-C API Reference](api/native-c-api) — ABI tables and host methods
 
 ## Troubleshooting
 

@@ -4,11 +4,13 @@ sidebar_position: 4
 
 # Native-C Plugin Runtime
 
-The `native-c` runtime loads a platform shared library directly into Skydimo Core and calls it through the Skydimo C ABI. Use it when Lua is not the right fit: high-performance effects, low-level hardware integrations, or plugins written in C, C++, Rust, C#, Zig, or any language that can produce a native library with C exports.
+The `native-c` runtime loads a compiled platform shared library directly into Skydimo Core and calls it through the Skydimo C ABI. Use it when Lua is not the right fit: high-performance effects, low-level hardware integrations, or plugins written in C, C++, Rust, C#, Zig, or any language that can export a C ABI.
 
 Skydimo does not load source code. A native-c plugin package must contain a compiled `.dll`, `.so`, or `.dylib`, and `manifest.json` tells Core which file to load for each platform.
 
-## Status
+For the complete ABI function tables and host methods, see [Native-C API Reference](api/native-c-api).
+
+## Runtime Status
 
 | Capability | Status |
 |------------|--------|
@@ -49,7 +51,7 @@ Skydimo has two different native mechanisms:
 | Lua C module loading | `language: "lua"` plus `native` manifest block and `native` permission | A Lua plugin uses `require()` to load C modules |
 | Native-c runtime | `language: "native-c"` plus `abi` and shared-library `entry` | The plugin itself is a native shared library |
 
-A `native-c` plugin does not need the `native` permission just to be loaded. It still needs the permissions required by the host capabilities it calls.
+A native-c plugin does not need the `native` permission just to be loaded. It still needs the permissions required by the host capabilities it calls.
 
 ## Package Layout
 
@@ -338,7 +340,9 @@ Platform keys currently use this shape:
 | Platform key | Typical artifact name |
 |--------------|-----------------------|
 | `windows-x86_64` | `my_plugin.dll` |
+| `windows-aarch64` | `my_plugin.dll` |
 | `linux-x86_64` | `libmy_plugin.so` |
+| `linux-aarch64` | `libmy_plugin.so` |
 | `macos-x86_64` | `libmy_plugin.dylib` |
 | `macos-aarch64` | `libmy_plugin.dylib` |
 

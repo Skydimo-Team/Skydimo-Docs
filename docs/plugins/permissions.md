@@ -63,8 +63,8 @@ Add a `permissions` array to your `manifest.json`:
 ## Security Model
 
 - Lua plugins run in a sandboxed Lua 5.4 environment
-- Native-c plugins run inside the Core process as native code
-- File system access through host APIs is restricted to the plugin's own directory
+- Native-c plugins run as trusted in-process native code; they do not need the `native` permission just to be loaded
+- File system access exposed through host APIs is restricted to the plugin's own directory
 - Network access requires explicit `network:tcp` permission
 - Process spawning requires explicit `process` permission
 - Each Lua plugin runs in an isolated Lua state — plugins cannot access each other's data
