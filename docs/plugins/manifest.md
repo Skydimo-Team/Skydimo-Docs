@@ -14,8 +14,9 @@ Every plugin requires a `manifest.json` file in its root directory. This page do
 | `version` | string | ✅ | Semantic version (e.g. `"1.0.0"`) |
 | `name` | string | ✅ | Display name (or i18n key like `"meta.name"`) |
 | `type` | string | ✅ | Plugin type: `"controller"`, `"effect"`, or `"extension"` |
-| `language` | string | ✅ | Always `"lua"` |
-| `entry` | string | ✅ | Entry script filename (e.g. `"main.lua"` or `"init.lua"`) |
+| `language` | string | ✅ | Runtime language: `"lua"` or `"native-c"`. Aliases accepted by Core include `"c-abi"` and `"native"` |
+| `abi` | string | native-c only | Native ABI id, such as `"skydimo-effect-c-v3"` |
+| `entry` | string or object | ✅ | Lua entry script, native shared library path, or a platform entry map |
 | `permissions` | string[] | ❌ | Required permissions |
 | `locales` | object | ❌ | Inline locale dictionaries keyed by locale code. Also accepts `i18n` and `translations` |
 | `publisher` | string | ❌ | Author or organization name |
@@ -39,6 +40,29 @@ Every plugin requires a `manifest.json` file in its root directory. This page do
   "license": "MIT"
 }
 ```
+
+### Example (Native-C)
+
+```json
+{
+  "id": "my_native_effect",
+  "version": "1.0.0",
+  "name": "My Native Effect",
+  "type": "effect",
+  "language": "native-c",
+  "abi": "skydimo-effect-c-v3",
+  "entry": {
+    "windows-x86_64": "native/windows-x86_64/my_native_effect.dll",
+    "linux-x86_64": "native/linux-x86_64/libmy_native_effect.so",
+    "macos-aarch64": "native/macos-aarch64/libmy_native_effect.dylib",
+    "default": "native/current/libmy_native_effect.so"
+  },
+  "permissions": ["log"],
+  "publisher": "Your Name"
+}
+```
+
+Platform entry keys currently include `windows-x86_64`, `windows-aarch64`, `linux-x86_64`, `linux-aarch64`, `macos-x86_64`, and `macos-aarch64`. `default` is used when the current platform key is absent. Every entry path must stay inside the plugin directory.
 
 ---
 

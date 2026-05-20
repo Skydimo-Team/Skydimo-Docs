@@ -14,8 +14,9 @@ sidebar_position: 3
 | `version` | string | ✅ | 语义版本号（如 `"1.0.0"`） |
 | `name` | string | ✅ | 显示名称（或 i18n 键，如 `"meta.name"`） |
 | `type` | string | ✅ | 插件类型：`"controller"`、`"effect"` 或 `"extension"` |
-| `language` | string | ✅ | 始终为 `"lua"` |
-| `entry` | string | ✅ | 入口脚本文件名（如 `"main.lua"` 或 `"init.lua"`） |
+| `language` | string | ✅ | 运行时语言：`"lua"` 或 `"native-c"`。Core 也接受 `"c-abi"`、`"native"` 作为别名 |
+| `abi` | string | 仅 native-c | 原生 ABI id，例如 `"skydimo-effect-c-v3"` |
+| `entry` | string 或 object | ✅ | Lua 入口脚本、原生共享库路径，或平台入口映射 |
 | `permissions` | string[] | ❌ | 所需权限列表 |
 | `locales` | object | ❌ | 以 locale 代码为键的内联本地化词典；也兼容 `i18n` 和 `translations` |
 | `publisher` | string | ❌ | 作者或组织名称 |
@@ -39,6 +40,29 @@ sidebar_position: 3
   "license": "MIT"
 }
 ```
+
+### 示例（Native-C）
+
+```json
+{
+  "id": "my_native_effect",
+  "version": "1.0.0",
+  "name": "My Native Effect",
+  "type": "effect",
+  "language": "native-c",
+  "abi": "skydimo-effect-c-v3",
+  "entry": {
+    "windows-x86_64": "native/windows-x86_64/my_native_effect.dll",
+    "linux-x86_64": "native/linux-x86_64/libmy_native_effect.so",
+    "macos-aarch64": "native/macos-aarch64/libmy_native_effect.dylib",
+    "default": "native/current/libmy_native_effect.so"
+  },
+  "permissions": ["log"],
+  "publisher": "Your Name"
+}
+```
+
+平台 entry key 当前包括 `windows-x86_64`、`windows-aarch64`、`linux-x86_64`、`linux-aarch64`、`macos-x86_64`、`macos-aarch64`。当前平台 key 不存在时会使用 `default`。所有入口路径都必须位于插件目录内。
 
 ---
 
