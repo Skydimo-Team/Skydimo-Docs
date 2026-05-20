@@ -6,12 +6,7 @@ sidebar_position: 4
 
 本页记录插件可使用的公开 native-c ABI。内容依据当前 Core 运行时行为整理，面向使用公开 SDK 包的外部开发者，而不是面向阅读 Skydimo 源码的内部开发者。
 
-请使用与 manifest `abi` 匹配的 SDK 包：
-
-- [C / C++ SDK 占位链接](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-c-sdk.zip)
-- [Rust SDK 占位链接](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-rs.zip)
-- [C# SDK 占位链接](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-csharp.zip)
-- [C 头文件占位链接](https://downloads.skydimo.com/sdk/native-c/v3/skydimo_plugin_c_api.h)
+请使用 [Skydimo-Team/Skydimo-SDK](https://github.com/Skydimo-Team/Skydimo-SDK) 中与 manifest `abi` 匹配的 SDK 包。
 
 ## ABI 模型
 

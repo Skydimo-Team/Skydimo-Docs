@@ -24,19 +24,15 @@ For the complete ABI function tables and host methods, see [Native-C API Referen
 
 Reserved manifest runtimes such as `wasm`, `abi-stable`, and `process` are not active plugin runtimes yet.
 
-## SDK Downloads
+## SDK Repository
 
-:::info Temporary links
-The links below are placeholders for the public SDK release artifacts. They describe the intended package split and will be replaced with real release links.
-:::
+The native-c SDK packages and language templates are maintained in [Skydimo-Team/Skydimo-SDK](https://github.com/Skydimo-Team/Skydimo-SDK).
 
-| Package | Placeholder download | Use it for |
-|---------|----------------------|------------|
-| C / C++ SDK | [skydimo-plugin-c-sdk.zip](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-c-sdk.zip) | The canonical C ABI header, C examples, and CMake-oriented starter files |
-| Rust SDK | [skydimo-plugin-rs.zip](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-rs.zip) | Rust ABI bindings, safer wrappers, and a `cdylib` template |
-| C# SDK | [skydimo-plugin-csharp.zip](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-csharp.zip) | NativeAOT-compatible structs, export helpers, and a `dotnet publish` template |
-
-Direct header placeholder: [skydimo_plugin_c_api.h](https://downloads.skydimo.com/sdk/native-c/v3/skydimo_plugin_c_api.h).
+| Package | Use it for |
+|---------|------------|
+| C / C++ SDK | The canonical C ABI header, C examples, and CMake-oriented starter files |
+| Rust SDK | Rust ABI bindings, safer wrappers, and a `cdylib` template |
+| C# SDK | NativeAOT-compatible structs, export helpers, and a `dotnet publish` template |
 
 All language packages target the same ABI. If a wrapper package disagrees with the C SDK for struct layout, constants, or callback signatures, treat the C SDK as authoritative and update the wrapper before building.
 

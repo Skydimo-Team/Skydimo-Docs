@@ -6,12 +6,7 @@ sidebar_position: 4
 
 This page documents the public native-c ABI exposed to plugins. It is based on the current Core runtime behavior and is meant for authors using the public SDK packages, not for authors reading Skydimo source code.
 
-Use the SDK package that matches your manifest `abi`:
-
-- [C / C++ SDK placeholder](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-c-sdk.zip)
-- [Rust SDK placeholder](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-rs.zip)
-- [C# SDK placeholder](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-csharp.zip)
-- [C header placeholder](https://downloads.skydimo.com/sdk/native-c/v3/skydimo_plugin_c_api.h)
+Use the SDK package from [Skydimo-Team/Skydimo-SDK](https://github.com/Skydimo-Team/Skydimo-SDK) that matches your manifest `abi`.
 
 ## ABI Model
 

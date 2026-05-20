@@ -24,19 +24,15 @@ Skydimo 不加载源码。native-c 插件包必须包含已经编译好的 `.dll
 
 `wasm`、`abi-stable`、`process` 等 manifest 运行时目前只是预留项，尚不是可用插件运行时。
 
-## SDK 下载
+## SDK 仓库
 
-:::info 临时链接
-下面的链接是公开 SDK 发布包的占位链接。它们用于说明后续的包拆分方式，正式发布后会替换为真实下载地址。
-:::
+native-c SDK 包和各语言模板维护在 [Skydimo-Team/Skydimo-SDK](https://github.com/Skydimo-Team/Skydimo-SDK)。
 
-| 包 | 占位下载 | 适用场景 |
-|----|----------|----------|
-| C / C++ SDK | [skydimo-plugin-c-sdk.zip](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-c-sdk.zip) | 权威 C ABI 头文件、C 示例、CMake 风格起步模板 |
-| Rust SDK | [skydimo-plugin-rs.zip](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-rs.zip) | Rust ABI 绑定、更安全的封装、`cdylib` 插件模板 |
-| C# SDK | [skydimo-plugin-csharp.zip](https://downloads.skydimo.com/sdk/native-c/v3/skydimo-plugin-csharp.zip) | NativeAOT 兼容结构体、导出辅助代码、`dotnet publish` 模板 |
-
-头文件占位下载：[skydimo_plugin_c_api.h](https://downloads.skydimo.com/sdk/native-c/v3/skydimo_plugin_c_api.h)。
+| 包 | 适用场景 |
+|----|----------|
+| C / C++ SDK | 权威 C ABI 头文件、C 示例、CMake 风格起步模板 |
+| Rust SDK | Rust ABI 绑定、更安全的封装、`cdylib` 插件模板 |
+| C# SDK | NativeAOT 兼容结构体、导出辅助代码、`dotnet publish` 模板 |
 
 所有语言包都面向同一套 ABI。如果某个语言封装在结构体布局、常量或回调签名上与 C SDK 不一致，请以 C SDK 为准，并先更新语言封装再构建。
 
