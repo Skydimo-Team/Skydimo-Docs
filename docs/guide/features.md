@@ -74,5 +74,5 @@ See the [WebSocket API Reference](../api/websocket-overview) for details.
 - **Desktop app** — Native desktop application with system integration
 - **Browser mode** — Also works as a standalone web UI in any modern browser
 - **Dark/Light mode** — Automatic theme detection
-- **Internationalization** — English and Chinese supported (i18next)
+- **Internationalization** — English and Chinese supported
 - **Backend-driven UI** — Effect parameters are rendered dynamically from Core metadata

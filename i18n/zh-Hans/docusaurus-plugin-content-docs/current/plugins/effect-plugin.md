@@ -13,9 +13,6 @@ plugins/effect.my_effect/
 ├── manifest.json       # 元数据 + 参数定义
 ├── main.lua            # 包含生命周期钩子的入口脚本
 ├── lib/                # 可选 Lua 模块
-├── locales/            # 可选 i18n 文件
-│   ├── en-US.json
-│   └── zh-CN.json
 └── data/               # 运行时数据目录
 ```
 

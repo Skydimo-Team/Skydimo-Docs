@@ -13,9 +13,6 @@ plugins/effect.my_effect/
 ├── manifest.json       # Metadata + parameter definitions
 ├── main.lua            # Entry script with lifecycle hooks
 ├── lib/                # Optional Lua modules
-├── locales/            # Optional i18n files
-│   ├── en-US.json
-│   └── zh-CN.json
 └── data/               # Runtime data directory
 ```
 

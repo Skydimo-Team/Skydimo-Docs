@@ -60,7 +60,6 @@ effect.my_native_effect/
 │   ├── windows-x86_64/my_native_effect.dll
 │   ├── linux-x86_64/libmy_native_effect.so
 │   └── macos-aarch64/libmy_native_effect.dylib
-├── locales/
 └── data/
 ```
 

@@ -53,7 +53,6 @@ Skydimo 的插件系统允许你扩展自定义硬件驱动、灯光效果和后
 ├── main.lua / init.lua      # Lua 插件
 ├── native/<platform>/       # native-c 共享库
 ├── lib/            # 可选
-├── locales/        # 可选
 ├── data/           # 可选初始化数据
 └── page/           # 仅 extension 可选
 ```

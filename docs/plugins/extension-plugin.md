@@ -14,7 +14,6 @@ plugins/extension.my_bridge/
 ├── init.lua            # Entry script
 ├── lib/                # Optional Lua modules
 │   └── protocol.lua
-├── locales/            # Optional i18n files
 ├── data/               # Persistent data directory
 └── page/               # Optional embedded HTML UI
     └── dist/

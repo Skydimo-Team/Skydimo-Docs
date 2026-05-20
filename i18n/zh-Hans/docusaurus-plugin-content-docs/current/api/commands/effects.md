@@ -20,7 +20,7 @@ sidebar_position: 3
     "name": {"raw": "Rainbow", "byLocale": {"zh-CN": "彩虹"}},
     "description": {"raw": "Flowing rainbow animation"},
     "icon": "Waves",
-    "category": "animation",
+    "group": {"raw": "Animation", "byLocale": {"zh-CN": "动画"}},
     "permissions": ["log"],
     "params": [
       {"type": "slider", "key": "speed", "label": {"raw": "Speed", "byLocale": {"zh-CN": "速度"}}, "min": 0.0, "max": 5.0, "step": 0.1, "default": 2.5}

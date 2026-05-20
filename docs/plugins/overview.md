@@ -53,7 +53,6 @@ Your source package should still use a standard plugin folder layout:
 ├── main.lua / init.lua      # Lua plugins
 ├── native/<platform>/       # native-c shared libraries
 ├── lib/            # optional
-├── locales/        # optional
 ├── data/           # optional initial data
 └── page/           # extension only, optional
 ```

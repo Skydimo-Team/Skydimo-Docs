@@ -15,9 +15,6 @@ plugins/controller.my_device/
 ├── lib/                # Optional Lua modules
 │   ├── protocol.lua    # Wire protocol implementation
 │   └── config.lua      # Device configuration
-├── locales/            # Optional i18n files
-│   ├── en-US.json
-│   └── zh-CN.json
 └── data/               # Runtime data (created by Core)
 ```
 

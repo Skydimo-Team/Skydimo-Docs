@@ -14,7 +14,6 @@ plugins/extension.my_bridge/
 ├── init.lua            # 入口脚本
 ├── lib/                # 可选 Lua 模块
 │   └── protocol.lua
-├── locales/            # 可选 i18n 文件
 ├── data/               # 持久化数据目录
 └── page/               # 可选内嵌 HTML UI
     └── dist/

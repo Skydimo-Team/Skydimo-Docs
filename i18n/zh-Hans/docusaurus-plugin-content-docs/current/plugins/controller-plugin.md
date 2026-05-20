@@ -15,9 +15,6 @@ plugins/controller.my_device/
 ├── lib/                # 可选 Lua 模块
 │   ├── protocol.lua    # 线路协议实现
 │   └── config.lua      # 设备配置
-├── locales/            # 可选 i18n 文件
-│   ├── en-US.json
-│   └── zh-CN.json
 └── data/               # 运行时数据（由 Core 创建）
 ```
 

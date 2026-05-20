@@ -223,12 +223,27 @@ ext.notify("Done", "Firmware updated successfully", "success")
 ```
 
 - `level` — `"info"` (default), `"success"`, `"warning"`, or `"error"`
+- `title` and `description` can be strings, manifest i18n keys, or localized text tables.
+
+```lua
+ext.notify(
+    { key = "notifications.connected.title", fallback = "Connected" },
+    {
+        key = "notifications.connected.description",
+        fallback = "Connected to {server}",
+        args = { server = "OpenRGB" },
+    },
+    "success"
+)
+```
 
 ### ext.notify_persistent(id, title, description)
 
 Show a persistent notification that remains until dismissed. The notification level is always `"info"`.
 
 If a persistent notification with the same `id` already exists, its title and description will be updated in place.
+
+`title` and `description` accept the same string, manifest key, and localized text table forms as `ext.notify()`.
 
 ```lua
 ext.notify_persistent("conn_status", "Connecting...", "Attempting to connect to server")

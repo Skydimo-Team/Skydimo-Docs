@@ -159,7 +159,7 @@ type ScreenRegion =
   "name": {"raw": "Rainbow", "byLocale": {"zh-CN": "彩虹"}},
   "description": {"raw": "Flowing rainbow animation"},
   "icon": "Waves",
-  "category": "animation",
+  "group": {"raw": "Animation", "byLocale": {"zh-CN": "动画"}},
   "permissions": ["log"],
   "params": [ ... ]
 }

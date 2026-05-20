@@ -223,12 +223,27 @@ ext.notify("完成", "固件更新成功", "success")
 ```
 
 - `level` —— `"info"`（默认）、`"success"`、`"warning"` 或 `"error"`
+- `title` 和 `description` 可以是字符串、manifest i18n key，或本地化文本表。
+
+```lua
+ext.notify(
+    { key = "notifications.connected.title", fallback = "已连接" },
+    {
+        key = "notifications.connected.description",
+        fallback = "已连接到 {server}",
+        args = { server = "OpenRGB" },
+    },
+    "success"
+)
+```
 
 ### ext.notify_persistent(id, title, description)
 
 显示持久通知，保持显示直到被关闭。通知级别始终为 `"info"`。
 
 如果已存在相同 `id` 的持久通知，其标题和描述将被就地更新。
+
+`title` 和 `description` 支持与 `ext.notify()` 相同的字符串、manifest key 和本地化文本表写法。
 
 ```lua
 ext.notify_persistent("conn_status", "正在连接...", "尝试连接到服务器")
