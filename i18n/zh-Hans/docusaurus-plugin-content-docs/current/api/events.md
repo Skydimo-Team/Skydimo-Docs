@@ -118,9 +118,60 @@ Skydimo 以 JSON-RPC 2.0 通知的形式广播实时事件。事件由服务端�
 
 ---
 
+### plugins-changed
+
+当插件元数据或启用状态变化时触发。
+
+```json
+{
+  "event": "plugins-changed",
+  "data": null
+}
+```
+
+常见触发来源包括：安装插件包、删除/重置/刷新插件、切换灯效/控制器/扩展插件启用状态，以及启动时插件清单刷新。
+
+客户端收到后应重新调用 [`get_plugins`](commands/plugins#get_plugins)。
+
+---
+
+### locale-changed
+
+当 Core 当前语言变化时触发。
+
+```json
+{
+  "event": "locale-changed",
+  "data": {
+    "locale": "zh-CN"
+  }
+}
+```
+
+---
+
+### startup-status-changed
+
+当 Core 启动任务进度变化时触发。
+
+```json
+{
+  "event": "startup-status-changed",
+  "data": {
+    "plugins": {"state": "complete"},
+    "deviceDiscovery": {"state": "running"},
+    "extensions": {"state": "pending"}
+  }
+}
+```
+
+`state` 可能是 `pending`、`running`、`complete` 或 `failed`。
+
+---
+
 ### ext-page-message:\{extId\}
 
-当扩展插件的嵌入 HTML 页面向 Core 发送消息时触发。事件名称包含扩展插件 ID。
+当扩展调用 `ext.page_emit(data)` 或 native-c `call_json("page_emit", data)` 时触发。事件名称包含扩展插件 ID，便于对应扩展页面只监听自己的消息。
 
 ```json
 {
@@ -129,7 +180,7 @@ Skydimo 以 JSON-RPC 2.0 通知的形式广播实时事件。事件由服务端�
 }
 ```
 
-Lua 扩展通过 `on_page_message(data)` 回调接收此消息。native-c 扩展通过 `on_page_message_json` 接收同一载荷。
+反向通信请调用 [`ext_page_send`](commands/plugins#ext_page_send)；Lua 扩展通过 `on_page_message(data)` 回调接收该载荷，native-c 扩展通过 `on_page_message_json` 接收。
 
 ---
 

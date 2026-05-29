@@ -118,9 +118,60 @@ Query the full lock state via the [`get_led_locks`](commands/devices#get_led_loc
 
 ---
 
+### plugins-changed
+
+Fired when plugin metadata or enabled state changes.
+
+```json
+{
+  "event": "plugins-changed",
+  "data": null
+}
+```
+
+**Triggers**: package install, plugin delete/reset/refresh, effect/controller/extension enable-state changes, and startup plugin inventory refresh.
+
+Clients should call [`get_plugins`](commands/plugins#get_plugins) again after receiving this event.
+
+---
+
+### locale-changed
+
+Fired when Core's active locale changes.
+
+```json
+{
+  "event": "locale-changed",
+  "data": {
+    "locale": "en-US"
+  }
+}
+```
+
+---
+
+### startup-status-changed
+
+Fired while Core startup tasks progress.
+
+```json
+{
+  "event": "startup-status-changed",
+  "data": {
+    "plugins": {"state": "complete"},
+    "deviceDiscovery": {"state": "running"},
+    "extensions": {"state": "pending"}
+  }
+}
+```
+
+`state` is `pending`, `running`, `complete`, or `failed`.
+
+---
+
 ### ext-page-message:\{extId\}
 
-Fired when an extension’s embedded HTML page sends a message to Core. The event name includes the extension ID.
+Fired when an extension calls `ext.page_emit(data)` or native-c `call_json("page_emit", data)`. The event name includes the extension ID so that the matching extension page can listen for its own messages.
 
 ```json
 {
@@ -129,7 +180,8 @@ Fired when an extension’s embedded HTML page sends a message to Core. The even
 }
 ```
 
-Lua extensions receive this via `on_page_message(data)`. Native-c extensions receive the same payload through `on_page_message_json`.
+To send data in the other direction, call [`ext_page_send`](commands/plugins#ext_page_send); Lua extensions receive that payload via `on_page_message(data)`, and native-c extensions receive it through `on_page_message_json`.
+
 ---
 
 ### system.process.changed

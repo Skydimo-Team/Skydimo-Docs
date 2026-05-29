@@ -48,7 +48,7 @@ Describes a configurable parameter exposed by an effect. The `type` field determ
 
 ```json
 {
-  "type": "range_slider",
+  "type": "range-slider",
   "key": "frequency_range",
   "label": {"raw": "Frequency Range", "byLocale": {"zh-CN": "频率范围"}},
   "min": 20.0,
@@ -100,7 +100,7 @@ Describes a configurable parameter exposed by an effect. The `type` field determ
 
 ```json
 {
-  "type": "multi_color",
+  "type": "multi-color",
   "key": "colors",
   "label": {"raw": "Color Palette", "byLocale": {"zh-CN": "调色板"}},
   "default": ["#FF0000", "#00FF00", "#0000FF"],
@@ -202,6 +202,139 @@ Each plugin info contains:
 ```
 
 `language` is the runtime language (`"lua"` or `"native-c"` for currently supported runtimes). `abi` is present for native-c plugins.
+
+`installSource` currently resolves to `bundled`, `import-dev`, or `package` for loaded plugins. `reimportsOnRefresh` is reserved for future source-refresh workflows and is currently `false`.
+
+---
+
+## CoreStartupStatusInfo
+
+Returned by `get_startup_status`.
+
+```json
+{
+  "plugins": {
+    "state": "complete",
+    "detail": null,
+    "progress": null
+  },
+  "deviceDiscovery": {"state": "running"},
+  "extensions": {"state": "complete"}
+}
+```
+
+`state` is `pending`, `running`, `complete`, or `failed`. `progress` is used for plugin startup/import work and can contain `total`, `completed`, `succeeded`, `failed`, `supportsRetry`, `currentPluginId`, and `lastError`.
+
+---
+
+## Runtime Config Types
+
+### ScreenCaptureConfig
+
+```json
+{
+  "maxPixels": 921600,
+  "fps": 30,
+  "method": "dxgi"
+}
+```
+
+`maxPixels` is the maximum capture pixel budget; `0` means no limit. Capture method values depend on platform.
+
+### LinkedControlConfig
+
+```json
+{
+  "selected": "rainbow",
+  "params": {
+    "rainbow": {"speed": 2.5}
+  },
+  "brightness": 100,
+  "screenIndex": null,
+  "screenRegion": "Full",
+  "audioDeviceIndex": null,
+  "audioSettings": {
+    "amplitude": 100,
+    "averageMode": "binning",
+    "averageSize": 8,
+    "windowMode": "none",
+    "decay": 80,
+    "filterConstant": 1,
+    "normalizationOffset": 0.04,
+    "normalizationScale": 0.5
+  }
+}
+```
+
+### ShortcutConfig
+
+```json
+{
+  "bindings": [
+    {"action": "toggle_all_lights", "accelerator": "Control+Alt+Shift+F8"}
+  ]
+}
+```
+
+Known actions are `turn_all_lights_on`, `turn_all_lights_off`, `toggle_all_lights`, `increase_all_brightness`, and `decrease_all_brightness`.
+
+---
+
+## AudioProcessingSettings
+
+Controls preprocessing for audio-reactive effects.
+
+```json
+{
+  "amplitude": 100,
+  "averageMode": "binning",
+  "averageSize": 8,
+  "windowMode": "none",
+  "decay": 80,
+  "filterConstant": 1,
+  "normalizationOffset": 0.04,
+  "normalizationScale": 0.5
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `amplitude` | number | Gain multiplier, normalized by Core |
+| `averageMode` | string | `binning` or `low_pass` |
+| `averageSize` | number | Average window/bin size |
+| `windowMode` | string | `none`, `hann`, `hamming`, or `blackman` |
+| `decay` | number | Decay amount |
+| `filterConstant` | number | Low-pass filter constant, `0`-`1` |
+| `normalizationOffset` | number | Offset applied during normalization |
+| `normalizationScale` | number | Scale applied during normalization |
+
+---
+
+## SegmentDefinition
+
+Used by `set_output_segments`.
+
+```json
+{
+  "id": "left",
+  "name": "Left",
+  "segment_type": "Linear",
+  "leds_count": 72,
+  "matrix": null,
+  "image_url": null,
+  "transform": {}
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Stable segment ID |
+| `name` | string | Display name |
+| `segment_type` | string | `Single`, `Linear`, `Matrix`, or `Preset` |
+| `leds_count` | number | Number of physical LEDs covered by the segment |
+| `matrix` | MatrixMap? | Optional 2D matrix map |
+| `image_url` | string? | Optional segment image |
+| `transform` | object | Optional logical layout transform |
 
 ---
 

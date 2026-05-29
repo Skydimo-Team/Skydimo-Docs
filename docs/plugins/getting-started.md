@@ -16,12 +16,12 @@ This workflow is supported since **`3.0.0-dev.4`**.
 - A text editor
 - Basic Lua knowledge ([Lua 5.4 Reference](https://www.lua.org/manual/5.4/))
 
-## Step 1: Create a Source Package Directory
+## Step 1: Create a Development Plugin Directory
 
-Create a source folder under the development import queue:
+Create a plugin source folder under the development plugin directory:
 
 ```
-import/plugin-dev/effect.my_first_effect/
+<config_dir>/plugins/dev/effect.my_first_effect/
 ```
 
 The directory name must follow the pattern `<type>.<id>` where:
@@ -30,7 +30,7 @@ The directory name must follow the pattern `<type>.<id>` where:
 
 ## Step 2: Write manifest.json
 
-Create `import/plugin-dev/effect.my_first_effect/manifest.json`:
+Create `<config_dir>/plugins/dev/effect.my_first_effect/manifest.json`:
 
 ```json
 {
@@ -65,7 +65,7 @@ Create `import/plugin-dev/effect.my_first_effect/manifest.json`:
 
 ## Step 3: Write main.lua
 
-Create `import/plugin-dev/effect.my_first_effect/main.lua`:
+Create `<config_dir>/plugins/dev/effect.my_first_effect/main.lua`:
 
 ```lua
 local plugin = {}
@@ -114,32 +114,32 @@ end
 return plugin
 ```
 
-## Step 4: Import and Load the Plugin
+## Step 4: Load the Plugin
 
 1. In the Plugins page, trigger **Refresh Plugins** (or restart Core).
-2. Core imports your package and updates the plugin registry.
+2. Core reloads development plugins and updates the plugin registry.
 3. Open any device and find **My First Effect** in the effect list.
 4. Adjust parameters to verify live behavior.
 
 :::tip
-Use `import/plugin-dev/` while developing. The source package is kept, so you can iterate quickly: edit files → refresh plugins → retest.
+Use `<config_dir>/plugins/dev/` while developing. Development plugins are loaded directly from that directory, so you can iterate quickly: edit files → refresh plugins → retest.
 :::
 
 ## Step 5: Development Iteration Loop
 
 Recommended loop:
 
-1. Edit source package in `import/plugin-dev/<type>.<id>/`
+1. Edit source package in `<config_dir>/plugins/dev/<type>.<id>/`
 2. Trigger **Refresh Plugins**
 3. Verify behavior in UI / logs
 4. Repeat
 
-When moving to production/distribution, package clean plugin content and install through import/download flows.
+When moving to production/distribution, package clean plugin content as a `.skyplugin` archive and install it through the package import flow.
 
 ## What's Next?
 
 - [Manifest Reference](manifest) — All manifest options
-- [Plugin Management](plugin-management) — Import queues, delete/reset behavior, and troubleshooting
+- [Plugin Management](plugin-management) — Package import, development plugins, delete/reset behavior, and troubleshooting
 - [Effect Plugin Guide](effect-plugin) — Advanced effect techniques
 - [Controller Plugin Guide](controller-plugin) — Write hardware drivers
 - [Extension Plugin Guide](extension-plugin) — Build background services
@@ -156,4 +156,4 @@ Common issues:
 - **Plugin not showing up**: Verify the directory name matches `effect.<id>`, `manifest.json` is valid JSON, and you triggered **Refresh Plugins**
 - **Lua errors**: Ensure your entry file returns a table with the expected callback functions
 - **Parameters not working**: Make sure `params` keys in `manifest.json` match what you read in `on_params`
-- **Changes not applied immediately**: Trigger refresh again and confirm you are editing the source package under `import/plugin-dev/`
+- **Changes not applied immediately**: Trigger refresh again and confirm you are editing the source package under `<config_dir>/plugins/dev/`

@@ -19,6 +19,7 @@ An overview of Skydimo's capabilities.
 - **Effect plugins** — Install community effects or write your own in Lua or native-c
 - **Parameterizable** — Each effect exposes configurable parameters (sliders, selects, toggles, colors)
 - **Per-scope configuration** — Apply different effects to different outputs or segments on the same device
+- **Linked control** — Optionally synchronize effect, parameters, brightness, pause state, screen source, and audio source across all devices from one shared control state
 
 ## Screen Capture
 

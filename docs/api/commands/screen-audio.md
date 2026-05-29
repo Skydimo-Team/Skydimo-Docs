@@ -125,6 +125,46 @@ Get the current audio device for a scope.
 
 ---
 
+## get_scope_audio_processing_settings
+
+Get audio preprocessing settings for a scope.
+
+**Parameters**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `port` | string | Device port identifier |
+| `outputId` | string? | Output ID |
+| `segmentId` | string? | Segment ID |
+
+```json
+→ {"jsonrpc":"2.0","method":"get_scope_audio_processing_settings","params":{"port":"COM3"},"id":1}
+```
+
+---
+
+## set_scope_audio_processing_settings / reset_scope_audio_processing_settings
+
+Set or reset audio preprocessing settings for a scope. In simple mode these commands can fail because audio preprocessing settings are fixed.
+
+```json
+→ {"jsonrpc":"2.0","method":"set_scope_audio_processing_settings","params":{
+  "port":"COM3",
+  "settings":{
+    "amplitude":100,
+    "averageMode":"binning",
+    "averageSize":8,
+    "windowMode":"none",
+    "decay":80,
+    "filterConstant":1,
+    "normalizationOffset":0.04,
+    "normalizationScale":0.5
+  }
+},"id":1}
+```
+
+---
+
 ## set_scope_audio_device_index
 
 Select which audio device to use for a scope.
@@ -152,7 +192,7 @@ Query the maximum screen capture resolution.
 
 ```json
 → {"jsonrpc":"2.0","method":"get_capture_max_pixels","id":1}
-← {"jsonrpc":"2.0","result":{"maxPixels":921600},"id":1}
+← {"jsonrpc":"2.0","result":921600,"id":1}
 ```
 
 ---
@@ -193,5 +233,19 @@ Query or set the screen capture backend.
 
 Available methods depend on the platform:
 - **Windows**: `dxgi` (default, GPU-accelerated), `gdi` (legacy)
-- **macOS**: `graphics` (CoreGraphics)
+- **macOS**: `screencapturekit` (default)
 - **Linux**: `xcap`
+
+---
+
+## get_linked_control / set_linked_control
+
+Query or toggle linked control. When enabled, effect, effect-parameter, brightness, pause, screen-source, audio-source, and audio-processing mutations update a shared linked-control state and synchronize it to all devices.
+
+```json
+→ {"jsonrpc":"2.0","method":"set_linked_control","params":{
+  "enabled":true,
+  "sourcePort":"COM3",
+  "outputId":"out1"
+},"id":1}
+```
