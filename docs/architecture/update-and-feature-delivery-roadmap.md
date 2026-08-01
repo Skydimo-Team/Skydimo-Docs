@@ -133,7 +133,7 @@ Updater 私钥必须：
 
 不要求 UI 与 Core 的 patch 版本完全一致，但不兼容组合必须拒绝连接，并给出可恢复提示。
 
-当前预发布版本使用类似 `3.0.3-rc9` 的形式。后续建议改为 `3.0.3-rc.9`，避免字符串型 prerelease 标识在 `rc9`、`rc10` 等版本之间产生非预期排序。Telemetry 的 release channel 判定也需要正确识别 RC，避免将其归入 stable。
+~~当前预发布版本使用类似 `3.0.3-rc9` 的形式。后续建议改为 `3.0.3-rc.9`，避免字符串型 prerelease 标识在 `rc9`、`rc10` 等版本之间产生非预期排序。~~ **已解决**：预发布版本号已规范化为 `3.0.3-rc.9.1` 形式（`rc` 作为独立的 dot-separated prerelease 标识符，`9`/`1` 作为纯数字标识符参与数值比较），通过 `scripts/bump-version.ps1` 完成，`scripts/check-release-version.ps1` 作为发布 CI 门禁校验一致性。Telemetry 的 `release_channel_for()`（`core/src/telemetry/mod.rs`）本身是格式无关的子串匹配，能正确识别新旧两种 RC 形式，均归类为 `rc` 而非 `stable`（见该函数的既有单测）。
 
 ## 6. Feature Flag 分析
 
