@@ -4,7 +4,10 @@ sidebar_position: 8
 
 # Permissions
 
-Plugins must declare required permissions in `manifest.json`. Core enforces these — API calls requiring undeclared permissions will fail.
+Plugins declare requested host capabilities in `manifest.json`. Core checks
+permissions for the gated APIs listed below, but this is a capability boundary,
+not a complete process sandbox. Some administration APIs are intentionally not
+permission-gated, and native-C plugins execute as trusted in-process code.
 
 ## Available Permissions
 

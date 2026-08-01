@@ -24,9 +24,14 @@ Create a plugin source folder under the development plugin directory:
 <config_dir>/plugins/dev/effect.my_first_effect/
 ```
 
-The directory name must follow the pattern `<type>.<id>` where:
-- `type` is `controller`, `effect`, or `extension`
-- `id` is a unique identifier using lowercase letters, numbers, and underscores
+This guide uses the recommended `<type>.<id>` naming convention:
+
+- `type` is `controller`, `effect`, or `extension`;
+- `id` is a unique identifier using lowercase letters, numbers, and
+  underscores.
+
+The loader determines the plugin type and ID from `manifest.json`; the folder
+name itself is not a runtime requirement.
 
 ## Step 2: Write manifest.json
 

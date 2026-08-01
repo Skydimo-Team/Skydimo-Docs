@@ -24,9 +24,12 @@ sidebar_position: 2
 <config_dir>/plugins/dev/effect.my_first_effect/
 ```
 
-目录名必须遵循 `<type>.<id>` 格式，其中：
-- `type` 为 `controller`、`effect` 或 `extension`
-- `id` 为使用小写字母、数字和下划线组成的唯一标识符
+本指南采用推荐的 `<type>.<id>` 命名约定：
+
+- `type` 为 `controller`、`effect` 或 `extension`；
+- `id` 为使用小写字母、数字和下划线组成的唯一标识符。
+
+加载器根据 `manifest.json` 判断插件类型和 ID；目录名本身不是运行时要求。
 
 ## 第二步：编写 manifest.json
 

@@ -5,42 +5,42 @@ slug: /intro
 
 # Welcome to Skydimo
 
-**Skydimo** is a cross-platform RGB lighting control application with a Core-driven plugin system for extending device support, creating custom lighting effects, and building local integrations.
+Skydimo is a cross-platform RGB lighting application. Its standalone Core owns device state, lighting effects, plugins, and persistence; the React UI connects to it over local WebSocket JSON-RPC.
 
-## Who is this for?
+## Choose your path
 
-- **End users** wanting to learn about Skydimo's features and how to use it
-- **Plugin developers** looking to create custom effects, hardware drivers, or integrations
-- **Third-party integrators** building on the WebSocket API
+| I want to… | Start here |
+|---|---|
+| Install and use the app | [User manual](./user-guide/overview.md) |
+| Understand the project and its architecture | [Project knowledge base](./knowledge-base/overview.md) |
+| Integrate with the local Core | [WebSocket API](./api/websocket-overview.md) |
+| Build a device driver, effect, or extension | [Plugin development](./plugins/overview.md) |
 
-## Architecture at a Glance
+## Architecture at a glance
 
-Skydimo uses a **Core + UI** separation:
-
-```
-┌─────────────────────────────────┐
-│  Core Process (core.exe)        │
-│  ├─ Lighting Manager            │
-│  ├─ Plugin Runtimes             │
-│  │  (Lua + native-c)            │
-│  ├─ WebSocket JSON-RPC Server   │
-│  └─ System Tray                 │
-└──────────┬──────────────────────┘
-           │ WebSocket JSON-RPC 2.0
-┌──────────▼──────────────────────┐
-│  UI (Desktop / Browser)         │
-│  └─ React SPA                   │
-└─────────────────────────────────┘
+```text
+Core process
+├─ Lighting manager and render runners
+├─ Lua and native-C plugin runtimes
+├─ Device discovery and platform resources
+├─ Local WebSocket JSON-RPC server
+└─ System tray and single-instance control
+               │
+               │ JSON-RPC requests + events
+               ▼
+React UI (Tauri desktop shell or browser)
 ```
 
-- **Core** is a standalone native executable handling device management, the lighting engine, Lua/native-c plugin runtimes, and WebSocket server.
-- **UI** is a React frontend communicating with Core via WebSocket JSON-RPC 2.0. It can run as a desktop app or in a standard browser.
+Core is the source of truth. The frontend discovers available devices, effects, parameters, and capabilities from Core instead of hard-coding product-specific behavior.
 
-## Quick Links
+## Documentation scope
 
-| Topic | Description |
-|-------|-------------|
-| [Architecture](guide/architecture) | Detailed system architecture |
-| [Features](guide/features) | Software capabilities overview |
-| [WebSocket API](api/websocket-overview) | JSON-RPC 2.0 protocol reference |
-| [Plugin Development](plugins/overview) | Build your own plugins |
+The documentation is maintained alongside the source code. It covers:
+
+- everyday workflows in the desktop and browser UI;
+- Advanced and Simple profile differences;
+- configuration inheritance and the lighting render pipeline;
+- frontend, Core, plugin, and repository architecture;
+- JSON-RPC commands, events, data types, and plugin host APIs.
+
+When behavior and documentation disagree, treat the current source code as authoritative and open a documentation update with the corresponding code change.
