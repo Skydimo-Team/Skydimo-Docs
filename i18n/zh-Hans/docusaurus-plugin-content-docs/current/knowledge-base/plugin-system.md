@@ -110,7 +110,7 @@ Advanced 模式可以导入 `.skyplugin`/ZIP 包。普通插件包包含 manifes
 - Extension：`system:info`、`media:session`、`system:process`、`system:window-focus`、`network:tcp`、`network:http`、`network`、`process`、`hardware:hid` 和 `native`；
 - Controller：`system:info` 控制 `host.system`。
 
-部分 Controller I/O/日志声明以及许多 Extension 设备、Scope 和管理 API 当前只作为元数据存在，或者并未由独立权限保护。文档必须描述真实的权限执行情况，不应暗示运行时提供了更强的沙箱。
+权限强制执行的覆盖范围仍在完善中。请将上面列出的内容视为当前实际生效的权限集合，而不是完整的沙箱保证——文档必须描述真实的权限执行情况，不应暗示运行时提供了更强的沙箱。
 
 请求 `native` 权限的 Lua 扩展会使用不安全的 Lua 环境，以便加载获准的 C 模块/DLL 依赖。普通 Lua 插件使用更安全的环境。
 

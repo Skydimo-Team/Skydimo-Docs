@@ -130,10 +130,10 @@ Actively enforced resource permissions include:
   `hardware:hid`, and `native`;
 - controller: `system:info` controls `host.system`.
 
-Some controller I/O/log declarations and many extension device/Scope/admin APIs
-currently act as metadata or are not separately permission-gated. Documentation
-must describe actual enforcement and should not imply a stronger sandbox than
-the runtime provides.
+Permission enforcement coverage is still evolving. Treat the list above as the
+actively enforced set, not an exhaustive sandbox guarantee — documentation must
+describe actual enforcement and should not imply a stronger sandbox than the
+runtime provides.
 
 Lua extensions that request `native` use an unsafe Lua environment so they can
 load approved C modules/DLL dependencies. Ordinary Lua plugins use the safer

@@ -207,36 +207,6 @@ Fired when Core's active locale changes.
 }
 ```
 
----
-
-### member-auth-changed
-
-Fired with the complete member-authentication state after a completed login, logout, expired-session cleanup, or background session refresh. Core performs a background refresh at runtime startup and every 24 hours.
-
-```json
-{
-  "event": "member-auth-changed",
-  "data": {
-    "authenticated": true,
-    "user": {
-      "id": 42,
-      "username": "SkydimoUser",
-      "email": "user@example.com",
-      "avatarUrl": "https://example.com/avatar.png",
-      "isAdmin": false,
-      "vipExpiresAt": null,
-      "createdAt": "2026-01-01T00:00:00.000Z"
-    },
-    "expiresAt": 1798761600,
-    "offline": false,
-    "message": null
-  }
-}
-```
-
-The payload matches the state returned by the [member-authentication commands](commands/runtime-diagnostics#member-authentication). `offline: true` means Core kept an existing session but could not refresh or persist it cleanly.
-
----
 
 ### startup-status-changed
 

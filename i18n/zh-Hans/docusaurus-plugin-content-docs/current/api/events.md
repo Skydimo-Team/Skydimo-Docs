@@ -207,36 +207,6 @@ Skydimo 以 JSON-RPC 2.0 通知的形式广播实时事件。事件由服务端�
 }
 ```
 
----
-
-### member-auth-changed
-
-完成登录、注销、清理过期会话或后台刷新会话后，以完整会员认证状态触发。Core 会在运行时启动时以及之后每 24 小时执行一次后台刷新。
-
-```json
-{
-  "event": "member-auth-changed",
-  "data": {
-    "authenticated": true,
-    "user": {
-      "id": 42,
-      "username": "SkydimoUser",
-      "email": "user@example.com",
-      "avatarUrl": "https://example.com/avatar.png",
-      "isAdmin": false,
-      "vipExpiresAt": null,
-      "createdAt": "2026-01-01T00:00:00.000Z"
-    },
-    "expiresAt": 1798761600,
-    "offline": false,
-    "message": null
-  }
-}
-```
-
-载荷与[会员认证命令](commands/runtime-diagnostics#会员认证)返回的状态相同。`offline: true` 表示 Core 保留了已有会话，但无法正常刷新或持久化。
-
----
 
 ### startup-status-changed
 

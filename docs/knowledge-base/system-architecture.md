@@ -67,10 +67,10 @@ frontend from silently attaching to a Simple Core, or the reverse.
 
 ## Three local communication boundaries
 
-| Boundary | Purpose | Authentication |
+| Boundary | Purpose | Scope |
 |---|---|---|
-| Core control TCP (`38967`) | Single instance, ping, open UI, shutdown | Shared `control.token`; unauthenticated ping reveals no runtime detail |
-| Core WebSocket (dynamic port) | Device, effect, plugin, configuration RPC and events | No connection auth; localhost only |
+| Core control TCP | Single instance, ping, open UI, shutdown | Local-loopback only |
+| Core WebSocket (dynamic port) | Device, effect, plugin, configuration RPC and events | Local-loopback only |
 | Tauri invoke | Window, autostart, local presets, feedback, extension-page hosting | In-process shell boundary |
 
 The frontend performs `get_runtime_profile` as its first WebSocket RPC before

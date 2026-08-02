@@ -57,10 +57,10 @@ WebSocket 会有意在后台初始化完成前开放。`get_startup_status` 和 
 
 ## 三个本地通信边界
 
-| 边界 | 用途 | 认证 |
+| 边界 | 用途 | 范围 |
 |---|---|---|
-| Core 控制 TCP（`38967`） | 单实例、ping、打开 UI、关闭 | 共享 `control.token`；未认证 ping 不会暴露运行时详情 |
-| Core WebSocket（动态端口） | 设备、灯效、插件、配置 RPC 和事件 | 无连接认证；仅限 localhost |
+| Core 控制 TCP | 单实例、ping、打开 UI、关闭 | 仅限本机回环 |
+| Core WebSocket（动态端口） | 设备、灯效、插件、配置 RPC 和事件 | 仅限本机回环 |
 | Tauri invoke | 窗口、自动启动、本地预设、反馈、扩展页面托管 | 进程内壳层边界 |
 
 前端在向应用开放连接前，会先调用 `get_runtime_profile` 作为首个 WebSocket RPC。这是一项兼容性检查，并非 WebSocket 认证。
