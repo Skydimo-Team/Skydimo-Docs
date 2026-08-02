@@ -5,42 +5,42 @@ slug: /intro
 
 # 欢迎使用 Skydimo
 
-**Skydimo** 是一款跨平台 RGB 灯光控制应用程序，提供由 Core 驱动的插件系统，用于扩展设备支持、创建自定义灯光效果并构建本地集成。
+Skydimo 是一款跨平台 RGB 灯光应用。独立运行的 Core 负责设备状态、灯效、插件和配置持久化；React UI 通过本机 WebSocket JSON-RPC 与 Core 通信。
 
-## 适用人群
+## 选择阅读路径
 
-- **终端用户** —— 了解 Skydimo 的功能及使用方式
-- **插件开发者** —— 创建自定义灯效、硬件驱动或集成方案
-- **第三方集成商** —— 基于 WebSocket API 进行二次开发
+| 我想要…… | 从这里开始 |
+|---|---|
+| 安装并使用应用 | [用户手册](./user-guide/overview.md) |
+| 了解项目与系统架构 | [项目知识库](./knowledge-base/overview.md) |
+| 对接本机 Core | [WebSocket API](./api/websocket-overview.md) |
+| 开发设备驱动、灯效或扩展 | [插件开发](./plugins/overview.md) |
 
-## 架构概览
+## 架构速览
 
-Skydimo 采用 **Core + UI** 分离架构：
-
-```
-┌─────────────────────────────────┐
-│  Core 进程 (core.exe)           │
-│  ├─ LightingManager             │
-│  ├─ 插件运行时                   │
-│  │  (Lua + native-c)            │
-│  ├─ WebSocket JSON-RPC 服务器   │
-│  └─ 系统托盘                     │
-└──────────┬──────────────────────┘
-           │ WebSocket JSON-RPC 2.0
-┌──────────▼──────────────────────┐
-│  UI (桌面窗口 / 浏览器)          │
-│  └─ React SPA                   │
-└─────────────────────────────────┘
+```text
+Core 进程
+├─ LightingManager 与渲染 Runner
+├─ Lua 和 native-C 插件运行时
+├─ 设备发现与平台资源
+├─ 本机 WebSocket JSON-RPC 服务
+└─ 系统托盘与单实例控制
+               │
+               │ JSON-RPC 请求与事件
+               ▼
+React UI（Tauri 桌面壳或浏览器）
 ```
 
-- **Core** 是独立的原生可执行文件，负责设备管理、灯效引擎、Lua/native-c 插件运行时和 WebSocket 服务器。
-- **UI** 是通过 WebSocket JSON-RPC 2.0 与 Core 通信的 React 前端，可作为桌面应用或在标准浏览器中运行。
+Core 是系统的唯一真实来源。前端从 Core 动态获取设备、灯效、参数和能力，而不是硬编码具体产品行为。
 
-## 快速导航
+## 文档覆盖范围
 
-| 主题 | 说明 |
-|------|------|
-| [架构](guide/architecture) | 详细系统架构说明 |
-| [功能特性](guide/features) | 软件能力概览 |
-| [WebSocket API](api/websocket-overview) | JSON-RPC 2.0 协议参考 |
-| [插件开发](plugins/overview) | 构建你自己的插件 |
+这套文档与项目源代码一同维护，包含：
+
+- 桌面端和浏览器端的日常使用流程；
+- Advanced 与 Simple 两种运行配置的差异；
+- 配置继承与灯光渲染管线；
+- 前端、Core、插件系统和仓库架构；
+- JSON-RPC 命令、事件、数据类型及插件 Host API。
+
+如果文档与当前行为不一致，请以当前源代码为准，并在修改代码时同步更新对应文档。

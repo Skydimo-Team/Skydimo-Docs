@@ -48,7 +48,7 @@ WebSocket API 中使用的核心数据类型参考。
 
 ```json
 {
-  "type": "range_slider",
+  "type": "range-slider",
   "key": "frequency_range",
   "label": {"raw": "Frequency Range", "byLocale": {"zh-CN": "频率范围"}},
   "min": 20.0,
@@ -100,7 +100,7 @@ WebSocket API 中使用的核心数据类型参考。
 
 ```json
 {
-  "type": "multi_color",
+  "type": "multi-color",
   "key": "colors",
   "label": {"raw": "Color Palette", "byLocale": {"zh-CN": "调色板"}},
   "default": ["#FF0000", "#00FF00", "#0000FF"],
@@ -202,6 +202,139 @@ type ScreenRegion =
 ```
 
 `language` 是运行时语言（当前支持 `"lua"` 与 `"native-c"`）。`abi` 仅 native-c 插件会返回。
+
+`installSource` 当前会解析为 `bundled`、`import-dev` 或 `package`。`reimportsOnRefresh` 预留给未来来源刷新流程，当前为 `false`。
+
+---
+
+## CoreStartupStatusInfo
+
+`get_startup_status` 返回：
+
+```json
+{
+  "plugins": {
+    "state": "complete",
+    "detail": null,
+    "progress": null
+  },
+  "deviceDiscovery": {"state": "running"},
+  "extensions": {"state": "complete"}
+}
+```
+
+`state` 为 `pending`、`running`、`complete` 或 `failed`。`progress` 用于插件启动/导入任务，可包含 `total`、`completed`、`succeeded`、`failed`、`supportsRetry`、`currentPluginId` 和 `lastError`。
+
+---
+
+## 运行时配置类型
+
+### ScreenCaptureConfig
+
+```json
+{
+  "maxPixels": 921600,
+  "fps": 30,
+  "method": "dxgi"
+}
+```
+
+`maxPixels` 是捕获像素预算；`0` 表示无限制。捕获方法取值与平台有关。
+
+### LinkedControlConfig
+
+```json
+{
+  "selected": "rainbow",
+  "params": {
+    "rainbow": {"speed": 2.5}
+  },
+  "brightness": 100,
+  "screenIndex": null,
+  "screenRegion": "Full",
+  "audioDeviceIndex": null,
+  "audioSettings": {
+    "amplitude": 100,
+    "averageMode": "binning",
+    "averageSize": 8,
+    "windowMode": "none",
+    "decay": 80,
+    "filterConstant": 1,
+    "normalizationOffset": 0.04,
+    "normalizationScale": 0.5
+  }
+}
+```
+
+### ShortcutConfig
+
+```json
+{
+  "bindings": [
+    {"action": "toggle_all_lights", "accelerator": "Control+Alt+Shift+F8"}
+  ]
+}
+```
+
+已知 action：`turn_all_lights_on`、`turn_all_lights_off`、`toggle_all_lights`、`increase_all_brightness`、`decrease_all_brightness`。
+
+---
+
+## AudioProcessingSettings
+
+控制音频响应灯效的预处理参数。
+
+```json
+{
+  "amplitude": 100,
+  "averageMode": "binning",
+  "averageSize": 8,
+  "windowMode": "none",
+  "decay": 80,
+  "filterConstant": 1,
+  "normalizationOffset": 0.04,
+  "normalizationScale": 0.5
+}
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `amplitude` | number | 增益倍率，由 Core 归一化 |
+| `averageMode` | string | `binning` 或 `low_pass` |
+| `averageSize` | number | 平均窗口/bin 大小 |
+| `windowMode` | string | `none`、`hann`、`hamming` 或 `blackman` |
+| `decay` | number | 衰减量 |
+| `filterConstant` | number | 低通滤波常数，`0`-`1` |
+| `normalizationOffset` | number | 归一化偏移 |
+| `normalizationScale` | number | 归一化缩放 |
+
+---
+
+## SegmentDefinition
+
+用于 `set_output_segments`。
+
+```json
+{
+  "id": "left",
+  "name": "Left",
+  "segment_type": "Linear",
+  "leds_count": 72,
+  "matrix": null,
+  "image_url": null,
+  "transform": {}
+}
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | string | 稳定分段 ID |
+| `name` | string | 显示名称 |
+| `segment_type` | string | `Single`、`Linear`、`Matrix` 或 `Preset` |
+| `leds_count` | number | 该分段覆盖的物理 LED 数量 |
+| `matrix` | MatrixMap? | 可选二维矩阵映射 |
+| `image_url` | string? | 可选分段图片 |
+| `transform` | object | 可选逻辑布局变换 |
 
 ---
 

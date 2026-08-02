@@ -36,7 +36,11 @@ Skydimo adopts a **Core + UI separation** architecture, where all business logic
 
 ## Single Instance Control
 
-Core listens on `127.0.0.1:38967` TCP to prevent multiple instances. If a new instance starts, it sends an `OpenUi` command to the existing one, which brings the UI window to the foreground.
+Core listens on `127.0.0.1:38967` TCP to prevent multiple instances. The
+listener uses a shared control token for runtime details and commands. When a
+compatible duplicate Core starts, it prints the existing Core's
+`CORE_PORT=<port>` and exits; opening the UI is handled by the desktop shell
+and tray paths.
 
 ## Lifecycle
 

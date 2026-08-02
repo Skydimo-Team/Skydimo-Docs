@@ -29,17 +29,19 @@ The workflow described on this page is supported since **`3.0.0-dev.4`**.
 
 ## Recommended Workflow (3.0.0-dev.4+)
 
-Instead of editing files directly under the runtime plugin storage, use the import workflow:
+For installable packages, use the package import workflow:
 
-- Put plugin folders under **import queue**
-- Trigger **Refresh Plugins** in UI (or restart Core)
+- Import a `.skyplugin`/`.zip` package through the plugin management UI or API
+- Select the scanned plugin IDs to install
 - Verify the plugin in the plugin list
+
+For local development, put plugin folders under `<config_dir>/plugins/dev/` and run **Refresh Plugins** after changes.
 
 Why this is recommended:
 
 - More predictable install/update behavior
 - Better separation between plugin code and runtime data
-- Clear source provenance (bundled, import, import-dev, package, manual)
+- Clear source provenance (`bundled`, `import-dev`, `package`)
 
 See [Plugin Management](plugin-management) for complete operational details.
 
@@ -102,10 +104,8 @@ Each plugin reports an installation source:
 | Source | Meaning |
 |--------|---------|
 | `bundled` | Bundled with application |
-| `import` | Imported from user import queue |
-| `import-dev` | Imported from development queue (source kept) |
+| `import-dev` | Development plugin loaded directly from `<config_dir>/plugins/dev/` |
 | `package` | Installed from package import flow |
-| `manual` | Manually introduced/legacy source |
 
 This is useful for support, migration, and deciding whether to **delete** or **reset**.
 
@@ -119,7 +119,7 @@ This is useful for support, migration, and deciding whether to **delete** or **r
 
 - Removes the installed plugin copy.
 - Optional plugin data cleanup can be performed during delete.
-- For development import sources, deleting installed copy does not remove your development source package.
+- Development plugins are loaded from `<config_dir>/plugins/dev/` and are not deleted by `delete_plugin`.
 
 ## Next Steps
 

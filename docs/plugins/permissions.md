@@ -4,7 +4,10 @@ sidebar_position: 8
 
 # Permissions
 
-Plugins must declare required permissions in `manifest.json`. Core enforces these — API calls requiring undeclared permissions will fail.
+Plugins declare requested host capabilities in `manifest.json`. Core checks
+permissions for the gated APIs listed below, but this is a capability boundary,
+not a complete process sandbox. Some administration APIs are intentionally not
+permission-gated, and native-C plugins execute as trusted in-process code.
 
 ## Available Permissions
 
@@ -76,3 +79,4 @@ Add a `permissions` array to your `manifest.json`:
 - Native Lua module loading requires explicit `native` permission and uses an unsafe Lua VM — use with caution *(since 3.0.0-dev.2)*
 - Advanced DLL search path control and preloading via the `native` manifest block requires `3.0.0-dev.3` or later *(see [Manifest Reference — Native Library Configuration](manifest#native-library-configuration))*
 - Native-c plugins run inside the Core process and have native-code privileges. Review and sign/distribute them with the same care as application binaries.
+- Extension plugin administration APIs such as plugin install/delete/refresh, shortcuts, locale, and capture settings are not gated by additional manifest permissions. Treat extensions that expose those APIs to users or external tools as trusted administration extensions.

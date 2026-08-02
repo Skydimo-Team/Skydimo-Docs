@@ -28,9 +28,7 @@ Skydimo 以 JSON-RPC 2.0 通知的形式广播实时事件。事件由服务端�
 ```json
 {
   "event": "devices-changed",
-  "data": {
-    "devices": [ ... ]
-  }
+  "data": [ ... ]
 }
 ```
 
@@ -42,25 +40,86 @@ Skydimo 以 JSON-RPC 2.0 通知的形式广播实时事件。事件由服务端�
 
 ---
 
+### device-diagnostics-changed
+
+当 Core 的可恢复硬件发现诊断发生变化时触发。载荷与 [`get_device_diagnostics`](commands/runtime-diagnostics#get_device_diagnostics) 返回的版本化报告相同。
+
+```json
+{
+  "event": "device-diagnostics-changed",
+  "data": {
+    "revision": 2,
+    "diagnostics": [
+      {
+        "id": "windows.ch340.1a86.7523",
+        "code": "windows_ch340_com_unavailable",
+        "severity": "warning",
+        "title": {"raw": "Skydimo serial driver needs attention", "byLocale": {}},
+        "description": {"raw": "Windows detected the device, but no usable COM port is available.", "byLocale": {}},
+        "action": {
+          "kind": "open_support_article",
+          "topic": "ch340_driver",
+          "label": {"raw": "View driver guide", "byLocale": {}}
+        }
+      }
+    ]
+  }
+}
+```
+
+`revision` 仅在诊断列表变化时递增。最后一个问题被清除时也会触发此事件，此时 `diagnostics` 为空数组。如果查询响应的修订号低于客户端已处理的最新事件，可将该旧响应丢弃。
+
+---
+
+### device-runtime-status-changed
+
+当设备运行器因控制器更新失败、运行器 panic 或意外退出而终止时触发。当前实现只发送终止故障，不发送常规的启动或运行状态变化。
+
+```json
+{
+  "event": "device-runtime-status-changed",
+  "data": {
+    "schemaVersion": 1,
+    "operation": "controller.update",
+    "outcome": "failure",
+    "state": "failed",
+    "errorCode": "controller_update_failed",
+    "errorMessage": "Device write failed",
+    "port": "COM3",
+    "controllerId": "skydimo_serial",
+    "controllerPort": "COM3",
+    "outputIds": ["out1"],
+    "outputCount": 1,
+    "ledCount": 60,
+    "consecutiveFailures": 1,
+    "durationMs": 4
+  }
+}
+```
+
+当前错误代码包括 `controller_update_failed`、`runner_panicked` 和 `runner_exited_unexpectedly`。Core 还会把故障写入设备的 `runtime_stats`，并发送一条错误 `notification`。
+
+---
+
 ### device-led-update
 
-高频事件（约 30 fps），包含某设备输出端口的当前 LED 颜色。
+高频预览事件，包含设备按物理顺序展平后的当前 LED 颜色。发送速率不是稳定的 API 保证，它取决于活动运行器和调度；客户端必须能处理突发、丢失中间帧和暂时停顿。
 
 ```json
 {
   "event": "device-led-update",
   "data": {
     "port": "COM3",
-    "outputId": "out1",
-    "colors": [255, 0, 0, 0, 255, 0, 0, 0, 255, ...]
+    "rgb": "/wAAAP8AAAD/",
+    "count": 3
   }
 }
 ```
 
-`colors` 数组包含每个 LED 的 RGB 三元组（R, G, B, R, G, B, ...）。
+`rgb` 是 `count` 个紧密排列 RGB 三元组（R, G, B, R, G, B, ...）的标准 Base64 编码。最多解码 `min(count, 解码字节数 / 3)` 个完整颜色。
 
 :::warning 性能提示
-此事件高频触发。请使用 Web Worker 或对渲染进行节流，避免阻塞 UI 线程。
+应合并或节流 UI 更新，而不是渲染每个收到的帧。当前 Advanced UI 在主线程解码载荷，并将 React 状态更新节流到约 33 ms；该数据流没有经过 Web Worker。
 :::
 
 ---
@@ -118,9 +177,69 @@ Skydimo 以 JSON-RPC 2.0 通知的形式广播实时事件。事件由服务端�
 
 ---
 
+### plugins-changed
+
+当插件元数据或启用状态变化时触发。
+
+```json
+{
+  "event": "plugins-changed",
+  "data": null
+}
+```
+
+常见触发来源包括：安装插件包、删除/重置/刷新插件、切换灯效/控制器/扩展插件启用状态，以及启动时插件清单刷新。
+
+客户端收到后应重新调用 [`get_plugins`](commands/plugins#get_plugins)。
+
+---
+
+### locale-changed
+
+当 Core 当前语言变化时触发。
+
+```json
+{
+  "event": "locale-changed",
+  "data": {
+    "locale": "zh-CN"
+  }
+}
+```
+
+
+### startup-status-changed
+
+当 Core 启动任务进度变化时触发。
+
+```json
+{
+  "event": "startup-status-changed",
+  "data": {
+    "plugins": {"state": "complete"},
+    "deviceDiscovery": {"state": "running"},
+    "extensions": {"state": "pending"}
+  }
+}
+```
+
+`state` 可能是 `pending`、`running`、`complete` 或 `failed`。
+
+---
+
+### plugin-import-progress
+
+:::caution 已声明但当前未发送
+Core 声明了 `plugin-import-progress` 事件名和进度 DTO，但当前没有任何 Core 调用点广播该事件。客户端不得依赖收到它。启动期间应从 `get_startup_status` 或 `startup-status-changed` 读取插件进度。
+:::
+
+在 Core 实际实现发送端之前，不应推断其线上载荷协议。
+
+---
+
 ### ext-page-message:\{extId\}
 
-当扩展插件的嵌入 HTML 页面向 Core 发送消息时触发。事件名称包含扩展插件 ID。
+当扩展调用 `ext.page_emit(data)` 或 native-c `call_json("page_emit", data)` 时触发。事件名称包含扩展插件 ID，便于对应扩展页面只监听自己的消息。
 
 ```json
 {
@@ -129,7 +248,63 @@ Skydimo 以 JSON-RPC 2.0 通知的形式广播实时事件。事件由服务端�
 }
 ```
 
-Lua 扩展通过 `on_page_message(data)` 回调接收此消息。native-c 扩展通过 `on_page_message_json` 接收同一载荷。
+反向通信请调用 [`ext_page_send`](commands/plugins#ext_page_send)；Lua 扩展通过 `on_page_message(data)` 回调接收该载荷，native-c 扩展通过 `on_page_message_json` 接收。
+
+---
+
+### system.media.changed
+
+:::info 平台
+当前仅由 Windows 媒体会话监听器发送。
+:::
+
+当活动媒体会话出现或消失，或曲目元数据、来源应用、封面可用性或封面修订发生变化时触发。
+
+```json
+{
+  "event": "system.media.changed",
+  "data": {
+    "title": "Example Track",
+    "artist": "Example Artist",
+    "album_title": "Example Album",
+    "album_artist": "Example Artist",
+    "source_app_id": "Example.Player",
+    "playback_status": "playing",
+    "duration_ms": 240000,
+    "position_ms": 32100,
+    "has_artwork": true,
+    "timeline": {
+      "start_time_ms": 0,
+      "end_time_ms": 240000,
+      "min_seek_time_ms": 0,
+      "max_seek_time_ms": 240000,
+      "position_ms": 32100,
+      "duration_ms": 240000,
+      "last_updated_unix_ms": 1798761600000
+    }
+  }
+}
+```
+
+事件载荷为完整媒体会话快照；没有活动会话时为 `null`。可选标量字段会序列化为 `null`。`playback_status` 为 `playing`、`paused` 或 `stopped`。`has_artwork` 表示 Core 是否缓存了封面；事件本身不包含封面像素。
+
+扩展需要 `media:session` 权限才能收到对应的 `on_system_media_changed(data)` 回调。
+
+---
+
+### system.media.playback_changed
+
+当 `playback_status` 变化时触发，媒体会话出现或消失时也会触发。载荷为 `system.media.changed` 一节描述的完整媒体会话快照；会话消失时为 `null`。
+
+扩展需要 `media:session` 权限才能收到 `on_system_media_playback_changed(data)`。
+
+---
+
+### system.media.timeline_changed
+
+当时间线中的任何字段变化时触发，包括位置、可跳转范围、时长或最近更新时间；媒体会话出现或消失时也会触发。载荷为同样的完整媒体会话快照，或 `null`。
+
+扩展需要 `media:session` 权限才能收到 `on_system_media_timeline_changed(data)`。
 
 ---
 
