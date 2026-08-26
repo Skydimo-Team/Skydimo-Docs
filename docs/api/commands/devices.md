@@ -97,6 +97,35 @@ Assign or clear a custom display name for a device.
 
 ---
 
+## set_device_setup_confirmed
+
+Record whether the user has been through guided setup for a device.
+
+Guided setup asks about devices that carry no answer yet, so this is what stops
+the same device being offered on every launch. Skipping counts as an answer:
+the user was asked and said no. Set it back to `false` to have the device
+offered again, which is what a user who swapped their strip needs.
+
+It is deliberately separate from whether the device has any configuration. Core
+writes a device config the moment it discovers hardware, to remember the
+identity and the path it was found on, so a config existing means only that the
+device has been seen. Devices whose config predates this field count as
+confirmed.
+
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `port` | string | yes | Device port identifier |
+| `confirmed` | boolean | yes | Whether the user has been asked about this device |
+
+```json
+→ {"jsonrpc":"2.0","method":"set_device_setup_confirmed","params":{
+  "port":"COM3",
+  "confirmed":true
+},"id":1}
+```
+
+---
+
 ## set_device_controller
 
 Override the controller plugin for a device, or clear the override.
