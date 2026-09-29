@@ -4,15 +4,23 @@ sidebar_position: 5
 
 # Plugin Commands
 
-Commands for managing plugin catalogs, installed plugin copies, enabled state, and extension pages.
+Commands for querying plugin metadata, importing `.skyplugin` packages, changing enabled state, and sending extension-page messages.
 
 :::info Version
-The extended management commands and metadata on this page are supported since **`3.0.0-dev.4`**.
+The package import and extended management commands on this page are supported since **`3.0.0-dev.4`**.
 :::
+
+## Startup Readiness
+
+Plugin management commands that mutate installed plugins or enabled state require plugin startup to have finished. If `get_startup_status().plugins.state` is `pending` or `running`, Core returns:
+
+```text
+Plugin initialization is still in progress. Please wait a moment and try again.
+```
 
 ## get_plugins
 
-Returns metadata for all installed effect, controller, and extension plugins.
+Returns metadata for all loaded effect, controller, and extension plugins.
 
 **Parameters**: none
 
@@ -34,43 +42,15 @@ Returns metadata for all installed effect, controller, and extension plugins.
       "repository": "https://github.com/...",
       "license": "MIT",
       "params": [],
-      "pluginDir": "...",
-      "dataDir": "...",
+      "pluginDir": "C:/.../plugins/8f1d...",
+      "dataDir": "C:/.../data/8f1d...",
       "bundled": false,
-      "installSource": "import-dev",
+      "installSource": "package",
       "reimportsOnRefresh": false
     }
   ],
-  "controllers": [
-    {
-      "id": "skydimo_serial",
-      "name": {"raw": "Skydimo Serial"},
-      "enabled": true,
-      "version": "1.0.0",
-      "publisher": "Skydimo",
-      "language": "lua",
-      "pluginDir": "...",
-      "bundled": true,
-      "installSource": "bundled",
-      "reimportsOnRefresh": false
-    }
-  ],
-  "extensions": [
-    {
-      "id": "led_canvas",
-      "name": {"raw": "LED Canvas"},
-      "enabled": true,
-      "version": "1.0.0",
-      "publisher": "Skydimo",
-      "language": "native-c",
-      "abi": "skydimo-extension-c-v2",
-      "page": {"type": "path", "value": ".../page/dist/index.html"},
-      "pluginDir": "...",
-      "bundled": false,
-      "installSource": "import-dev",
-      "reimportsOnRefresh": false
-    }
-  ]
+  "controllers": [],
+  "extensions": []
 },"id":1}
 ```
 
@@ -81,38 +61,33 @@ Each plugin item can include:
 | `id` | string | Plugin ID |
 | `name` | LocalizedText | Display name |
 | `enabled` | boolean | Whether the plugin is enabled |
+| `description` | LocalizedText? | Optional manifest description |
+| `permissions` | string[] | Declared permissions |
 | `version` | string | Manifest version |
 | `publisher` | string | Manifest publisher |
-| `language` | string | Runtime language, e.g. `lua` or `native-c` |
-| `abi` | string \| null | Native ABI identifier for native-c plugins |
-| `repository` | string \| null | Source repository URL |
-| `license` | string \| null | License identifier |
-| `pluginDir` | string | Resolved runtime plugin directory |
-| `dataDir` | string \| null | Plugin data directory, if it exists |
-| `bundled` | boolean | Whether plugin is bundled with the application |
-| `installSource` | string | `bundled` \| `import` \| `import-dev` \| `package` \| `manual` |
-| `reimportsOnRefresh` | boolean | Whether refresh can reimport this plugin from a source queue |
-| `page` | object \| null | Extension page source, if the extension declares one |
+| `language` | string | Runtime language, such as `lua` or `native-c` |
+| `abi` | string? | Native ABI identifier for native-c plugins |
+| `repository` | string? | Source repository URL |
+| `license` | string? | License identifier |
+| `pluginDir` | string | Resolved plugin directory actually loaded by Core |
+| `dataDir` | string? | Runtime data directory if it exists |
+| `bundled` | boolean | Whether the active source is bundled |
+| `installSource` | string | `bundled`, `import-dev`, or `package` for current runtime sources |
+| `reimportsOnRefresh` | boolean | Currently `false` for scanned runtime sources |
+| `page` | object? | Extension page source with `type` set to `path` or `url`, plus a `value` string |
 
 ---
 
-## refresh_plugins
+## get_plugin_dir
 
-Refresh plugin state and apply pending imports.
+Get the user plugin root directory path.
 
 **Parameters**: none
 
 ```json
-→ {"jsonrpc":"2.0","method":"refresh_plugins","id":1}
-← {"jsonrpc":"2.0","result":null,"id":1}
+→ {"jsonrpc":"2.0","method":"get_plugin_dir","id":1}
+← {"jsonrpc":"2.0","result":"C:/.../plugins","id":1}
 ```
-
-Typical effects of refresh:
-
-- Import queued plugins
-- Reload plugin registries
-- Refresh runtime state so plugin updates are picked up
-- Emit plugin-changed events to UI
 
 ---
 
@@ -124,7 +99,7 @@ Open the plugin root directory or one plugin's resolved directory in the system 
 
 | Field | Type | Required | Description |
 |-------|------|:--------:|-------------|
-| `pluginId` | string | no | If provided, opens this plugin's resolved directory; otherwise opens the plugin root directory |
+| `pluginId` | string | no | Open this plugin's resolved directory; omitted opens the plugin root |
 
 ```json
 → {"jsonrpc":"2.0","method":"open_plugin_dir","params":{"pluginId":"rainbow"},"id":1}
@@ -135,7 +110,7 @@ Open the plugin root directory or one plugin's resolved directory in the system 
 
 ## open_plugin_data_dir
 
-Open a plugin's data directory in the system file manager.
+Open a plugin's runtime data directory in the system file manager. Core creates the directory first if needed.
 
 **Parameters**:
 
@@ -150,16 +125,112 @@ Open a plugin's data directory in the system file manager.
 
 ---
 
+## import_plugin_package
+
+Start a package import session from a `.skyplugin` or `.zip` archive. The archive bytes are sent as base64.
+
+**Parameters**:
+
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `fileName` | string | yes | Original package file name; used for display/logging |
+| `data` | string | yes | Base64-encoded package bytes |
+
+```json
+→ {"jsonrpc":"2.0","method":"import_plugin_package","params":{
+  "fileName":"effect.rainbow.skyplugin",
+  "data":"UEsDB..."
+},"id":1}
+← {"jsonrpc":"2.0","result":{
+  "sessionId":"pkg-19af...",
+  "sourceName":"effect.rainbow",
+  "plugins":[
+    {
+      "id":"rainbow",
+      "name":{"raw":"Rainbow"},
+      "pluginType":"effect",
+      "version":"1.0.0",
+      "publisher":"Skydimo"
+    }
+  ]
+},"id":1}
+```
+
+:::caution
+This command is disabled in simple mode.
+:::
+
+---
+
+## install_plugins
+
+Install selected plugin IDs from an active import session.
+
+**Parameters**:
+
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `sessionId` | string | yes | Session returned by `import_plugin_package` |
+| `pluginIds` | string[] | yes | Plugin IDs to install |
+
+```json
+→ {"jsonrpc":"2.0","method":"install_plugins","params":{
+  "sessionId":"pkg-19af...",
+  "pluginIds":["rainbow"]
+},"id":1}
+← {"jsonrpc":"2.0","result":["rainbow"],"id":1}
+```
+
+Core disables and releases existing plugins with the same ID before replacing files, reloads plugin registries, restores the previous enabled state for updated plugins, starts enabled extensions, refreshes devices, restarts active runners, and emits `plugins-changed`.
+
+:::caution
+This command is disabled in simple mode.
+:::
+
+---
+
+## cancel_plugin_import
+
+Cancel and clean up an active package import session.
+
+**Parameters**:
+
+| Field | Type | Required | Description |
+|-------|------|:--------:|-------------|
+| `sessionId` | string | yes | Import session ID |
+
+```json
+→ {"jsonrpc":"2.0","method":"cancel_plugin_import","params":{"sessionId":"pkg-19af..."},"id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+---
+
+## refresh_plugins
+
+Reload plugin registries and refresh runtime state.
+
+**Parameters**: none
+
+```json
+→ {"jsonrpc":"2.0","method":"refresh_plugins","id":1}
+← {"jsonrpc":"2.0","result":null,"id":1}
+```
+
+Refresh stops running extensions, reloads all active scan sources, starts enabled extensions again, rescans devices, restarts active runners, and emits `plugins-changed`.
+
+---
+
 ## delete_plugin
 
-Delete an installed user plugin copy.
+Delete an installed package plugin copy.
 
 **Parameters**:
 
 | Field | Type | Required | Description |
 |-------|------|:--------:|-------------|
 | `pluginId` | string | yes | Plugin ID |
-| `deleteData` | boolean | no | Whether to delete plugin data directory too |
+| `deleteData` | boolean | no | Also remove the plugin data directory |
 
 ```json
 → {"jsonrpc":"2.0","method":"delete_plugin","params":{
@@ -169,22 +240,20 @@ Delete an installed user plugin copy.
 ← {"jsonrpc":"2.0","result":null,"id":1}
 ```
 
-:::caution
-Bundled plugins cannot be deleted directly. Use [`reset_plugin`](#reset_plugin) instead.
-:::
+Only plugins whose active source is `package` can be deleted. Bundled and development plugins are not deleted through this command.
 
 ---
 
 ## reset_plugin
 
-Reset a plugin to default bundled state by removing a user override copy.
+Remove an installed package override and fall back to another available source, such as a bundled plugin.
 
 **Parameters**:
 
 | Field | Type | Required | Description |
 |-------|------|:--------:|-------------|
 | `pluginId` | string | yes | Plugin ID |
-| `resetData` | boolean | no | Whether to also reset plugin data |
+| `resetData` | boolean | no | Also remove the plugin data directory |
 
 ```json
 → {"jsonrpc":"2.0","method":"reset_plugin","params":{
@@ -192,19 +261,6 @@ Reset a plugin to default bundled state by removing a user override copy.
   "resetData":false
 },"id":1}
 ← {"jsonrpc":"2.0","result":null,"id":1}
-```
-
----
-
-## get_plugin_dir
-
-Get the plugin root directory path as a string.
-
-**Parameters**: none
-
-```json
-→ {"jsonrpc":"2.0","method":"get_plugin_dir","id":1}
-← {"jsonrpc":"2.0","result":"C:/.../plugins","id":1}
 ```
 
 ---
@@ -217,19 +273,17 @@ Enable or disable controller plugins.
 
 | Field | Type | Required | Description |
 |-------|------|:--------:|-------------|
-| `pluginIds` | string[] | yes | List of controller plugin IDs |
+| `pluginIds` | string[] | yes | Controller plugin IDs |
 | `enabled` | boolean | yes | `true` to enable, `false` to disable |
 
 ```json
 → {"jsonrpc":"2.0","method":"set_controller_plugins_enabled","params":{
   "pluginIds":["skydimo_serial"],
-  "enabled":true
+  "enabled":false
 },"id":1}
 ```
 
-:::info
-Disabling a controller plugin disconnects all devices currently managed by that plugin.
-:::
+Disabling a controller plugin disconnects devices currently managed by that plugin. Enabling one triggers device discovery.
 
 ---
 
@@ -241,7 +295,7 @@ Enable or disable effect plugins.
 
 | Field | Type | Required | Description |
 |-------|------|:--------:|-------------|
-| `pluginIds` | string[] | yes | List of effect plugin IDs |
+| `pluginIds` | string[] | yes | Effect plugin IDs |
 | `enabled` | boolean | yes | `true` to enable, `false` to disable |
 
 ```json
@@ -261,7 +315,7 @@ Enable or disable extension plugins.
 
 | Field | Type | Required | Description |
 |-------|------|:--------:|-------------|
-| `pluginIds` | string[] | yes | List of extension plugin IDs |
+| `pluginIds` | string[] | yes | Extension plugin IDs |
 | `enabled` | boolean | yes | `true` to enable, `false` to disable |
 
 ```json
@@ -271,18 +325,20 @@ Enable or disable extension plugins.
 },"id":1}
 ```
 
+Disabling stops the extension runtime. Enabling starts the extension if the extension manager is available.
+
 ---
 
 ## ext_page_send
 
-Send a message to an extension's embedded page.
+Send a JSON message to a running extension.
 
 **Parameters**:
 
 | Field | Type | Required | Description |
 |-------|------|:--------:|-------------|
 | `extId` | string | yes | Extension plugin ID |
-| `data` | any | yes | Arbitrary JSON data to send |
+| `data` | any | no | Arbitrary JSON data, defaults to `null` |
 
 ```json
 → {"jsonrpc":"2.0","method":"ext_page_send","params":{
@@ -292,25 +348,3 @@ Send a message to an extension's embedded page.
 ```
 
 Lua extensions receive this through `on_page_message(data)`. Native-c extensions receive it through `on_page_message_json`.
-
----
-
-## Plugin Download Session Commands
-
-These commands support download-and-install flows from remote sources.
-
-### start_download_plugin_session
-
-Start a server-side download session from a source URL.
-
-### install_from_plugin_session
-
-Install selected plugin IDs from a session into managed plugin storage.
-
-### cancel_download_plugin_session
-
-Cancel and clean up a download session.
-
-:::note
-Exact payload schemas may evolve across development builds. Prefer checking current API data types in your target build when integrating tooling.
-:::

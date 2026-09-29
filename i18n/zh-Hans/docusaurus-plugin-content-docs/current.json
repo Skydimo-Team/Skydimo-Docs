@@ -3,9 +3,33 @@
     "message": "当前版本",
     "description": "当前版本的标签"
   },
-  "sidebar.guideSidebar.category.Getting Started": {
+  "sidebar.userGuideSidebar.category.First Steps": {
     "message": "快速入门",
-    "description": "guideSidebar 侧边栏 Getting Started 分类的标签"
+    "description": "userGuideSidebar 侧边栏 First Steps 分类的标签"
+  },
+  "sidebar.userGuideSidebar.category.Devices and Lighting": {
+    "message": "设备与灯光",
+    "description": "userGuideSidebar 侧边栏 Devices and Lighting 分类的标签"
+  },
+  "sidebar.userGuideSidebar.category.App Management": {
+    "message": "应用管理",
+    "description": "userGuideSidebar 侧边栏 App Management 分类的标签"
+  },
+  "sidebar.userGuideSidebar.category.Support": {
+    "message": "支持与排障",
+    "description": "userGuideSidebar 侧边栏 Support 分类的标签"
+  },
+  "sidebar.knowledgeBaseSidebar.category.Project Overview": {
+    "message": "项目概览",
+    "description": "knowledgeBaseSidebar 侧边栏 Project Overview 分类的标签"
+  },
+  "sidebar.knowledgeBaseSidebar.category.System Internals": {
+    "message": "系统内部原理",
+    "description": "knowledgeBaseSidebar 侧边栏 System Internals 分类的标签"
+  },
+  "sidebar.knowledgeBaseSidebar.category.Working in the Repository": {
+    "message": "仓库开发指南",
+    "description": "knowledgeBaseSidebar 侧边栏 Working in the Repository 分类的标签"
   },
   "sidebar.apiSidebar.category.Commands": {
     "message": "命令",

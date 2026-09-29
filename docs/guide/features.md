@@ -17,8 +17,10 @@ An overview of Skydimo's capabilities.
 
 - **Built-in effects** — Includes essential effects like monochrome and matrix test
 - **Effect plugins** — Install community effects or write your own in Lua or native-c
-- **Parameterizable** — Each effect exposes configurable parameters (sliders, selects, toggles, colors)
+- **Parameterizable** — Each effect can expose sliders, range sliders, selects,
+  toggles, colors, and multi-color palettes
 - **Per-scope configuration** — Apply different effects to different outputs or segments on the same device
+- **Linked control** — Optionally synchronize effect, parameters, brightness, pause state, screen source, and audio source across all devices from one shared control state
 
 ## Screen Capture
 

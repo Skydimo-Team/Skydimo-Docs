@@ -125,6 +125,46 @@ sidebar_position: 4
 
 ---
 
+## get_scope_audio_processing_settings
+
+获取某个 Scope 的音频预处理设置。
+
+**参数**：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `port` | string | 设备端口标识符 |
+| `outputId` | string? | 输出端口 ID |
+| `segmentId` | string? | 区段 ID |
+
+```json
+→ {"jsonrpc":"2.0","method":"get_scope_audio_processing_settings","params":{"port":"COM3"},"id":1}
+```
+
+---
+
+## set_scope_audio_processing_settings / reset_scope_audio_processing_settings
+
+设置或重置某个 Scope 的音频预处理设置。Simple mode 下这些命令可能失败，因为音频预处理设置固定。
+
+```json
+→ {"jsonrpc":"2.0","method":"set_scope_audio_processing_settings","params":{
+  "port":"COM3",
+  "settings":{
+    "amplitude":100,
+    "averageMode":"binning",
+    "averageSize":8,
+    "windowMode":"none",
+    "decay":80,
+    "filterConstant":1,
+    "normalizationOffset":0.04,
+    "normalizationScale":0.5
+  }
+},"id":1}
+```
+
+---
+
 ## set_scope_audio_device_index
 
 为某个 Scope 选择要使用的音频设备。
@@ -152,7 +192,7 @@ sidebar_position: 4
 
 ```json
 → {"jsonrpc":"2.0","method":"get_capture_max_pixels","id":1}
-← {"jsonrpc":"2.0","result":{"maxPixels":921600},"id":1}
+← {"jsonrpc":"2.0","result":921600,"id":1}
 ```
 
 ---
@@ -189,9 +229,23 @@ sidebar_position: 4
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `method` | string | 捕获方式：`"dxgi"`、`"gdi"`、`"graphics"` 或 `"xcap"` |
+| `method` | string | 捕获方式：`"dxgi"`、`"gdi"`、`"screencapturekit"` 或 `"xcap"` |
 
 各平台可用方式：
 - **Windows**：`dxgi`（默认，GPU 加速）、`gdi`（传统方式）
-- **macOS**：`graphics`（CoreGraphics）
+- **macOS**：`screencapturekit`（默认）
 - **Linux**：`xcap`
+
+---
+
+## get_linked_control / set_linked_control
+
+查询或切换关联控制。启用后，灯效、灯效参数、亮度、暂停、屏幕来源、音频来源和音频预处理变更会更新共享关联控制状态，并同步到全部设备。
+
+```json
+→ {"jsonrpc":"2.0","method":"set_linked_control","params":{
+  "enabled":true,
+  "sourcePort":"COM3",
+  "outputId":"out1"
+},"id":1}
+```
