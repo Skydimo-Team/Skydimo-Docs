@@ -18,6 +18,16 @@ local config_path = ext.data_dir .. "/config.json"
 
 ---
 
+### ext.resource_dir
+
+The plugin resource directory path. Use this for read-only assets bundled with the plugin package.
+
+```lua
+local icon_path = ext.resource_dir .. "/icons/device.png"
+```
+
+---
+
 ### ext.plugin
 
 Read-only table containing metadata about the current extension plugin, as declared in `manifest.json`.
@@ -44,6 +54,9 @@ end
 if p.page_path then
     ext.log(p.page_path)
 end
+if p.page_url then
+    ext.log(p.page_url)
+end
 ```
 
 | Field | Type | Description |
@@ -58,6 +71,7 @@ end
 | `repository` | string? | Source repository URL (`nil` if not set) |
 | `license` | string? | License identifier (`nil` if not set) |
 | `page_path` | string? | Relative path to the extension HTML page (`nil` if not set) |
+| `page_url` | string? | External extension page URL (`nil` if not set) |
 
 ---
 
@@ -119,6 +133,10 @@ for i, m in ipairs(sys.ram.modules) do
 end
 ```
 
+### ext.get_system_info()
+
+Return a fresh system information table with the same shape as `ext.system`. Requires `"system:info"`.
+
 ---
 
 ## Utility
@@ -155,6 +173,157 @@ Sleep for the specified number of milliseconds.
 ```lua
 ext.sleep(1000)  -- Sleep 1 second
 ```
+
+---
+
+## Core Runtime and Administration
+
+These APIs expose Core-level state for trusted administration extensions. They do not require extra permissions unless stated otherwise.
+
+File-changing administration calls have runtime guards:
+
+- `ext.import_plugin_package()` and `ext.install_plugins()` are disabled in simple mode.
+- `ext.install_plugins()`, `ext.delete_plugin()`, `ext.reset_plugin()`, and `ext.refresh_plugins()` fail while plugin startup is still `pending` or `running`.
+- `ext.set_controller_plugins_enabled()`, `ext.set_effect_plugins_enabled()`, and `ext.set_extension_plugins_enabled()` update enabled state immediately; they do not import or remove plugin files.
+
+### ext.get_core_config_dir()
+
+Return the Core configuration directory path.
+
+```lua
+local dir = ext.get_core_config_dir()
+```
+
+### ext.open_core_config_dir()
+
+Ensure the Core configuration directory exists and return its path. In the Lua host this does not open the OS file manager.
+
+### ext.get_plugin_dir()
+
+Return the managed plugin root directory.
+
+### ext.open_plugin_dir([plugin_id])
+
+Ensure and return the managed plugin root, or the resolved directory for `plugin_id`.
+
+### ext.open_plugin_data_dir(plugin_id)
+
+Ensure and return the runtime data directory for `plugin_id`.
+
+### ext.get_startup_status()
+
+Return Core startup task status:
+
+```json
+{
+  "plugins": {"state": "complete", "detail": null, "progress": null},
+  "deviceDiscovery": {"state": "complete"},
+  "extensions": {"state": "running"}
+}
+```
+
+`state` is one of `pending`, `running`, `complete`, or `failed`.
+
+### ext.get_plugins()
+
+Return the same `PluginsResponse` shape as the WebSocket [`get_plugins`](../../api/commands/plugins#get_plugins) command.
+
+### ext.import_plugin_package(file_name, data_base64)
+
+Create a package import session from base64 package bytes. Returns `{sessionId, sourceName, plugins}`.
+
+### ext.install_plugins(session_id, plugin_ids)
+
+Install selected plugin IDs from a package import session. Core releases running plugins before file changes, reloads registries, restores enabled state when possible, restarts affected runtime pieces, and emits plugin/device events.
+
+### ext.cancel_plugin_import(session_id)
+
+Cancel and clean up a package import session.
+
+### ext.delete_plugin(plugin_id [, delete_data])
+
+Delete an installed package plugin copy. Bundled and development plugins cannot be deleted directly; use `ext.reset_plugin()` to remove an installed override or clear data.
+
+### ext.reset_plugin(plugin_id [, reset_data])
+
+Remove an installed override copy and optionally delete runtime data. If a bundled copy exists, it becomes active again.
+
+### ext.refresh_plugins()
+
+Reload plugin registries from disk, restart enabled extensions, rescan devices, restart active runners, and emit `plugins-changed`. Package bytes are installed through `ext.import_plugin_package()` and `ext.install_plugins()`, not by refresh.
+
+### ext.set_controller_plugins_enabled(plugin_ids, enabled)
+
+Enable or disable controller plugins. Disabling a controller plugin disconnects devices currently managed by it.
+
+```lua
+ext.set_controller_plugins_enabled({"skydimo_serial"}, false)
+```
+
+### ext.set_effect_plugins_enabled(plugin_ids, enabled)
+
+Enable or disable effect plugins and notify the UI that plugin metadata changed.
+
+### ext.set_extension_plugins_enabled(plugin_ids, enabled)
+
+Enable or disable extension plugins. Running extensions are stopped when disabled and started when newly enabled.
+
+### ext.get_shortcuts_config()
+
+Return persisted global shortcut bindings:
+
+```json
+{
+  "bindings": [
+    {"action": "toggle_all_lights", "accelerator": "CommandOrControl+Shift+L"}
+  ]
+}
+```
+
+### ext.set_shortcuts_config(config)
+
+Update global shortcut bindings and return the normalized persisted config.
+
+### ext.set_locale(locale)
+
+Set Core's current locale and emit `locale-changed`.
+
+### ext.get_capture_config()
+
+Return global screen capture configuration:
+
+```json
+{
+  "maxPixels": 921600,
+  "fps": 30,
+  "method": "dxgi",
+  "samplingLocked": false
+}
+```
+
+### ext.get_capture_max_pixels()
+
+Return the current screen-capture pixel budget. `0` means no limit.
+
+### ext.set_capture_max_pixels(max_pixels)
+
+Set the screen-capture pixel budget and return the full capture config. In simple mode this can fail because sampling resolution is locked.
+
+### ext.get_capture_fps()
+
+Return the configured screen-capture frame rate.
+
+### ext.set_capture_fps(fps)
+
+Set the screen-capture frame rate, clamped to at least `1`, and return the full capture config. In simple mode this can fail because sampling frame rate is locked.
+
+### ext.get_capture_method()
+
+Return the active capture backend, such as `dxgi`, `gdi`, `graphics`, `xcap`, or `screencapturekit` depending on platform.
+
+### ext.set_capture_method(method)
+
+Set the active capture backend and return the full capture config.
 
 ---
 
@@ -341,6 +510,45 @@ if info then
 end
 ```
 
+### ext.scan_devices()
+
+Trigger an immediate manual device scan.
+
+```lua
+ext.scan_devices()
+```
+
+### ext.get_device_config(port)
+
+Return persisted configuration for the device currently connected at `port`.
+
+```lua
+local result = ext.get_device_config("COM3")
+ext.log(result.deviceId)
+-- result.config contains the persisted device config
+```
+
+### ext.set_device_controller(port, controller_id)
+
+Override the selected controller plugin for a device. Pass `nil` to clear the override.
+
+```lua
+ext.set_device_controller("COM3", "skydimo_serial")
+ext.set_device_controller("COM3", nil)
+```
+
+### ext.set_device_conflict_warning_ignored(port, ignored)
+
+Set whether duplicate/conflict warning UI should be ignored for a device.
+
+### ext.update_device_settings(port, settings)
+
+Replace the device settings JSON stored for a controller-driven device.
+
+```lua
+ext.update_device_settings("COM3", {pollIntervalMs = 250})
+```
+
 ---
 
 ## Output Management
@@ -363,6 +571,47 @@ ext.update_output("bridge://device_0", "zone0", {
     matrix = {width = 12, height = 12, map = {...}}
 })
 ```
+
+### ext.set_output_nickname(port, output_id, nickname)
+
+Set or clear a custom display name for an output.
+
+```lua
+ext.set_output_nickname("COM3", "out1", "Desk strip")
+ext.set_output_nickname("COM3", "out1", nil)
+```
+
+### ext.set_output_segments(port, output_id, segments)
+
+Replace an output's segment definitions. `segments` must match the Core `SegmentDefinition` JSON shape.
+
+```lua
+ext.set_output_segments("COM3", "out1", {
+    {id = "left", name = "Left", leds_count = 30, segment_type = "Linear"},
+    {id = "right", name = "Right", leds_count = 30, segment_type = "Linear"},
+})
+```
+
+`segment_type` is `Single`, `Linear`, `Matrix`, or `Preset`. Matrix and preset segments can include a `matrix` map; any segment can include `image_url` and a layout `transform`.
+
+### LED Edit Preview
+
+These functions drive the same temporary LED-layout preview system used by the UI. A `session_id` identifies one preview session for a specific output.
+
+```lua
+local session = "my-preview-1"
+ext.begin_led_edit_preview("COM3", "out1", session)
+ext.update_led_edit_preview("COM3", "out1", session, 0, {
+    {r = 255, g = 0, b = 0},
+    {r = 0, g = 255, b = 0},
+})
+ext.keepalive_led_edit_preview("COM3", "out1", session)
+ext.end_led_edit_preview("COM3", "out1", session)
+```
+
+- `offset` is zero-based and must be non-negative.
+- `colors` is an array of `{r,g,b}` color objects.
+- Core rejects preview chunks larger than `65,536` LEDs.
 
 ---
 
@@ -657,8 +906,6 @@ function plugin.on_system_state_changed(topic, data)
 end
 ```
 
----
-
 ## Scope API
 
 :::info Version
@@ -674,6 +921,50 @@ local scope = {
     output_id  = "out1",       -- optional: specific output
     segment_id = "seg0",       -- optional: specific segment (requires output_id)
 }
+```
+
+`outputId` and `segmentId` are also accepted by the host when a table comes from JSON-style code.
+
+### Linked Control
+
+Linked control redirects most effect/brightness/media-source mutations to a shared root state and synchronizes that state to all devices.
+
+#### ext.get_linked_control()
+
+Return `{enabled, state}` where `state` is the shared linked-control config.
+
+```lua
+local linked = ext.get_linked_control()
+if linked.enabled then
+    ext.log("All devices share: " .. tostring(linked.state.selected))
+end
+```
+
+#### ext.set_linked_control(enabled [, source])
+
+Enable or disable linked control. When enabling, Core snapshots state from `source` if provided; otherwise it uses the first available linked-control snapshot.
+
+```lua
+ext.set_linked_control(true, {port = "COM3", output_id = "out1"})
+ext.set_linked_control(false)
+```
+
+When linked control is enabled, these APIs update shared state and then apply it to all devices: `set_scope_effect`, `update_scope_effect_params`, `reset_scope_effect_params`, `set_scope_mode_paused`, `set_scope_brightness`, `set_scope_screen_index`, `set_scope_screen_region`, `set_scope_audio_device_index`, and audio-processing settings APIs.
+
+#### ext.set_all_devices_power(is_off)
+
+Set power for every device and persist the change. Returns affected ports.
+
+```lua
+local affected = ext.set_all_devices_power(true)
+```
+
+#### ext.flip_scope_layout(scope, axis)
+
+Flip the LED layout for a scope. `axis` must be `"horizontal"` or `"vertical"`.
+
+```lua
+ext.flip_scope_layout({port = "COM3", output_id = "matrix"}, "horizontal")
 ```
 
 ### Scope State Queries
@@ -693,6 +984,19 @@ Get the current audio device index assigned to a scope.
 
 ```lua
 local index = ext.get_scope_audio_device_state({port = "COM3", output_id = "out1"})
+```
+
+#### ext.get_scope_audio_device_index(scope)
+
+Alias for `ext.get_scope_audio_device_state(scope)`.
+
+#### ext.get_scope_audio_processing_settings(scope)
+
+Get selected and effective audio preprocessing settings for a scope.
+
+```lua
+local state = ext.get_scope_audio_processing_settings({port = "COM3"})
+-- state.value / state.effective_value contain AudioProcessingSettings
 ```
 
 ---
@@ -731,6 +1035,29 @@ Set the audio device index for audio-reactive effects on a scope.
 ```lua
 ext.set_scope_audio_device_index({port = "COM3", output_id = "out1"}, 0)
 ```
+
+#### ext.set_scope_audio_processing_settings(scope, settings)
+
+Set audio preprocessing settings for a scope.
+
+```lua
+ext.set_scope_audio_processing_settings({port = "COM3", output_id = "out1"}, {
+    amplitude = 120,
+    averageMode = "binning",
+    averageSize = 8,
+    windowMode = "hann",
+    decay = 80,
+    filterConstant = 1.0,
+    normalizationOffset = 0.04,
+    normalizationScale = 0.5,
+})
+```
+
+`averageMode` is `binning` or `low_pass`; `windowMode` is `none`, `hann`, `hamming`, or `blackman`. In simple mode this can fail because audio preprocessing settings are locked.
+
+#### ext.reset_scope_audio_processing_settings(scope)
+
+Reset audio preprocessing settings for a scope to defaults.
 
 ---
 
@@ -784,6 +1111,14 @@ ext.update_scope_effect_params({port = "COM3", output_id = "out1"}, {
 })
 ```
 
+#### ext.update_effect_params(port, params)
+
+Legacy device-level wrapper for updating effect params on a device scope.
+
+```lua
+ext.update_effect_params("COM3", {speed = 3})
+```
+
 #### ext.reset_scope_effect_params(scope)
 
 Reset the effect parameters of a scope to their defaults.
@@ -817,6 +1152,14 @@ Set the brightness level for a scope (0–100).
 
 ```lua
 ext.set_scope_brightness({port = "COM3", output_id = "out1"}, 80)
+```
+
+#### ext.set_brightness(port, brightness)
+
+Legacy device-level wrapper for setting brightness on a device scope.
+
+```lua
+ext.set_brightness("COM3", 80)
 ```
 
 ---
@@ -1189,6 +1532,16 @@ ext.page_emit({type = "devices_update", devices = ext.get_devices()})
 ```
 
 - `data` — Any Lua table (serialized to JSON for the page)
+
+### ext.ext_page_send(ext_id, data)
+
+Send a JSON message to another running extension instance.
+
+```lua
+ext.ext_page_send("openrgb", {action = "refresh"})
+```
+
+The target extension receives the payload through `on_page_message(data)` or native-c `on_page_message_json`, the same runtime path used by WebSocket [`ext_page_send`](../../api/commands/plugins#ext_page_send).
 
 ---
 

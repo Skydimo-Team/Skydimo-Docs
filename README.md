@@ -1,41 +1,49 @@
-# Website
+# Skydimo Documentation
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+This Docusaurus site is the source of truth for the Skydimo user manual,
+project knowledge base, WebSocket API reference, and plugin development
+documentation.
 
 ## Installation
 
 ```bash
-yarn
+npm ci
 ```
 
 ## Local Development
 
 ```bash
-yarn start
+npm run start
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+To preview the Simplified Chinese locale:
+
+```bash
+npm run start:zh
+```
+
+English source documents live in `docs/`. Simplified Chinese translations live
+under `i18n/zh-Hans/docusaurus-plugin-content-docs/current/`.
 
 ## Build
 
 ```bash
-yarn build
+npm run typecheck
+npm run build
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+The production build validates both locales and fails on broken links.
 
-## Deployment
+## Content maintenance
 
-Using SSH:
+- Treat current source code as authoritative when documentation and historical
+  design notes disagree.
+- Keep WebSocket command names in sync with `core/src/server/handler.rs` and
+  `core/src/server/plugin_rpc.rs`.
+- Keep frontend behavior in sync with `src/services/api.ts`, `src/App.tsx`, and
+  the relevant feature directory.
+- Keep plugin schemas and host APIs in sync with `core/src/plugin/`.
+- Update the English source and Chinese translation in the same change.
 
-```bash
-USE_SSH=true yarn deploy
-```
-
-Not using SSH:
-
-```bash
-GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+The documentation site is a Git submodule of the main Skydimo repository.
+Review its own working tree before committing changes.

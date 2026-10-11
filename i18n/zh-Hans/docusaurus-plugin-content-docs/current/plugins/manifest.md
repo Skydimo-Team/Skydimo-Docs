@@ -336,13 +336,13 @@ sidebar_position: 3
 
 ```json
 {
-  "id": "signalrgb_bridge",
+  "id": "native_device_bridge",
   "version": "1.0.0",
   "name": "meta.name",
   "type": "extension",
   "language": "lua",
   "entry": "init.lua",
-  "permissions": ["hardware:hid", "native", "system:info"],
+  "permissions": ["native", "system:info"],
   "native": {
     "preload_dlls": ["lua54.dll", "libmcfgthread-2.dll"]
   }

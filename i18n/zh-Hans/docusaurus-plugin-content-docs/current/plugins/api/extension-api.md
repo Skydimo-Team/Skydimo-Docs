@@ -18,6 +18,16 @@ local config_path = ext.data_dir .. "/config.json"
 
 ---
 
+### ext.resource_dir
+
+插件资源目录路径。用于读取随插件包分发的只读资源。
+
+```lua
+local icon_path = ext.resource_dir .. "/icons/device.png"
+```
+
+---
+
 ### ext.plugin
 
 只读表，包含当前扩展插件的元数据，来自 `manifest.json` 的声明。
@@ -44,6 +54,9 @@ end
 if p.page_path then
     ext.log(p.page_path)
 end
+if p.page_url then
+    ext.log(p.page_url)
+end
 ```
 
 | 字段 | 类型 | 说明 |
@@ -58,6 +71,7 @@ end
 | `repository` | string? | 源代码仓库 URL（未设置则为 `nil`） |
 | `license` | string? | 许可证标识符（未设置则为 `nil`） |
 | `page_path` | string? | 扩展 HTML 页面的相对路径（未设置则为 `nil`） |
+| `page_url` | string? | 外部扩展页面 URL（未设置则为 `nil`） |
 
 ---
 
@@ -119,6 +133,10 @@ for i, m in ipairs(sys.ram.modules) do
 end
 ```
 
+### ext.get_system_info()
+
+返回与 `ext.system` 相同结构的最新系统信息表。需要 `"system:info"` 权限。
+
 ---
 
 ## 工具函数
@@ -155,6 +173,157 @@ ext.log(data.hello)
 ```lua
 ext.sleep(1000)  -- 休眠 1 秒
 ```
+
+---
+
+## Core 运行时与管理
+
+这些 API 暴露 Core 级状态，面向可信管理扩展。除特别说明外，不需要额外权限。
+
+会修改插件文件的管理调用带有运行时保护：
+
+- `ext.import_plugin_package()` 和 `ext.install_plugins()` 在简单模式下不可用。
+- `ext.install_plugins()`、`ext.delete_plugin()`、`ext.reset_plugin()` 和 `ext.refresh_plugins()` 会在插件启动状态仍为 `pending` 或 `running` 时失败。
+- `ext.set_controller_plugins_enabled()`、`ext.set_effect_plugins_enabled()` 和 `ext.set_extension_plugins_enabled()` 会立即更新启用状态；它们不会导入或删除插件文件。
+
+### ext.get_core_config_dir()
+
+返回 Core 配置目录路径。
+
+```lua
+local dir = ext.get_core_config_dir()
+```
+
+### ext.open_core_config_dir()
+
+确保 Core 配置目录存在并返回路径。在 Lua Host 中，此函数不会打开系统文件管理器。
+
+### ext.get_plugin_dir()
+
+返回托管插件总目录。
+
+### ext.open_plugin_dir([plugin_id])
+
+确保并返回插件总目录，或指定 `plugin_id` 的解析目录。
+
+### ext.open_plugin_data_dir(plugin_id)
+
+确保并返回指定插件的运行时数据目录。
+
+### ext.get_startup_status()
+
+返回 Core 启动任务状态：
+
+```json
+{
+  "plugins": {"state": "complete", "detail": null, "progress": null},
+  "deviceDiscovery": {"state": "complete"},
+  "extensions": {"state": "running"}
+}
+```
+
+`state` 可能是 `pending`、`running`、`complete` 或 `failed`。
+
+### ext.get_plugins()
+
+返回与 WebSocket [`get_plugins`](../../api/commands/plugins#get_plugins) 命令相同的 `PluginsResponse` 结构。
+
+### ext.import_plugin_package(file_name, data_base64)
+
+从 Base64 包字节创建插件包导入会话。返回 `{sessionId, sourceName, plugins}`。
+
+### ext.install_plugins(session_id, plugin_ids)
+
+从插件包导入会话中安装选定插件 ID。Core 会在修改文件前释放运行中的插件，随后重载注册表，尽可能恢复启用状态，重启受影响的运行时部分，并发送插件/设备事件。
+
+### ext.cancel_plugin_import(session_id)
+
+取消并清理插件包导入会话。
+
+### ext.delete_plugin(plugin_id [, delete_data])
+
+删除已安装的包插件副本。打包插件和开发插件不可直接删除；若要移除已安装覆盖或清理数据，请使用 `ext.reset_plugin()`。
+
+### ext.reset_plugin(plugin_id [, reset_data])
+
+移除已安装的覆盖副本，并可选删除运行时数据。如果存在打包版本，它会重新生效。
+
+### ext.refresh_plugins()
+
+从磁盘重载插件注册表，重启已启用扩展，重新扫描设备，重启活动 Runner，并发送 `plugins-changed`。插件包字节通过 `ext.import_plugin_package()` 和 `ext.install_plugins()` 安装，不由刷新处理。
+
+### ext.set_controller_plugins_enabled(plugin_ids, enabled)
+
+启用或禁用控制器插件。禁用控制器插件会断开当前由该插件管理的设备。
+
+```lua
+ext.set_controller_plugins_enabled({"skydimo_serial"}, false)
+```
+
+### ext.set_effect_plugins_enabled(plugin_ids, enabled)
+
+启用或禁用灯效插件，并通知 UI 插件元数据发生变化。
+
+### ext.set_extension_plugins_enabled(plugin_ids, enabled)
+
+启用或禁用扩展插件。被禁用的运行中扩展会停止，新启用的扩展会启动。
+
+### ext.get_shortcuts_config()
+
+返回持久化的全局快捷键绑定：
+
+```json
+{
+  "bindings": [
+    {"action": "toggle_all_lights", "accelerator": "CommandOrControl+Shift+L"}
+  ]
+}
+```
+
+### ext.set_shortcuts_config(config)
+
+更新全局快捷键绑定，并返回规范化后的持久化配置。
+
+### ext.set_locale(locale)
+
+设置 Core 当前语言，并发送 `locale-changed`。
+
+### ext.get_capture_config()
+
+返回全局屏幕捕获配置：
+
+```json
+{
+  "maxPixels": 921600,
+  "fps": 30,
+  "method": "dxgi",
+  "samplingLocked": false
+}
+```
+
+### ext.get_capture_max_pixels()
+
+返回当前屏幕捕获像素预算。`0` 表示不限制。
+
+### ext.set_capture_max_pixels(max_pixels)
+
+设置屏幕捕获像素预算并返回完整捕获配置。简单模式下可能因采样分辨率锁定而失败。
+
+### ext.get_capture_fps()
+
+返回配置的屏幕捕获帧率。
+
+### ext.set_capture_fps(fps)
+
+设置屏幕捕获帧率，最小为 `1`，并返回完整捕获配置。简单模式下可能因采样帧率锁定而失败。
+
+### ext.get_capture_method()
+
+返回当前捕获后端，例如不同平台上的 `dxgi`、`gdi`、`graphics`、`xcap` 或 `screencapturekit`。
+
+### ext.set_capture_method(method)
+
+设置当前捕获后端并返回完整捕获配置。
 
 ---
 
@@ -341,6 +510,45 @@ if info then
 end
 ```
 
+### ext.scan_devices()
+
+立即触发一次手动设备扫描。
+
+```lua
+ext.scan_devices()
+```
+
+### ext.get_device_config(port)
+
+返回当前连接在 `port` 上的设备持久化配置。
+
+```lua
+local result = ext.get_device_config("COM3")
+ext.log(result.deviceId)
+-- result.config 包含持久化设备配置
+```
+
+### ext.set_device_controller(port, controller_id)
+
+为设备覆盖选择控制器插件。传入 `nil` 可清除覆盖。
+
+```lua
+ext.set_device_controller("COM3", "skydimo_serial")
+ext.set_device_controller("COM3", nil)
+```
+
+### ext.set_device_conflict_warning_ignored(port, ignored)
+
+设置是否忽略设备重复/冲突警告。
+
+### ext.update_device_settings(port, settings)
+
+替换控制器设备的设置 JSON。
+
+```lua
+ext.update_device_settings("COM3", {pollIntervalMs = 250})
+```
+
 ---
 
 ## 输出管理
@@ -363,6 +571,47 @@ ext.update_output("bridge://device_0", "zone0", {
     matrix = {width = 12, height = 12, map = {...}}
 })
 ```
+
+### ext.set_output_nickname(port, output_id, nickname)
+
+设置或清除输出端口的自定义显示名称。
+
+```lua
+ext.set_output_nickname("COM3", "out1", "桌面灯带")
+ext.set_output_nickname("COM3", "out1", nil)
+```
+
+### ext.set_output_segments(port, output_id, segments)
+
+替换输出端口的分区定义。`segments` 必须匹配 Core 的 `SegmentDefinition` JSON 结构。
+
+```lua
+ext.set_output_segments("COM3", "out1", {
+    {id = "left", name = "左侧", leds_count = 30, segment_type = "Linear"},
+    {id = "right", name = "右侧", leds_count = 30, segment_type = "Linear"},
+})
+```
+
+`segment_type` 可为 `Single`、`Linear`、`Matrix` 或 `Preset`。矩阵和预设分区可包含 `matrix` 映射；任意分区可包含 `image_url` 和布局 `transform`。
+
+### LED 编辑预览
+
+这些函数驱动与 UI 相同的临时 LED 布局预览系统。`session_id` 标识某个输出端口上的一次预览会话。
+
+```lua
+local session = "my-preview-1"
+ext.begin_led_edit_preview("COM3", "out1", session)
+ext.update_led_edit_preview("COM3", "out1", session, 0, {
+    {r = 255, g = 0, b = 0},
+    {r = 0, g = 255, b = 0},
+})
+ext.keepalive_led_edit_preview("COM3", "out1", session)
+ext.end_led_edit_preview("COM3", "out1", session)
+```
+
+- `offset` 以 0 为基准，且必须非负。
+- `colors` 是 `{r,g,b}` 颜色对象数组。
+- 如果 `offset` 或预览分片超过 `65,536` 颗 LED，Core 会拒绝。
 
 ---
 
@@ -676,6 +925,50 @@ local scope = {
 }
 ```
 
+从 JSON 风格代码传入表时，Host 也接受 `outputId` 与 `segmentId`。
+
+### 关联控制
+
+关联控制会把大多数灯效、亮度与媒体来源变更重定向到共享根状态，并同步到全部设备。
+
+#### ext.get_linked_control()
+
+返回 `{enabled, state}`，其中 `state` 是共享关联控制配置。
+
+```lua
+local linked = ext.get_linked_control()
+if linked.enabled then
+    ext.log("共享灯效: " .. tostring(linked.state.selected))
+end
+```
+
+#### ext.set_linked_control(enabled [, source])
+
+启用或禁用关联控制。启用时，如果提供 `source`，Core 会从该 scope 快照状态；否则使用第一个可用的关联控制快照。
+
+```lua
+ext.set_linked_control(true, {port = "COM3", output_id = "out1"})
+ext.set_linked_control(false)
+```
+
+关联控制开启时，以下 API 会更新共享状态并应用到全部设备：`set_scope_effect`、`update_scope_effect_params`、`reset_scope_effect_params`、`set_scope_mode_paused`、`set_scope_brightness`、`set_scope_screen_index`、`set_scope_screen_region`、`set_scope_audio_device_index` 与音频预处理设置 API。
+
+#### ext.set_all_devices_power(is_off)
+
+设置所有设备电源并持久化。返回受影响端口。
+
+```lua
+local affected = ext.set_all_devices_power(true)
+```
+
+#### ext.flip_scope_layout(scope, axis)
+
+翻转某个 scope 的 LED 布局。`axis` 必须是 `"horizontal"` 或 `"vertical"`。
+
+```lua
+ext.flip_scope_layout({port = "COM3", output_id = "matrix"}, "horizontal")
+```
+
 ### Scope 状态查询
 
 #### ext.get_scope_screen_state(scope)
@@ -693,6 +986,19 @@ local state = ext.get_scope_screen_state({port = "COM3", output_id = "out1"})
 
 ```lua
 local index = ext.get_scope_audio_device_state({port = "COM3", output_id = "out1"})
+```
+
+#### ext.get_scope_audio_device_index(scope)
+
+`ext.get_scope_audio_device_state(scope)` 的别名。
+
+#### ext.get_scope_audio_processing_settings(scope)
+
+获取某个 scope 的选中值与生效音频预处理设置。
+
+```lua
+local state = ext.get_scope_audio_processing_settings({port = "COM3"})
+-- state.value / state.effective_value 包含 AudioProcessingSettings
 ```
 
 ---
@@ -731,6 +1037,29 @@ ext.set_scope_screen_region({port = "COM3", output_id = "out1"}, {
 ```lua
 ext.set_scope_audio_device_index({port = "COM3", output_id = "out1"}, 0)
 ```
+
+#### ext.set_scope_audio_processing_settings(scope, settings)
+
+设置某个 scope 的音频预处理设置。
+
+```lua
+ext.set_scope_audio_processing_settings({port = "COM3", output_id = "out1"}, {
+    amplitude = 120,
+    averageMode = "binning",
+    averageSize = 8,
+    windowMode = "hann",
+    decay = 80,
+    filterConstant = 1.0,
+    normalizationOffset = 0.04,
+    normalizationScale = 0.5,
+})
+```
+
+`averageMode` 可为 `binning` 或 `low_pass`；`windowMode` 可为 `none`、`hann`、`hamming` 或 `blackman`。简单模式下可能因音频预处理设置被锁定而失败。
+
+#### ext.reset_scope_audio_processing_settings(scope)
+
+将某个 scope 的音频预处理设置重置为默认值。
 
 ---
 
@@ -784,6 +1113,14 @@ ext.update_scope_effect_params({port = "COM3", output_id = "out1"}, {
 })
 ```
 
+#### ext.update_effect_params(port, params)
+
+旧版设备级封装，用于更新设备 scope 上的灯效参数。
+
+```lua
+ext.update_effect_params("COM3", {speed = 3})
+```
+
 #### ext.reset_scope_effect_params(scope)
 
 将 scope 的灯效参数重置为默认值。
@@ -817,6 +1154,14 @@ ext.set_scope_power({port = "COM3", output_id = "out1"}, false, {immediate = tru
 
 ```lua
 ext.set_scope_brightness({port = "COM3", output_id = "out1"}, 80)
+```
+
+#### ext.set_brightness(port, brightness)
+
+旧版设备级封装，用于设置设备 scope 的亮度。
+
+```lua
+ext.set_brightness("COM3", 80)
 ```
 
 ---
@@ -1189,6 +1534,16 @@ ext.page_emit({type = "devices_update", devices = ext.get_devices()})
 ```
 
 - `data` —— 任意 Lua 表格（序列化为 JSON 发送到页面）
+
+### ext.ext_page_send(ext_id, data)
+
+向另一个正在运行的扩展实例发送 JSON 消息。
+
+```lua
+ext.ext_page_send("openrgb", {action = "refresh"})
+```
+
+目标扩展会通过 `on_page_message(data)` 或 native-c `on_page_message_json` 接收该载荷，与 WebSocket `ext_page_send` 使用同一路径。
 
 ---
 

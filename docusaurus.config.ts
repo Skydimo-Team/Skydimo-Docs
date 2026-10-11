@@ -53,9 +53,15 @@ const config: Config = {
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'guideSidebar',
+          sidebarId: 'userGuideSidebar',
           position: 'left',
-          label: 'Guide',
+          label: 'User Manual',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'knowledgeBaseSidebar',
+          position: 'left',
+          label: 'Knowledge Base',
         },
         {
           type: 'docSidebar',
@@ -67,7 +73,7 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'pluginsSidebar',
           position: 'left',
-          label: 'Plugins',
+          label: 'Plugin Development',
         },
         {
           type: 'localeDropdown',
@@ -81,7 +87,8 @@ const config: Config = {
         {
           title: 'Documentation',
           items: [
-            { label: 'Getting Started', to: '/docs/intro' },
+            { label: 'User Manual', to: '/docs/user-guide/overview' },
+            { label: 'Knowledge Base', to: '/docs/knowledge-base/overview' },
             { label: 'WebSocket API', to: '/docs/api/websocket-overview' },
             { label: 'Plugin Development', to: '/docs/plugins/overview' },
           ],
